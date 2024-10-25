@@ -180,6 +180,12 @@ map("v", "<leader>d", [[:s#\(\S\)\s\+#\1 #g<cr>:noh<cr>]])
 
 -- search
 vim.api.nvim_create_autocmd("CursorHold", { command = "set nohlsearch" })
+local function wrap_simp(str)
+    return function()
+        vim.opt.hlsearch = true
+        vim.cmd(string.format("silent normal! %s", str))
+    end
+end
 local function wrap(str, ret)
     return function()
         local old_wrapscan = vim.opt.wrapscan
@@ -204,10 +210,11 @@ local function stable_search(forward)
 end
 vim.keymap.set("n", "/", "<cmd>set hlsearch<cr>/")
 vim.keymap.set("n", "?", "<cmd>set hlsearch<cr>?")
-vim.keymap.set("n", "*", wrap("*", "N"), { silent = true })
-vim.keymap.set("n", "g*", wrap("g*", "N"), { silent = true })
-vim.keymap.set("n", "#", wrap("#", "n"), { silent = true })
-vim.keymap.set("n", "g#", wrap("g#", "n"), { silent = true })
+vim.keymap.set("n", "!", wrap("*", "N"), { silent = true })
+vim.keymap.set("n", "*", wrap_simp("*"), { silent = true })
+vim.keymap.set("n", "g*", wrap_simp("g*"), { silent = true })
+vim.keymap.set("n", "#", wrap_simp("#"), { silent = true })
+vim.keymap.set("n", "g#", wrap_simp("g#"), { silent = true })
 vim.keymap.set("n", "n", wrap_fn(stable_search, true), { silent = true, expr = true })
 vim.keymap.set("n", "N", wrap_fn(stable_search, false), { silent = true, expr = true })
 
