@@ -9,6 +9,9 @@ local home = os.getenv("HOME")
 local prefix = ""
 
 function M.set_prefix(str)
+    vim.validate({
+        str = { str, "string" }
+    })
     prefix = str .. " "
 end
 
@@ -149,6 +152,9 @@ local function get_cwd()
 end
 
 function M.set_cmdline(str)
+    vim.validate({
+        str = { str, "string" }
+    })
     cmdline(prefix .. str)
 end
 
@@ -180,6 +186,10 @@ function M.default_mappings()
 end
 
 function M.find_file(on_complete, mappings)
+    vim.validate({
+        on_complete = { on_complete, "function" },
+        mappings = { mappings, "table" }
+    })
     create_dummy_command()
     set_keymaps(mappings)
     local path = get_cwd()
