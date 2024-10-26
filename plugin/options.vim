@@ -1,7 +1,7 @@
 set background=light
 packadd termdebug
 
-set nu
+set nu rnu
 set cpo+=>
 set diffopt+=iwhite
 set diffopt+=algorithm:histogram
