@@ -61,8 +61,16 @@ return {
     },
     {
         "chaoren/vim-wordmotion",
-        config = function()
+        init = function()
+            vim.g.wordmotion_extra = {
+                "\\%([[:upper:]][[:lower:]]\\+\\)\\+",
+                "\\<[[:upper:]]\\@![[:lower:]]\\+\\%([[:upper:]][[:lower:]]\\+\\)\\+"
+            }
             vim.g.wordmotion_spaces = { ".", "_", "-" }
+            vim.g.wordmotion_mappings = {
+                ["<C-R><C-W>"] = "",
+                ["<C-R><C-A>"] = ""
+            }
         end
     }
 }
