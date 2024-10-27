@@ -23,39 +23,10 @@ local function get_char(question, err_question)
     return char
 end
 
-local function confirm_save_cur(question, err)
-    if not vim.opt_local.modified:get() then
-        vim.cmd("q")
-        return
-    end
-    local char = get_char(question, err)
-    if char == "y" then
-        vim.cmd("wq")
-    elseif char == "n" then
-        vim.cmd("q!")
-    else
-        vim.cmd("redraw!")
-    end
-end
-
 local function find_if_modified()
     return vim.iter(vim.api.nvim_list_bufs()):any(function(buffer)
         return vim.api.nvim_get_option_value("modified", { buf = buffer }) and vim.api.nvim_buf_is_loaded(buffer)
     end)
-end
-
-local function confirm_save_all(question, err)
-    if not find_if_modified() then
-        vim.cmd("qa")
-    end
-    local char = get_char(question, err)
-    if char == "y" then
-        vim.cmd("wqa")
-    elseif char == "n" then
-        vim.cmd("qa!")
-    else
-        vim.cmd("redraw!")
-    end
 end
 
 -- macro
@@ -126,14 +97,8 @@ map({ "n", "v" }, "<leader>p", [["+p]])
 map({ "n", "v" }, "<leader>P", [["+P]])
 
 -- save
-map("n", "ZW", "<cmd>write<cr>")
--- map("n", "ZE", "<cmd>source<cr>")
-map("n", "ZZ", function()
-    confirm_save_all("Save buffers? [y/n/q]", "Only [y/n/q]")
-end)
-map("n", "ZQ", function()
-    confirm_save_cur("Save buffer? [y/n/q]", "Only [y/n/q]")
-end)
+map("n", "ZQ", "ZZ")
+map("n", "ZZ", "<Nop>")
 
 -- misc
 map("n", "U", "<cmd>:earlier 1f<cr>")
