@@ -1,10 +1,5 @@
 return {
-    {
-        "johmsalas/text-case.nvim",
-        opts = {
-            default_keymappings_enabled = false,
-        }
-    },
+    "tpope/vim-abolish",
     {
         "monaqa/dial.nvim",
         event = { "BufReadPost", "BufWritePost", "BufNewFile" },

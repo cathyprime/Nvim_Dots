@@ -20,9 +20,9 @@ local cache = {
 
 CathySubstitute.formats = {
     normal = vim.keycode":<c-u>'[,']s///g<left><left>",
-    normal_abolish = vim.keycode"gp<esc>:'<,'>Subs///g<left><left>",
+    normal_abolish = vim.keycode"gp<esc>:'<,'>S///g<left><left>",
     visual = ":s/%s/%s/gec<cr>",
-    visual_abolish = ":Subs/%s/%s/gec<cr>",
+    visual_abolish = ":S/%s/%s/gec<cr>",
 }
 
 local function get_placeholder(visual)
