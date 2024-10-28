@@ -62,7 +62,8 @@ return {
         init = function()
             vim.g.wordmotion_extra = {
                 "\\%([[:upper:]][[:lower:]]\\+\\)\\+",
-                "\\<[[:upper:]]\\@![[:lower:]]\\+\\%([[:upper:]][[:lower:]]\\+\\)\\+"
+                "\\<[[:upper:]]\\@![[:lower:]]\\+\\%([[:upper:]][[:lower:]]\\+\\)\\+",
+                "\\%([[:lower:]]\\|[[:upper:]]\\)\\+\\d\\+"
             }
             vim.g.wordmotion_spaces = { ".", "_", "-" }
             vim.g.wordmotion_mappings = {
