@@ -13,7 +13,9 @@ return {
             require("dial.config").augends:register_group(dial.register_group)
             require("dial.config").augends:on_filetype(dial.on_filetype)
 
-            local mani = require("dial.map").manipulate
+            local mani = function(...)
+                pcall(require("dial.map").manipulate, ...)
+            end
             vim.keymap.set("n", "<c-a>",  function() mani("increment", "normal")         end)
             vim.keymap.set("n", "<c-x>",  function() mani("decrement", "normal")         end)
             vim.keymap.set("n", "g<c-a>", function() mani("increment", "gnormal")        end)
