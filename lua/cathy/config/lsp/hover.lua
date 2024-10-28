@@ -24,10 +24,7 @@ end
 
 local function resize(win, nr_lines)
     local height = math.floor(vim.opt.lines:get() / 2)
-    if nr_lines > height then
-        return
-    end
-    vim.api.nvim_win_set_height(win, nr_lines)
+    vim.api.nvim_win_set_height(win, math.min(height, nr_lines))
 end
 
 local function display_in_split(buf)
