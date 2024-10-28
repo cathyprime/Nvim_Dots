@@ -54,12 +54,6 @@ set wrap
 set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case
 let g:markdown_recommended_style=0
 
-if hostname() == "luna"
-    set guifont=Iosevka\ Nerd\ Font:h16
-else
-    set guifont=Iosevka\ Nerd\ Font:h18
-endif
-
 if exists("g:neovide")
     let g:neovide_scale_factor=1.0
     let g:neovide_hide_mouse_when_typing=v:true
