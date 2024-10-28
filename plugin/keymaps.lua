@@ -114,7 +114,7 @@ end, { expr = true })
 map("n", "<leader>ot", "<cmd>e todo.md<cr>")
 map("x", "<leader>;", [[<cmd>'<,'>norm A;<cr>]])
 map("n", "<c-z>", "<Nop>")
-map("n", "<leader>ff", "<cmd>FindFile<cr>", { silent = false })
+map("n", "<leader>ff", "<cmd>FindFile<cr>", { desc = "find file", silent = false })
 
 if package.loaded["rooter"] then
     map("n", "<leader>r", function()
