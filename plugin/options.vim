@@ -38,7 +38,7 @@ set signcolumn=yes
 set inccommand=nosplit
 set splitright
 set nosplitbelow
-set splitkeep=screen
+set splitkeep=cursor
 set notimeout
 set updatetime=500
 set noswapfile

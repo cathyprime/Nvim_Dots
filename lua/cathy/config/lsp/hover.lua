@@ -16,8 +16,17 @@ local function new_buf(lines)
     return buf
 end
 
+local function resize(win, nr_lines)
+    local height = math.floor(vim.opt.lines:get() / 2)
+    if nr_lines > height then
+        return
+    end
+    vim.api.nvim_win_set_height(win, nr_lines)
+end
+
 local function display_in_split(buf)
     local target_win = nil
+    local old_win = vim.api.nvim_get_current_win()
 
     for win in pairs(vim.api.nvim_list_wins()) do
         local b = vim.api.nvim_win_get_buf(vim.fn.win_getid(win))
@@ -40,6 +49,8 @@ local function display_in_split(buf)
     vim.api.nvim_set_option_value("number", false, { win = target_win })
     vim.api.nvim_set_option_value("statuscolumn", padding, { win = target_win })
     vim.api.nvim_set_option_value("wrap", false, { win = target_win })
+    vim.api.nvim_set_current_win(old_win)
+    return target_win
 end
 
 return {
@@ -47,7 +58,7 @@ return {
         return function(_, result, ctx, config)
             local lines = vim.split(result.contents.value:gsub("\n\n\n", "\n"):gsub("\n\n", "\n"), "\n")
 
-            if #lines <= 10 then
+            if #lines <= 4 then
                 small_hover(nil, result, ctx, config)
                 return
             end
@@ -58,7 +69,7 @@ return {
                 set_lines(cache, lines)
             end
 
-            display_in_split(cache)
+            resize(display_in_split(cache), #lines)
         end
     end
 }
