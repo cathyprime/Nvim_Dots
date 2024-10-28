@@ -2,6 +2,7 @@ local icons = require("cathy.utils.icons").icons
 local lsp_funcs = require("cathy.config.lsp.funcs")
 require("cathy.config.lsp.progress_handler")
 -- require("cathy.config.lsp.echodoc")
+vim.lsp.handlers.hover = require("cathy.config.lsp.hover").hover(vim.lsp.handlers.hover)
 
 vim.cmd([[sign define DiagnosticSignError text=]] .. icons.Error   .. [[ texthl=DiagnosticSignError linehl= numhl= ]])
 vim.cmd([[sign define DiagnosticSignWarn text=]]  .. icons.Warning .. [[ texthl=DiagnosticSignWarn linehl= numhl= ]])
