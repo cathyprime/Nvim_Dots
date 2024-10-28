@@ -6,6 +6,10 @@ vim.api.nvim_create_autocmd("BufReadPost", {
     callback = function()
         if not vim.fn.expand("%:p"):match("^" .. os.getenv("HOME")) then
             vim.opt_local.modifiable = false
+            return
+        end
+        if vim.fn.expand("%:p"):match("%.cargo") or vim.fn.expand("%:p"):match("%.rustup") then
+            vim.opt_local.modifiable = false
         end
     end,
 })
