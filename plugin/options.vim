@@ -37,8 +37,8 @@ set termguicolors
 set signcolumn=yes
 set inccommand=nosplit
 set splitright
-set nosplitbelow
-set splitkeep=cursor
+set splitbelow
+set splitkeep=screen
 set notimeout
 set updatetime=500
 set noswapfile
