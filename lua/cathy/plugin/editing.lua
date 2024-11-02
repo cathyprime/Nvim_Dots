@@ -1,5 +1,4 @@
 return {
-    "tpope/vim-abolish",
     {
         "monaqa/dial.nvim",
         event = { "BufReadPost", "BufWritePost", "BufNewFile" },
@@ -67,6 +66,16 @@ return {
                 ["<C-R><C-W>"] = "",
                 ["<C-R><C-A>"] = ""
             }
+        end
+    },
+    {
+        "Cathyprime/substitute.nvim",
+        build = "make",
+        config = function()
+            require("substitute")
+            vim.keymap.set("n", "gs", "<Plug>(substitute)")
+            vim.keymap.set("n", "gss", "<Plug>(substitute-linewise)")
+            vim.keymap.set("x", "gs", "<Plug>(substitute)")
         end
     }
 }
