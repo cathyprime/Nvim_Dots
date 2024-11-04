@@ -147,8 +147,6 @@ local minis = {
                     if ok then
                         return ft(true)
                     end
-                    local mode, mode_hl = config.mode({ trunc_width = 120 })
-                    -- local recording     = config.recording({ trunc_width = 20 })
                     local filename      = config.filename({ trunc_width = 110 })
                     local last_button   = config.last_button({ trunc_width = 20 })
                     local diff          = config.diff({ trunc_width = 75 })
@@ -160,7 +158,7 @@ local minis = {
                     local search        = MiniStatusline.section_searchcount({ trunc_width = 75 })
 
                     return MiniStatusline.combine_groups({
-                        { hl = mode_hl,                 strings = { mode --[[, recording ]] } },
+                        -- { hl = mode_hl,                 strings = { mode --[[, recording ]] } },
                         { hl = 'MiniStatuslineDevinfoB', strings = { filename } },
                         "%=",
                         { hl = 'MiniStatuslineDevinfoB', strings = { last_button, search, diff } },

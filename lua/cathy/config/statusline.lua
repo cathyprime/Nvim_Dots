@@ -245,7 +245,7 @@ local function filename_component(args)
     end
 
     -- return vim.fn.expand('%:~:.') .. " %m%r"
-    return " %F %m%r"
+    return "%F %m%r"
 end
 
 local function last_button_component(args)

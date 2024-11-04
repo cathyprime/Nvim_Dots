@@ -44,7 +44,7 @@ set updatetime=500
 set noswapfile
 set nowritebackup
 set shortmess+=c
-set noshowmode
+set showmode
 set laststatus=2
 set undofile
 set wildmode=full wildignorecase wildoptions-=pum
