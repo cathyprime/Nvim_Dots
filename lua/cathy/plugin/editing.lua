@@ -69,7 +69,7 @@ return {
         end
     },
     {
-        "Cathyprime/substitute.nvim",
+        "cathyprime/substitute.nvim",
         build = "make",
         config = function()
             require("substitute")

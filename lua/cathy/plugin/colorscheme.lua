@@ -1,6 +1,6 @@
 return {
     {
-        "Cathyprime/kanagawa_remix",
+        "cathyprime/kanagawa_remix",
         dependencies = "rktjmp/lush.nvim",
         config = function()
             vim.cmd.colorscheme "kanagawa_remix"

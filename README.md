@@ -1,6 +1,6 @@
-<a href="https://dotfyle.com/Cathyprime/nvim-dots"><img src="https://dotfyle.com/Cathyprime/nvim-dots/badges/plugins?style=flat" /></a>
-<a href="https://dotfyle.com/Cathyprime/nvim-dots"><img src="https://dotfyle.com/Cathyprime/nvim-dots/badges/leaderkey?style=flat" /></a>
-<a href="https://dotfyle.com/Cathyprime/nvim-dots"><img src="https://dotfyle.com/Cathyprime/nvim-dots/badges/plugin-manager?style=flat" /></a>
+<a href="https://dotfyle.com/cathyprime/nvim-dots"><img src="https://dotfyle.com/cathyprime/nvim-dots/badges/plugins?style=flat" /></a>
+<a href="https://dotfyle.com/cathyprime/nvim-dots"><img src="https://dotfyle.com/cathyprime/nvim-dots/badges/leaderkey?style=flat" /></a>
+<a href="https://dotfyle.com/cathyprime/nvim-dots"><img src="https://dotfyle.com/cathyprime/nvim-dots/badges/plugin-manager?style=flat" /></a>
 
 # Neovim Dots
 Plugin list in the readme might not be up to date every time :3
@@ -12,14 +12,14 @@ Plugin list in the readme might not be up to date every time :3
 Clone the repository and install the plugins:
 
 ```sh
-git clone git@github.com:Cathyprime/nvim-dots ~/.config/Cathyprime/nvim-dots
-NVIM_APPNAME=Cathyprime/nvim-dots/ nvim --headless +"Lazy! sync" +qa
+git clone git@github.com:cathyprime/nvim-dots ~/.config/cathyprime/nvim-dots
+NVIM_APPNAME=cathyprime/nvim-dots/ nvim --headless +"Lazy! sync" +qa
 ```
 
 Open Neovim with this config:
 
 ```sh
-NVIM_APPNAME=Cathyprime/nvim-dots/ nvim
+NVIM_APPNAME=cathyprime/nvim-dots/ nvim
 ```
 
 ## Plugins
@@ -29,7 +29,7 @@ NVIM_APPNAME=Cathyprime/nvim-dots/ nvim
 + [tpope/vim-dispatch](https://github.com/tpope/vim-dispatch)
 
 ### colorscheme
-+ [Cathyprime/kanagawa_remix](https://github.com/Cathyprime/kanagawa_remix)
++ [cathyprime/kanagawa_remix](https://github.com/Cathyprime/kanagawa_remix)
 
 ### comment
 + [JoosepAlviste/nvim-ts-context-commentstring](https://github.com/JoosepAlviste/nvim-ts-context-commentstring)
@@ -85,7 +85,7 @@ NVIM_APPNAME=Cathyprime/nvim-dots/ nvim
 
 ### navigation
 + [cbochs/grapple.nvim](https://github.com/cbochs/grapple.nvim)
-+ [Cathyprime/project.nvim](https://github.com/Cathyprime/project.nvim)
++ [cathyprime/project.nvim](https://github.com/Cathyprime/project.nvim)
 + [nvim-telescope/telescope-file-browser.nvim](https://github.com/nvim-telescope/telescope-file-browser.nvim)
 
 ### nvim-dev

@@ -158,7 +158,7 @@ return {
         version = "*",
     },
     {
-        "Cathyprime/project.nvim",
+        "cathyprime/project.nvim",
         config = function()
             require("project_nvim").setup({
                 show_hidden = true,
