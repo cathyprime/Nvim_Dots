@@ -5,6 +5,7 @@ local function set_lines(buf, lines)
     vim.api.nvim_set_option_value("modifiable", true, { buf = buf })
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
     vim.api.nvim_set_option_value("modifiable", false, { buf = buf })
+    vim.api.nvim_set_option_value("modified", false, { buf = buf })
 end
 
 local function new_buf(lines)
@@ -60,10 +61,8 @@ local function display_in_split(buf)
     return target_win
 end
 
-local old_hover = vim.lsp.handlers.hover
-
 return {
-    hover = function(_, result, ctx, config)
+    hover = function(_, result)
         local lines
         if result and result.contents and result.contents.value then
             lines = vim.split(

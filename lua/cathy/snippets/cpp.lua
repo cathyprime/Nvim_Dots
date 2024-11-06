@@ -96,7 +96,7 @@ return {
         q = { params = 1, template = "std::unique_ptr<%s>" },
         p = { params = 1, template = "std::shared_ptr<%s>" },
         w = { params = 1, template = "std::weak_ptr<%s>" },
-        c = { params = 0, template = "Poggers" },
+        c = { params = 0, template = "Placeholder" },
         i = { params = 0, template = "int32_t" },
         s = { params = 0, template = "std::string" },
         u = { params = 0, template = "uint32_t" },

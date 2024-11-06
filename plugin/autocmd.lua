@@ -37,7 +37,6 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
     group = augroup("load_view"),
     pattern = "*.*",
     callback = function() vim.cmd.loadview({ mods = { emsg_silent = true } }) end,
-    group = augroup("Load view"),
 })
 
 -- terminal settings
