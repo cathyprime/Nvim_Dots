@@ -11,7 +11,7 @@ set tabstop=4
 set shiftwidth=4
 set nosmartindent noautoindent cindent
 set cinkeys=0{,0},0),0],:,0#,!^F,o,O,e,*<cr>
-set cinoptions=i0.5s,p1s,g0.5s,h0.5s,L0,t0
+set cinoptions=i0.5s,p1s,g0.5s,h0.5s,L0,t0,l1
 set expandtab autoread exrc list
 set listchars+=trail:-
 set listchars+=tab:·\ \ 
