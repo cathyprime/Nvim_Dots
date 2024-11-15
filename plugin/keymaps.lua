@@ -115,6 +115,13 @@ map("n", "<leader>ot", "<cmd>e todo.md<cr>")
 map("x", "<leader>;", [[<cmd>'<,'>norm A;<cr>]])
 map("n", "<c-z>", "<Nop>")
 map("n", "<leader>ff", "<cmd>FindFile<cr>", { desc = "find file", silent = false })
+map("n", "<c-,>", function() -- duplicate line and stay in the same pos
+    local pos = vim.api.nvim_win_get_cursor(0)
+    local lines = vim.api.nvim_buf_get_lines(0, pos[1]-1, pos[1], true)
+    pos[1] = pos[1] + 1
+    vim.api.nvim_buf_set_lines(0, pos[1]-1, pos[1]-1, true, lines)
+    vim.api.nvim_win_set_cursor(0, pos)
+end)
 
 if package.loaded["rooter"] then
     map("n", "<leader>r", function()
