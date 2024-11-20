@@ -37,16 +37,7 @@ require("nvim-treesitter.configs").setup({
             enable = true,
             lookahead = true,
             include_surrounding_whitespace = true,
-            keymaps = {
-                ["af"] = { query = "@function.outer", desc = "select a functions" },
-                ["if"] = { query = "@function.inner", desc = "select inner functions" },
-                ["ac"] = { query = "@class.outer", desc = "select a class" },
-                ["ic"] = { query = "@class.inner", desc = "select inner class" },
-                ["aa"] = { query = "@parameter.outer", desc = "select a argument" },
-                ["ia"] = { query = "@parameter.inner", desc = "select inner argument" },
-                ["il"] = { query = "@loop.inner", desc = "select a loop" },
-                ["al"] = { query = "@loop.outer", desc = "select inner loop" },
-            },
+            keymaps = { },
         },
         move = {
             enable = true,

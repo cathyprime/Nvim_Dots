@@ -88,11 +88,10 @@ local minis = {
                     a = { "@block.outer", "@conditional.outer", "@loop.outer" },
                     i = { "@block.inner", "@conditional.inner", "@loop.inner" },
                 }, {}),
-                f = module.gen_spec.treesitter({ a = "@function.outer", i = "@function.inner" }, {}),
+                F = module.gen_spec.treesitter({ a = "@function.outer", i = "@function.inner" }, {}),
                 c = module.gen_spec.treesitter({ a = "@class.outer", i = "@class.inner" }, {}),
                 t = module.gen_spec.treesitter({ a = "@type.outer", i = "@type.inner" }, {})
             },
-            search_method = "cover_or_next"
         })
     end,
 
@@ -209,14 +208,15 @@ local minis = {
             },
             mappings = {
                 add = "s",
-                delete = "ds",
+                delete = "sd",
                 find = "",
                 find_left = "",
                 highlight = "",
-                replace = "cs",
+                replace = "sc",
                 update_n_lines = "",
+                suffix_last = 'l',
+                suffix_next = 'n',
             },
-            search_method = 'cover_or_next',
         })
         vim.keymap.set("n", "ss", "s_", { remap = true })
         vim.keymap.set("n", "S", "s", { remap = false })
