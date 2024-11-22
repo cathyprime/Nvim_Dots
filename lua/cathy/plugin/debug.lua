@@ -132,7 +132,7 @@ return {
             config = {
                 color = "pink",
                 hint = {
-                    position = "bottom-right",
+                    position = "top-right",
                     float_opts = {
                         border = "rounded",
                     }
