@@ -72,7 +72,7 @@ return {
         { "<leader><leader>", telescope_utils.project_files,                                                desc = "files"             },
         { "<leader>fn",       telescope_utils.get_nvim,                                                     desc = "config files"      },
         { "<leader>fG",       telescope_utils.grep_current_file,                                            desc = "grep current file" },
-        { "<leader>b",        function() require("telescope.builtin").buffers() end,                        desc = "switch buffers"    },
+        { "<leader>b",        telescope_utils.buffers,                                                      desc = "switch buffers"    },
         { "<leader>fF",       function() require("telescope.builtin").resume() end,                         desc = "resume"            },
         { "<leader>fs",       function() require("telescope.builtin").treesitter() end,                     desc = "treesitter"        },
         { "<leader>fd",       function() require("telescope.builtin").diagnostics() end,                    desc = "diagnostics"       },

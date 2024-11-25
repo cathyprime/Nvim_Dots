@@ -36,6 +36,13 @@ M.find_files = function()
     })
 end
 
+M.buffers = function()
+    require("telescope.builtin").buffers({
+        previewer = false,
+        ignore_current_buffer = true,
+    })
+end
+
 M.get_nvim = function()
     builtin.find_files({
         cwd = "~/.config/nvim",
