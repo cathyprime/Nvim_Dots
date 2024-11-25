@@ -148,7 +148,11 @@ local function get_cwd()
     if require("oil") and require("oil").get_current_dir() ~= nil then
         return require("oil").get_current_dir()
     end
-    return vim.fn.expand("%:p:h") .. "/"
+    local path = vim.fn.expand("%:p:h") .. "/"
+    if path:find("^term://") then
+        path = path:match("^term://(.-)//") .. "/"
+    end
+    return path
 end
 
 function M.set_cmdline(str)
