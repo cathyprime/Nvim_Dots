@@ -169,7 +169,7 @@ return {
                     "~/.rustup/*",
                     "~/.local/*",
                     "~/go/pkg/*",
-                    "~/Polygon/*",
+                    "~/polygon/*",
                     "*neovide-derive*",
                     "/usr/*",
                     "*src*",
