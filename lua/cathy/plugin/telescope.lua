@@ -76,7 +76,6 @@ return {
         { "<leader>fF",       function() require("telescope.builtin").resume() end,                         desc = "resume"            },
         { "<leader>fs",       function() require("telescope.builtin").treesitter() end,                     desc = "treesitter"        },
         { "<leader>fd",       function() require("telescope.builtin").diagnostics() end,                    desc = "diagnostics"       },
-        { "<m-x>",            function() require("telescope.builtin").commands() end,                       desc = "commands"          },
         { "<leader>fo",       function() require("telescope.builtin").oldfiles({ previewer = false }) end,  desc = "oldfiles"          },
         { "<leader>fh",       function() require("telescope.builtin").help_tags({ previewer = false }) end, desc = "help"              },
         { "<leader>fp",       function() require("telescope").extensions.projects.projects() end,           desc = "project files"     },
