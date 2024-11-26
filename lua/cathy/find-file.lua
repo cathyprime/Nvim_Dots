@@ -180,6 +180,7 @@ function M.default_mappings()
     return {
         ["<bs>"] = M.actions.backspace,
         ["<c-w>"] = M.actions.c_w,
+        ["<c-bs>"] = M.actions.c_w,
         ["<c-c>"] = M.actions.abort,
         ["<esc>"] = M.actions.abort,
         ["<c-f>"] = "<nop>",
