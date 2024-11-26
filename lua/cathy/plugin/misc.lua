@@ -140,15 +140,11 @@ return {
             return {
                 { "<leader>a", grapple.toggle },
                 { "<leader>e", grapple.toggle_tags },
-                { "<leader>1", function() grapple.select({ index = 1 }) end },
-                { "<leader>2", function() grapple.select({ index = 2 }) end },
-                { "<leader>3", function() grapple.select({ index = 3 }) end },
-                { "<leader>4", function() grapple.select({ index = 4 }) end },
-                { "<leader>5", function() grapple.select({ index = 5 }) end },
-                { "<c-s-a>", function() grapple.cycle_scopes("next") end },
-                { "<c-s-x>", function() grapple.cycle_scopes("prev") end },
-                { "<c-s-f>", function() grapple.cycle_tags("next") end },
-                { "<c-s-s>", function() grapple.cycle_tags("prev") end }
+                { "<c-f>", function() grapple.select({ index = vim.v.count1 }) end },
+                { "<m-a>", function() grapple.cycle_scopes("next") end },
+                { "<m-x>", function() grapple.cycle_scopes("prev") end },
+                { "<m-h>", function() grapple.cycle_tags("next") end },
+                { "<m-g>", function() grapple.cycle_tags("prev") end }
             }
         end
     },
@@ -198,7 +194,7 @@ return {
             })
         end
     },
-    {
+    { -- to be deleted, as I only need R for some time
         "R-nvim/R.nvim",
         lazy = false,
         version = "~0.1.0",
