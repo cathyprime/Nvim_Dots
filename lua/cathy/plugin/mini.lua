@@ -156,12 +156,15 @@ local minis = {
                     local lsp           = MiniStatusline.section_lsp({ trunc_width = 75 })
                     local search        = MiniStatusline.section_searchcount({ trunc_width = 75 })
 
+                    local name_or_index = require("grapple").name_or_index()
+                    local grapple       = name_or_index and string.format("g -> [%d]", name_or_index) or ""
+
                     return MiniStatusline.combine_groups({
                         -- { hl = mode_hl,                 strings = { mode --[[, recording ]] } },
                         { hl = 'MiniStatuslineDevinfoB', strings = { filename } },
                         "%=",
                         { hl = 'MiniStatuslineDevinfoB', strings = { last_button, search, diff } },
-                        { hl = five_hls_b, strings = { lsp, diagnostics, } },
+                        { hl = five_hls_b, strings = { grapple, lsp, diagnostics } },
                         { hl = five_hls, strings = { cursor_pos } },
                         "%P ",
                     })
