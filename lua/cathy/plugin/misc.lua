@@ -165,7 +165,6 @@ return {
                     "~/.rustup/*",
                     "~/.local/*",
                     "~/go/pkg/*",
-                    "~/polygon/*",
                     "*neovide-derive*",
                     "/usr/*",
                     "*src*",
