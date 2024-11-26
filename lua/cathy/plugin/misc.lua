@@ -188,6 +188,7 @@ return {
                     "go.mod",
                     "Cargo.toml",
                     "docker-compose.yml",
+                    "index.html",
                 },
                 file_ignore_patterns = require("cathy.utils.telescope.config").ignores,
             })
