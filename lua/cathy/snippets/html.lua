@@ -51,17 +51,10 @@ return {
         body = i(0)
     })),
 
-    s("div", fmt([[
-    <div {type}="{name}">
-        {body}
-    </div>
-    ]], {
-        type = c(1, {
-            t"class",
-            t"id"
-        }),
-        name = i(2, "name"),
-        body = i(0),
+    s("t", fmt([[<{name}>{body}</{repeatname}>]], {
+        name = i(1, "name"),
+        repeatname = rep(1),
+        body = i(2),
     })),
 
     s("tag", fmt([[
