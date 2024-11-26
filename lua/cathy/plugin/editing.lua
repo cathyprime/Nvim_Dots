@@ -31,18 +31,18 @@ return {
             vim.keymap.set("n", "<c-n>",   function() mc.addCursor("*")  end)
             vim.keymap.set("n", "<c-s-n>", function() mc.addCursor("#")  end)
             vim.keymap.set("n", "<c-s>",   function() mc.skipCursor("*") end)
-            vim.keymap.set("v", "<c-n>",   function() mc.addCursor("*")  end)
-            vim.keymap.set("v", "<c-s-n>", function() mc.addCursor("#")  end)
-            vim.keymap.set("v", "<c-s>",   function() mc.skipCursor("#") end)
+            vim.keymap.set("x", "<c-n>",   function() mc.addCursor("*")  end)
+            vim.keymap.set("x", "<c-s-n>", function() mc.addCursor("#")  end)
+            vim.keymap.set("x", "<c-s>",   function() mc.skipCursor("#") end)
             vim.keymap.set("n", "<leader>gv", mc.restoreCursors)
 
-            vim.keymap.set("v", "<c-q>", mc.visualToCursors)
-            vim.keymap.set("v", "m",     mc.matchCursors)
-            vim.keymap.set("v", "M",     mc.splitCursors)
+            vim.keymap.set("x", "<c-q>", mc.visualToCursors)
+            vim.keymap.set("x", "m",     mc.matchCursors)
+            vim.keymap.set("x", "M",     mc.splitCursors)
 
             vim.keymap.set("n", "ga", mc.alignCursors)
-            vim.keymap.set("v", "I",  mc.insertVisual)
-            vim.keymap.set("v", "A",  mc.appendVisual)
+            vim.keymap.set("x", "I",  mc.insertVisual)
+            vim.keymap.set("x", "A",  mc.appendVisual)
 
             vim.keymap.set("n", "<esc>", function()
                 if mc.hasCursors() then
