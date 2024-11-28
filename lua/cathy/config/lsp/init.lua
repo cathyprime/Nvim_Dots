@@ -39,17 +39,12 @@ vim.lsp.log.set_level(vim.log.levels.ERROR)
 require("mason").setup()
 require("mason-lspconfig").setup({
     ensure_installed = {
-        "bashls",
-        "cssls",
         "emmet_ls",
         "gopls",
         "jdtls",
-        "jsonls",
         "lua_ls",
         "rust_analyzer",
-        "tailwindcss",
         "ts_ls",
-        "yamlls",
     },
     handlers = {
         lsp_funcs.default_setup,
