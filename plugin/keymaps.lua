@@ -183,7 +183,6 @@ local function stable_search(forward)
 end
 vim.keymap.set("n", "/", "<cmd>set hlsearch<cr>/")
 vim.keymap.set("n", "?", "<cmd>set hlsearch<cr>?")
-vim.keymap.set("n", "!", wrap("*", "N"), { silent = true })
 vim.keymap.set("n", "*", wrap_simp("*"), { silent = true })
 vim.keymap.set("n", "g*", wrap_simp("g*"), { silent = true })
 vim.keymap.set("n", "#", wrap_simp("#"), { silent = true })
