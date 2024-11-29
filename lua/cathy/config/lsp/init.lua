@@ -51,14 +51,5 @@ require("mason-lspconfig").setup({
         jdtls = disabled,
         rust_analyzer = disabled,
         lua_ls = lsp_funcs.lua_ls,
-        omnisharp = function()
-            require("lspconfig").omnisharp.setup({
-                handlers = {
-                    ["textDocument/definition"] = function(...)
-                        return require("omnisharp_extended").handler(...)
-                    end,
-                }
-            })
-        end
     }
 })
