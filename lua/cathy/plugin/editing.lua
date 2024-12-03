@@ -1,5 +1,8 @@
 return {
     {
+        "tpope/vim-eunuch"
+    },
+    {
         "monaqa/dial.nvim",
         event = { "BufReadPost", "BufWritePost", "BufNewFile" },
         config = function()
