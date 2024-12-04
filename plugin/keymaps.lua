@@ -4,6 +4,8 @@ local function jump(direction)
     local ret = ""
     if vim.v.count > 1 then
         ret = "m'" .. vim.v.count
+    else
+        ret = "g"
     end
     return ret .. direction
 end
@@ -106,10 +108,10 @@ map("n", "X", [[0"_D]])
 map("x", "X", [[:norm 0"_D<cr>]])
 map("n", "gp", "`[v`]")
 map("n", "j", function()
-    return jump("gj")
+    return jump("j")
 end, { expr = true })
 map("n", "k", function()
-    return jump("gk")
+    return jump("k")
 end, { expr = true })
 map("n", "<leader>ot", "<cmd>e todo.md<cr>")
 map("x", "<leader>;", [[<cmd>'<,'>norm A;<cr>]])
