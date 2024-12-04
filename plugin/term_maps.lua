@@ -12,7 +12,7 @@ vim.api.nvim_create_autocmd("TermOpen", {
         map("n", "gf", function()
             local f = vim.fn.findfile(vim.fn.expand("<cfile>"), "**")
             if f == "" then
-                vim.notify(string.format("E447: Can't find file %s in path", vim.fn.expand("<cfile>")), vim.log.levels.ERROR, {})
+                vim.notify(string.format([[E447: Can't find file "%s" in path]], vim.fn.expand("<cfile>")), vim.log.levels.ERROR, {})
             else
                 pcall(vim.api.nvim_win_close, vim.api.nvim_get_current_win(), false)
                 local term_job = vim.b[buf].terminal_job_id
