@@ -125,6 +125,9 @@ map("n", "<c-,>", function() -- duplicate line and stay in the same pos
     vim.api.nvim_buf_set_lines(0, pos[1]-1, pos[1]-1, true, lines)
     vim.api.nvim_win_set_cursor(0, pos)
 end)
+map("n", "<leader>gw", function()
+    vim.system({ "gh", "repo", "view", "--web" }, { text = false })
+end)
 
 if package.loaded["rooter"] then
     map("n", "<leader>r", function()
