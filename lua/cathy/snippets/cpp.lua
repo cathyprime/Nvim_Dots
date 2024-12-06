@@ -16,9 +16,9 @@ local fmta = require("luasnip.extras.fmt").fmta
 local function ranges_views_snippet(trig, func)
     return s(trig,
         fmta([[
-		| <namespace>::views::<fn>([&](auto&& value) {
-			<body>
-		})
+        | <namespace>::views::<fn>([&](auto&& value) {
+            <body>
+        })
       ]], {
         namespace = c(1, {
             t("ranges"),
@@ -162,32 +162,32 @@ return {
     constructor_snip(
         "cc",
         "Copy constructor",
-        [[<cls>(const <cls>& rhs) = default;]]
+        [[<cls>(const <cls> &rhs) = default;]]
     ),
     constructor_snip(
         "ca",
         "Copy assigment",
-        [[<cls>& operator=(const <cls>& rhs) = default;]]
+        [[<cls> &operator=(const <cls> &rhs) = default;]]
     ),
     constructor_snip(
         "mc",
         "Move constructor",
-        [[<cls>(<cls>&& rhs) = default;]]
+        [[<cls>(<cls> &&rhs) = default;]]
     ),
     constructor_snip(
         "ma",
         "Move assigment",
-        [[<cls>& operator=(<cls>&& rhs) = default;]]
+        [[<cls> &operator=(<cls> &&rhs) = default;]]
     ),
     constructor_snip(
         "nca",
         "No copy assigment",
-        [[<cls>& operator=(const <cls>& rhs) = delete;]]
+        [[<cls> &operator=(const <cls> &rhs) = delete;]]
     ),
     constructor_snip(
         "nma",
         "No move assigment",
-        [[<cls>& operator=(<cls>&& rhs) = delete;]]
+        [[<cls> &operator=(<cls> &&rhs) = delete;]]
     ),
     constructor_snip(
         "ncc",
