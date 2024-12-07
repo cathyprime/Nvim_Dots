@@ -144,6 +144,11 @@ end
 map("c", "<c-a>", "<home>", { silent = false })
 map("c", "<m-f>", "<c-right>", { silent = false })
 map("c", "<m-b>", "<c-left>", { silent = false })
+map("c", "<c-k>", function()
+    local line = vim.fn.getcmdline()
+    local pos = vim.fn.getcmdpos()
+    vim.fn.setcmdline(line:sub(0, pos - 1))
+end, { silent = false })
 
 vim.keymap.set("ca", "G", "Git")
 map("c", "<c-space>", function()
