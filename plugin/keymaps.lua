@@ -47,12 +47,8 @@ vim.keymap.set("x", "@", function()
         if #marks == 0 then return end
         local cur = marks[1]
         vim.api.nvim_buf_del_extmark(0, ns, cur[1])
-        vim.schedule(function()
-            vim.cmd(cur[2] .. "norm @" .. char)
-        end)
-        vim.schedule(function()
-            consume_marks(vim.api.nvim_buf_get_extmarks(0, ns, 0, -1, {}))
-        end)
+        vim.schedule_wrap(vim.cmd)(cur[2] .. "norm @" .. char)
+        vim.schedule_wrap(consume_marks)(vim.api.nvim_buf_get_extmarks(0, ns, 0, -1, {}))
     end
     local x = vim.api.nvim_buf_get_extmarks(0, ns, 0, -1, {})
     consume_marks(x)
