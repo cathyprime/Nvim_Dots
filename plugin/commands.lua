@@ -37,19 +37,6 @@ vim.api.nvim_create_user_command(
     }
 )
 
-vim.api.nvim_create_user_command(
-    "Gh",
-    function(opts)
-        local cmd = opts.fargs
-        table.insert(cmd, 1, "gh")
-        require("lazy.util").float_term(cmd)
-    end,
-    {
-        nargs = "*",
-        desc = "Execute github cli commands in a terminal"
-    }
-)
-
 local function create_command(cmd, argument, desc)
     vim.api.nvim_create_user_command(
         cmd,
@@ -73,29 +60,34 @@ end
 local function executable_term(cmd, program, opts)
     vim.api.nvim_create_user_command(
         cmd,
-        function()
+        function(env)
             if vim.fn.executable(program) ~= 1 then
-                vim.notify(opts.err_msg or "you've forgot the error message", vim.log.levels.ERROR)
+                vim.notify(program .. " not found!", vim.log.levels.ERROR)
                 return
             end
-            require("cathy.utils")[opts.func_cmd](program, opts.func_opts)
+            table.insert(env.fargs, 1, program)
+            local tab_term = require("cathy.utils")[opts.func_cmd](env.fargs, opts.func_opts)
         end,
         {
             desc = opts.desc or nil,
+            nargs = opts.nargs or nil,
         }
     )
 end
 executable_term("Docker", "lazydocker", {
     desc = "Open lazydocker",
-    err_msg = "lazydocker not found!",
     func_cmd = "tab_term",
-    func_opts = { title = "Docker" }
+    func_opts = { title = "Docker", close = true }
+})
+executable_term("LazyGit", "lazygit", {
+    desc = "Open lazygit",
+    func_cmd = "tab_term",
+    func_opts = { title = "Lazygit", close = true }
 })
 executable_term("Spotify", "spt", {
     desc = "Open spotify",
-    err_msg = "spt not found!",
     func_cmd = "tab_term",
-    func_opts = { title = "Spotify" }
+    func_opts = { title = "Spotify", close = true }
 })
 
 create_command("SpotifyRepeat",  "--repeat",   "toggle repeat mode")

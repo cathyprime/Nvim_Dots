@@ -1,7 +1,7 @@
-local function term(mods, argument, title)
-    vim.cmd(string.format("exec 'noa %s term %s' | startinsert", mods, argument))
-    if title then
-        vim.api.nvim_buf_set_name(0, title)
+local function term(mods, command, opts)
+    vim.cmd(string.format("exec 'noa %s term %s' | startinsert", mods, command))
+    if opts.title then
+        vim.api.nvim_buf_set_name(0, opts.title)
     end
     local winnr = vim.api.nvim_get_current_win()
     vim.wo[winnr].relativenumber = false
@@ -9,11 +9,13 @@ local function term(mods, argument, title)
     vim.wo[winnr].scrolloff = 0
     vim.wo[winnr].number = false
     vim.wo[winnr].spell = false
-    vim.api.nvim_create_autocmd("TermClose", {
-        once = true,
-        buffer = vim.api.nvim_get_current_buf(),
-        command = "bd!",
-    })
+    if opts.close then
+        vim.api.nvim_create_autocmd("TermClose", {
+            once = true,
+            buffer = vim.api.nvim_get_current_buf(),
+            command = "bd!",
+        })
+    end
 end
 
 local function tab_term(command, opts)
@@ -23,7 +25,7 @@ local function tab_term(command, opts)
     if type(command) ~= "string" then
         error "command should be string/table"
     end
-    term("tab", command, opts.title)
+    term("tab", command, opts)
 end
 
 local function clear_maps(bufnr, mode)
