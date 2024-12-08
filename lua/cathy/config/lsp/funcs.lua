@@ -64,7 +64,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
 })
 
 return {
-    -- on_attach = attach,
+    on_attach = attach,
     default_setup = function(server)
         lspconfig[server].setup({
             -- on_attach = function() end,
