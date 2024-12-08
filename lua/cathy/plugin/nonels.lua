@@ -14,6 +14,10 @@ return {
                 null_ls.builtins.diagnostics.stylelint,
             },
         })
-        vim.keymap.set("n", "<leader>cf", vim.lsp.buf.format)
+        vim.api.nvim_create_autocmd("LspAttach", {
+            callback = function(ev)
+                vim.keymap.set("n", "<leader>cf", vim.lsp.buf.format, { buffer = ev.buf })
+            end,
+        })
     end
 }
