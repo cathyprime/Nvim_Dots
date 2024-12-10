@@ -118,3 +118,5 @@ vim.api.nvim_create_user_command(
     end,
     {}
 )
+
+vim.keymap.set("n", "<leader>m", "<cmd>Messages<cr>", { silent = true })
