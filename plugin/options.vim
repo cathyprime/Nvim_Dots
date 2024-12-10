@@ -52,7 +52,7 @@ set winminwidth=5
 set pumheight=4
 set wrap
 set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case
-set messagesopt=wait:0,history:1000
+set messagesopt=wait:100,history:800
 let g:markdown_recommended_style=0
 
 if exists("g:neovide")

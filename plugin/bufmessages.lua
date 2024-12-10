@@ -1,24 +1,25 @@
 local BUFNAME = "Messages"
 
-local old_messages = {}
+local old_messages = 0
 
 ---@alias bufnr integer
 
 ---@param bufnr bufnr
-local function set_lines(bufnr)
+local function set_lines(bufnr, forced)
+    if not vim.api.nvim_buf_is_valid(bufnr) then
+        return
+    end
     local new_messages = vim.api.nvim_cmd({ cmd = "messages" }, { output = true })
     if new_messages == "" then
         return
     end
-    if not vim.api.nvim_buf_is_valid(bufnr) then
+
+    if old_messages >= #new_messages and not forced then
         return
     end
+    old_messages = #new_messages
 
     local lines = vim.split(new_messages, "\n")
-    if #lines <= #old_messages then
-        return
-    end
-    old_lines = lines
 
     local result = {}
     local empty_line_count = 0
@@ -35,7 +36,7 @@ local function set_lines(bufnr)
                 if empty_line_count - 3 == 1 then
                     table.insert(result, "--> folded 1 empty line <--")
                 else
-                    table.insert(result, "--> folded " .. (empty_line_count - 3) .. " empty lines <--")
+                    table.insert(result, string.format("--> folded %d empty lines <--", empty_line_count - 3))
                 end
                 table.insert(result, "")
             end
@@ -75,7 +76,7 @@ end
 local function create_messages_buffer()
     local bufnr = vim.api.nvim_create_buf(false, true)
     set_options(bufnr)
-    set_lines(bufnr)
+    set_lines(bufnr, true)
     return bufnr
 end
 
@@ -96,7 +97,7 @@ vim.api.nvim_create_user_command(
         local buf = find_buffer_by_name(BUFNAME)
         if buf == nil then
             buf = create_messages_buffer()
-            vim.cmd(string.format(opts.mods.." sp | keepalt buffer %s", buf))
+            vim.cmd(string.format(opts.mods.." 5sp | keepalt buffer %s", buf))
         else
             set_lines(buf)
             local wins = vim.api.nvim_tabpage_list_wins(0)
@@ -112,9 +113,10 @@ vim.api.nvim_create_user_command(
                 vim.api.nvim_set_current_win(win_id)
                 vim.api.nvim_win_set_cursor(0, { vim.fn.line('$'), 0 })
             else
-                vim.cmd(string.format(opts.mods.." sp | keepalt buffer %s", buf))
+                vim.cmd(string.format(opts.mods.." 5sp | keepalt buffer %s", buf))
             end
         end
+        vim.api.nvim_win_set_cursor(vim.api.nvim_get_current_win(), { vim.fn.line('$'), 0 })
     end,
     {}
 )
