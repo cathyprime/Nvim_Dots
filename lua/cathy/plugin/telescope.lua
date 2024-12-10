@@ -73,13 +73,13 @@ return {
         { "<leader>fn",       telescope_utils.get_nvim,                                                     desc = "config files"      },
         { "<leader>fG",       telescope_utils.grep_current_file,                                            desc = "grep current file" },
         { "<leader>b",        telescope_utils.buffers,                                                      desc = "switch buffers"    },
+        { "<leader>fg",       telescope_utils.multi_grep,                                                   desc = "grep"              },
         { "<leader>fF",       function() require("telescope.builtin").resume() end,                         desc = "resume"            },
         { "<leader>fs",       function() require("telescope.builtin").treesitter() end,                     desc = "treesitter"        },
         { "<leader>fd",       function() require("telescope.builtin").diagnostics() end,                    desc = "diagnostics"       },
         { "<leader>fo",       function() require("telescope.builtin").oldfiles({ previewer = false }) end,  desc = "oldfiles"          },
         { "<leader>fh",       function() require("telescope.builtin").help_tags({ previewer = false }) end, desc = "help"              },
         { "<leader>fp",       function() require("telescope").extensions.projects.projects() end,           desc = "project files"     },
-        { "<leader>fg",       function() require("telescope.builtin").live_grep() end,                      desc = "grep"              },
         { "z=",               function() require("telescope.builtin").spell_suggest() end,                  desc = "spell suggestion"  },
     }
 }
