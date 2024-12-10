@@ -149,11 +149,6 @@ return {
         end
     },
     {
-        "NStefan002/screenkey.nvim",
-        lazy = false,
-        version = "*",
-    },
-    {
         "cathyprime/project.nvim",
         config = function()
             require("project_nvim").setup({

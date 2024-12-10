@@ -1,21 +1,27 @@
 local ft_settings = {
     sh = function()
-        vim.keymap.set("n", "<cr>", [[<cmd>redir @" | exec '.w !sh' | redir END<cr>]], { buffer = true })
-        vim.keymap.set("n", "<m-cr>", "mm<cmd>.!sh<cr>`m", { buffer = true })
+        vim.keymap.set("n", "<cr>", "mm<cmd>.!sh<cr>`m", { buffer = true })
+        vim.keymap.set("n", "<m-cr>", [[<cmd>redir @" | exec '.w !sh' | redir END<cr>]], { buffer = true })
         vim.keymap.set("n", "gl", [[<cmd>%s#git@github.com:#https://github.com/<cr>]], { buffer = true })
         vim.keymap.set("n", "gj", "<cmd>.!jq<cr>", { buffer = true })
-        vim.keymap.set("v", "<cr>", [[:w !sh<cr>]], { buffer = true })
-        vim.keymap.set("v", "<m-cr>", [[:!sh<cr>]], { buffer = true })
+        vim.keymap.set("v", "<cr>", [[<cr>!sh<cr>]], { buffer = true })
+        vim.keymap.set("v", "<m-cr>", [[<cr>w !sh<cr>]], { buffer = true })
     end,
     text = function()
         vim.keymap.set("n", "<cr>", [[<cmd>.!toilet --width 120 --font smblock<cr>]], { silent = true, buffer = true })
     end,
-    default = function()
-        vim.cmd("LspStart")
+    all = function()
+        vim.keymap.set("n", "q", function()
+            local ok = pcall(vim.api.nvim_win_close, vim.api.nvim_get_current_win(), false)
+            if not ok then
+                vim.cmd[[b#]]
+            end
+        end, { buffer = true })
     end
 }
 
 local function set_filetype_opts(ft)
+    ft_settings.all()
     if ft_settings[ft] ~= nil then
         ft_settings[ft]()
     end
@@ -64,7 +70,7 @@ vim.api.nvim_create_user_command(
 )
 
 vim.api.nvim_create_user_command(
-    "New",
+    "Scratch",
     function(opts)
         local ft
         if #opts.fargs ~= 0 then
@@ -108,5 +114,5 @@ vim.api.nvim_create_user_command(
     }
 )
 
-vim.keymap.set("n", "<leader>os", "<cmd>New<cr>", { desc = "open scratch buffer" })
-vim.keymap.set("n", "<leader>oS", "<cmd>New sh<cr>", { desc = "open scratch shell buffer" })
+vim.keymap.set("n", "<leader>oS", "<cmd>Scratch<cr>", { desc = "open scratch buffer" })
+vim.keymap.set("n", "<leader>os", "<cmd>Scratch sh<cr>", { desc = "open scratch shell buffer" })
