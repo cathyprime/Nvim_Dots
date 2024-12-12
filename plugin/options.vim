@@ -23,7 +23,7 @@ set fillchars+=foldclose:>
 set fillchars+=foldopen:v
 set fillchars+=foldsep:\ 
 set fillchars+=fold:\ 
-set linebreak showbreak=->\ 
+set linebreak
 set path=.,**
 set ignorecase smartcase incsearch
 set foldlevel=4 foldexpr=v:lua.vim.treesitter.foldexpr()
