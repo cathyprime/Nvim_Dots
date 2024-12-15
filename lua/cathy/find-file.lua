@@ -143,7 +143,6 @@ local function start_updater(cb, start_path)
     })
 end
 
--- TODO: fix in terminal buffers
 local function get_cwd()
     if require("oil") and require("oil").get_current_dir() ~= nil then
         return require("oil").get_current_dir()
@@ -160,6 +159,12 @@ function M.set_cmdline(str)
         str = { str, "string" }
     })
     cmdline(prefix .. str)
+end
+
+function M.get_cmdline()
+    local l = cmdline()
+    local norm = tostring(normalize(to_path(l)))
+    return norm
 end
 
 local function set_keymaps(mappings)
@@ -184,6 +189,11 @@ function M.default_mappings()
         ["<c-c>"] = M.actions.abort,
         ["<esc>"] = M.actions.abort,
         ["<c-f>"] = "<nop>",
+        ["<c-r>%"] = function()
+            local file_name = vim.fn.fnamemodify(vim.fn.getreg("%"), ":t")
+            local cmd = M.get_cmdline()
+            M.set_cmdline(cmd .. file_name)
+        end,
         ["<c-h>"] = function()
             M.set_cmdline(home .. "/")
         end,
