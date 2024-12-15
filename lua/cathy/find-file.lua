@@ -189,6 +189,9 @@ function M.default_mappings()
         ["<c-c>"] = M.actions.abort,
         ["<esc>"] = M.actions.abort,
         ["<c-f>"] = "<nop>",
+        ["<c-r><c-r>"] = function()
+            M.set_cmdline(vim.fn.fnamemodify(vim.fn.getreg("%"), ":p:h"))
+        end,
         ["<c-r>%"] = function()
             local file_name = vim.fn.fnamemodify(vim.fn.getreg("%"), ":t")
             local cmd = M.get_cmdline()
