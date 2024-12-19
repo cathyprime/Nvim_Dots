@@ -19,8 +19,8 @@ local loc_qf = function(opts)
     end
 end
 
--- vim.keymap.set("n", "<", cmd("colder"), { buffer = true, silent = true, expr = true })
--- vim.keymap.set("n", ">", cmd("cnewer"), { buffer = true, silent = true, expr = true })
+vim.keymap.set("n", "<", cmd("colder"), { buffer = true, silent = true, expr = true })
+vim.keymap.set("n", ">", cmd("cnewer"), { buffer = true, silent = true, expr = true })
 vim.keymap.set("n", "o", function()
     return loc_qf({
         on_qf = function()
