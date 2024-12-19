@@ -43,8 +43,8 @@ vim.keymap.set("n", "q", function()
     })
 end, { buffer = true, silent = true, expr = true })
 
-vim.keymap.set("x", "R", ":Reject<cr>")
-vim.keymap.set("x", "K", ":Keep<cr>")
+vim.keymap.set("x", "R", ":Reject<cr>", { buffer = true, silent = true})
+vim.keymap.set("x", "K", ":Keep<cr>", { buffer = true, silent = true})
 
 vim.keymap.set("n", "R", function()
     vim.o.operatorfunc = "v:lua.require'cathy.repeats'.reject"
