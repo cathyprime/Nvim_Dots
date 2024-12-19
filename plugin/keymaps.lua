@@ -10,21 +10,6 @@ local function jump(direction)
     return ret .. direction
 end
 
-local function get_char(question, err_question)
-    local char
-    while true do
-        print(question)
-        char = vim.fn.nr2char(vim.fn.getchar())
-        if char == "y" or char == "n" or char == "q" then
-            break
-        else
-            print(err_question)
-            vim.cmd("sleep 300m")
-        end
-    end
-    return char
-end
-
 local function find_if_modified()
     return vim.iter(vim.api.nvim_list_bufs()):any(function(buffer)
         return vim.api.nvim_get_option_value("modified", { buf = buffer }) and vim.api.nvim_buf_is_loaded(buffer)
