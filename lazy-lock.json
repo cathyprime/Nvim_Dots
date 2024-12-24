@@ -12,7 +12,7 @@
   "grapple.nvim": { "branch": "main", "commit": "b41ddfc1c39f87f3d1799b99c2f0f1daa524c5f7" },
   "gx.nvim": { "branch": "main", "commit": "b01db725a001e4215f363159fc04727f6fde0a1c" },
   "hydra.nvim": { "branch": "main", "commit": "68ae20eb732f4f722dd7158adecf55de431ff26d" },
-  "kanagawa_remix": { "branch": "mistress", "commit": "85c50b3451355931b3bbbd4842d83d6bd83ece36" },
+  "kanagawa_remix": { "branch": "mistress", "commit": "2d268c78cec44df31360a5c590881123b8245602" },
   "lazy.nvim": { "branch": "main", "commit": "7e6c863bc7563efbdd757a310d17ebc95166cef3" },
   "lazydev.nvim": { "branch": "main", "commit": "8620f82ee3f59ff2187647167b6b47387a13a018" },
   "lsp_signature.nvim": { "branch": "master", "commit": "fc38521ea4d9ec8dbd4c2819ba8126cea743943b" },
