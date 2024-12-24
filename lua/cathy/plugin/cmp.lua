@@ -22,8 +22,8 @@ return {
                 ["<C-p>"] = { "show", "select_prev", "fallback" },
                 ["<C-n>"] = { "show", "select_next", "fallback" },
 
-                ["<C-d>"] = { "scroll_documentation_up", "fallback" },
-                ["<C-u>"] = { "scroll_documentation_down", "fallback" },
+                ["<C-d>"] = { "scroll_documentation_down", "fallback" },
+                ["<C-u>"] = { "scroll_documentation_up", "fallback" },
             },
             snippets = {
                 expand = function(snippet) require("luasnip").lsp_expand(snippet) end,
@@ -43,6 +43,7 @@ return {
                 keyword = { range = "full" },
                 accept = { auto_brackets = { enabled = false } },
                 menu = {
+                    max_height = 6,
                     auto_show = false,
                     draw = {
                         padding = 0,
@@ -58,7 +59,8 @@ return {
                     }
                 },
                 ghost_text = { enabled = true },
-            }
+            },
+            signature = { enabled = true },
         }
     }
 }
