@@ -1,25 +1,64 @@
 return {
     {
         "folke/lazydev.nvim",
-        ft = "lua", -- only load on lua files
+        ft = "lua",
         opts = {
             library = {
-                -- See the configuration section for more details
-                -- Load luvit types when the `vim.uv` word is found
                 { path = "luvit-meta/library", words = { "vim%.uv" } },
             },
         },
     },
     {
-        "iguanacucumber/magazine.nvim",
-        name = "nvim-cmp",
-        dependencies = {
-            "hrsh7th/cmp-nvim-lsp",
-            "L3MON4D3/LuaSnip",
-        },
-        config = function()
-            require("cathy.config.cmp")
-        end,
-        event = { "InsertEnter" }
+        "saghen/blink.cmp",
+        version = "v0.*",
+        opts = {
+            keymap = {
+                preset = "default",
+                ["<C-space>"] = { "show", "show_documentation", "hide_documentation" },
+
+                ["<C-b>"] = {},
+                ["<C-f>"] = {},
+
+                ["<C-p>"] = { "show", "select_prev", "fallback" },
+                ["<C-n>"] = { "show", "select_next", "fallback" },
+
+                ["<C-d>"] = { "scroll_documentation_up", "fallback" },
+                ["<C-u>"] = { "scroll_documentation_down", "fallback" },
+            },
+            snippets = {
+                expand = function(snippet) require("luasnip").lsp_expand(snippet) end,
+                active = function(filter)
+                    if filter and filter.direction then
+                        return require("luasnip").jumpable(filter.direction)
+                    end
+                    return require("luasnip").in_snippet()
+                end,
+                jump = function(direction) require("luasnip").jump(direction) end,
+            },
+            appearance = {
+                use_nvim_cmp_as_default = true,
+                nerd_font_variant = "mono",
+            },
+            completion = {
+                keyword = { range = "full" },
+                accept = { auto_brackets = { enabled = false } },
+                menu = {
+                    auto_show = false,
+                    draw = {
+                        padding = 0,
+                        components = {
+                            kind_icon = {
+                                ellipsis = false,
+                                text = function(ctx) return " " .. ctx.kind_icon .. " " .. ctx.icon_gap end,
+                                highlight = function(ctx)
+                                    return require("blink.cmp.completion.windows.render.tailwind").get_hl(ctx) or 'BlinkCmpKind' .. ctx.kind
+                                end,
+                            },
+                        }
+                    }
+                },
+                ghost_text = { enabled = true },
+            }
+        }
     }
 }
