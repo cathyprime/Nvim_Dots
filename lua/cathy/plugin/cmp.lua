@@ -36,17 +36,20 @@ return {
                 jump = function(direction) require("luasnip").jump(direction) end,
             },
             appearance = {
-                -- use_nvim_cmp_as_default = true,
+                use_nvim_cmp_as_default = false,
                 nerd_font_variant = "mono",
             },
+            signature = { enabled = false },
             completion = {
                 keyword = { range = "full" },
                 accept = { auto_brackets = { enabled = false } },
                 documentation = {
+                    treesitter_highlighting = true,
                     window = {
                         border = "single"
                     }
                 },
+                ghost_text = { enabled = true },
                 menu = {
                     max_height = 6,
                     auto_show = false,
@@ -63,9 +66,7 @@ return {
                         }
                     }
                 },
-                ghost_text = { enabled = true },
             },
-            signature = { enabled = true },
         }
     }
 }
