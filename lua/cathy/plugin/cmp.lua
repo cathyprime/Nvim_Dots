@@ -41,7 +41,12 @@ return {
             },
             signature = { enabled = false },
             completion = {
-                keyword = { range = "full" },
+                list = {
+                    selection = function(ctx)
+                        return ctx.mode == "cmdline" and "auto_insert" or "preselect"
+                    end
+                },
+                keyword = { range = "prefix" },
                 accept = { auto_brackets = { enabled = false } },
                 documentation = {
                     treesitter_highlighting = true,
@@ -52,7 +57,12 @@ return {
                 ghost_text = { enabled = true },
                 menu = {
                     max_height = 6,
-                    auto_show = false,
+                    auto_show = function(ctx)
+                        if ctx.mode == "cmdline" then
+                            return #vim.fn.getcmdline() > 5 and true or false
+                        end
+                        return false
+                    end,
                     draw = {
                         padding = 0,
                         components = {
