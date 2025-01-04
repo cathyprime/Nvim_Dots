@@ -68,6 +68,31 @@ vim.api.nvim_create_autocmd("VimEnter", {
                 complete = "customlist,dispatch#command_complete",
             }
         )
+        vim.api.nvim_del_user_command("Make")
+        vim.api.nvim_create_user_command(
+            "Make",
+            function(opts)
+                local count = 0
+                local args = oil_args(opts.args or "")
+                local mods = opts.mods or ""
+                local bang = opts.bang and 1 or 0
+
+                if opts.count < 0 or opts.line1 == opts.line2 then
+                    count = opts.count
+                end
+                if args == "" and vim.b.make ~= "" then
+                    args = vim.b.make or ""
+                end
+                vim.b["make"] = args
+                vim.fn["dispatch#compile_command"](bang, "-- " .. args, count, mods)
+            end,
+            {
+                bang = true,
+                nargs = "*",
+                range = -1,
+                complete = "customlist,dispatch#command_complete",
+            }
+        )
         vim.api.nvim_del_user_command("Copen")
         vim.api.nvim_create_user_command(
             "Copen",
