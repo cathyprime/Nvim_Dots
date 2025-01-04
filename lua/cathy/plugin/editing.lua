@@ -127,8 +127,8 @@ return {
             vim.keymap.set("x", "M",     mc.splitCursors)
 
             vim.keymap.set("n", "ga", mc.alignCursors)
-            vim.keymap.set("x", "I",  mc.insertVisual)
-            vim.keymap.set("x", "A",  mc.appendVisual)
+            -- vim.keymap.set("x", "I",  mc.insertVisual)
+            -- vim.keymap.set("x", "A",  mc.appendVisual)
 
             vim.keymap.set("n", "<esc>", function()
                 if mc.hasCursors() then
