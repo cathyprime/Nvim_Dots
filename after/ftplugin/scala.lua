@@ -7,7 +7,7 @@ metals_config.settings = {
     showImplicitArguments = true,
     excludedPackages = { "akka.actor.typed.javadsl", "com.github.swagger.akka.javadsl" },
 }
-metals_config.capabilities = require("cmp_nvim_lsp").default_capabilities()
+metals_config.capabilities = require("blink.cmp").get_lsp_capabilities()
 metals_config.on_attach = function(client, bufnr)
     require("metals").setup_dap()
     local dap = require("dap")
