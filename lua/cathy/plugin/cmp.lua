@@ -18,6 +18,8 @@ return {
 
                 ["<C-b>"] = {},
                 ["<C-f>"] = {},
+                ["<tab>"] = {},
+                ["<s-tab>"] = {},
 
                 ["<C-p>"] = { "show", "select_prev", "fallback" },
                 ["<C-n>"] = { "show", "select_next", "fallback" },
