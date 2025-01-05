@@ -1,9 +1,3 @@
-vim.b["alt_lsp_maps"] = {
-    code_action = function()
-        vim.cmd.RustLsp("codeAction")
-    end,
-}
-
 vim.opt_local.expandtab = true
 vim.g.termdebugger = "rust-gdb"
 
