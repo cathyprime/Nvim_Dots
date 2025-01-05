@@ -1,1 +1,1 @@
-setlocal nocursorline
+setlocal nocursorline nospell
