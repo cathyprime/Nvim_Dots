@@ -59,7 +59,7 @@ return {
                                 severity = vim.diagnostic.severity.ERROR, -- errors only
                                 -- limit to files in the current project
                                 function(item)
-                                    return item.filename:find((vim.loop or vim.uv).cwd(), 1, true)
+                                    return item.filename:find(vim.uv.cwd(), 1, true)
                                 end,
                             },
                         },

@@ -1,6 +1,6 @@
 local series = {}
 local last_message = ""
-local timer = vim.loop.new_timer()
+local timer = vim.uv.new_timer()
 
 local function clear()
     timer:stop()

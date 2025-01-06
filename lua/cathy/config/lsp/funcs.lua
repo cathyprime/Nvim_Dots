@@ -98,9 +98,9 @@ return {
                 if client.workspace_folders and client.workspace_folders[1] then
                     path = client.workspace_folders[1].name
                 else
-                    path = vim.loop.cwd()
+                    path = vim.uv.cwd()
                 end
-                if vim.loop.fs_stat(path..'/.luarc.json') or vim.loop.fs_stat(path..'/.luarc.jsonc') then
+                if vim.uv.fs_stat(path..'/.luarc.json') or vim.uv.fs_stat(path..'/.luarc.jsonc') then
                     return
                 end
 
