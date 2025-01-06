@@ -118,7 +118,7 @@ return {
                         },
                     }
                 })
-                client.notify("workspace/didChangeConfiguration", { settings = client.config.settings })
+                client:notify("workspace/didChangeConfiguration", { settings = client.config.settings })
             end,
             settings = {
                 Lua = {}
