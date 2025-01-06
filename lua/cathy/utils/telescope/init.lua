@@ -104,16 +104,20 @@ M.find_file = function(opts)
                 path = "/"
             end
 
-            return { "find", path, "-mindepth", 1, "-maxdepth", 1 }
+            return { "fd", "-L", "--exact-depth=1", "-HI", '.', path }
         end,
         entry_maker = function(entry)
-            local pos = entry:match("^.*()/")
+            local pos
+
+            if string.sub(entry, -1) == "/" then
+                pos = string.match(string.sub(entry, 1, -2), ".*()/")
+            else
+                pos = entry:match("^.*()/")
+            end
+
             pos = (pos or 1) + 1
             local filename = string.sub(entry, pos, #entry)
 
-            if require("plenary.path"):new(entry):is_dir() then
-                filename = filename .. "/"
-            end
             return {
                 value = entry,
                 display = filename,
@@ -138,9 +142,6 @@ M.find_file = function(opts)
                 local selection = actions_state.get_selected_entry()
                 local picker    = actions_state.get_current_picker(prompt_bufnr)
                 local value = selection.value
-                if require("plenary.path"):new(value):is_dir() then
-                    value = value .. "/"
-                end
 
                 picker:set_prompt(value)
             end)
