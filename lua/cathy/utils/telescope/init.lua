@@ -226,4 +226,27 @@ M.resume = function()
     require("telescope.builtin").resume()
 end
 
+M.references = function()
+    require("telescope.builtin").lsp_references({
+        include_declaration = true,
+        show_line = true,
+        prompt_prefix = " References :: ",
+        layout_config = {
+            preview_width = 0.45,
+        }
+    })
+end
+
+M.lsp_document_symbols = function()
+    require("telescope.builtin").lsp_document_symbols({
+        prompt_prefix = " Document Symbols :: "
+    })
+end
+
+M.lsp_workspace_symbols = function()
+    require("telescope.builtin").lsp_workspace_symbols({
+        prompt_prefix = " Workspace Symbols :: "
+    })
+end
+
 return M
