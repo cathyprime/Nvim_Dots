@@ -5,9 +5,22 @@ local function telescope_references()
     require("telescope.builtin").lsp_references({
         include_declaration = true,
         show_line = true,
+        prompt_prefix = " References :: ",
         layout_config = {
             preview_width = 0.45,
         }
+    })
+end
+
+local function telescope_lsp_document_symbols()
+    require("telescope.builtin").lsp_document_symbols({
+        prompt_prefix = " Document Symbols :: "
+    })
+end
+
+local function telescope_lsp_workspace_symbols()
+    require("telescope.builtin").lsp_workspace_symbols({
+        prompt_prefix = " Workspace Symbols :: "
     })
 end
 
@@ -22,8 +35,8 @@ local attach = function(client, bufnr, alt_keys)
     vim.keymap.set("n", "<leader>cc", alt_keys and alt_keys.rename                or vim.lsp.buf.rename,              opts)
     vim.keymap.set("n", "<c-]>",      alt_keys and alt_keys.definition            or vim.lsp.buf.definition,          opts)
     vim.keymap.set("n", "K",          alt_keys and alt_keys.hover                 or vim.lsp.buf.hover,               opts)
-    vim.keymap.set("n", "<leader>fs", alt_keys and alt_keys.lsp_document_symbols  or telescope.lsp_document_symbols,  fsop)
-    vim.keymap.set("n", "<leader>fS", alt_keys and alt_keys.lsp_workspace_symbols or telescope.lsp_workspace_symbols, fSop)
+    vim.keymap.set("n", "<leader>fs", alt_keys and alt_keys.lsp_document_symbols  or telescope_lsp_document_symbols,  fsop)
+    vim.keymap.set("n", "<leader>fS", alt_keys and alt_keys.lsp_workspace_symbols or telescope_lsp_workspace_symbols, fSop)
     if not package.loaded["lsp_signature"] then
         vim.keymap.set("i", "<c-h>",      alt_keys and alt_keys.signature_help        or vim.lsp.buf.signature_help,      opts)
         vim.keymap.set("n", "gK",         alt_keys and alt_keys.signature_help        or vim.lsp.buf.signature_help,      opts)

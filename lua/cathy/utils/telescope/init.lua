@@ -1,21 +1,3 @@
-local ok, _ = pcall(require, "telescope")
-if not ok then
-    local empty = function()
-        vim.notify("failed to load telescope, try restarting neovim Kappa", vim.log.levels.ERROR)
-    end
-    return {
-        project_files = empty,
-        change_dir = empty,
-        multi_grep = empty,
-        get_nvim = empty,
-        get_word = empty,
-        hidden = empty,
-    }
-end
-
-local builtin = require "telescope.builtin"
-local config  = require "cathy.utils.telescope.config"
-
 local M = {}
 
 M.project_files = function()
@@ -25,15 +7,22 @@ M.project_files = function()
     if root then
         M.find_files()
     else
-        require("telescope").extensions.projects.projects()
+        M.project()
     end
+end
+
+M.project = function()
+    require("telescope").extensions.projects.projects({
+        prompt_prefix = " Projects :: "
+    })
 end
 
 M.find_files = function()
     require("telescope.builtin").find_files({
-        file_ignore_patterns = config.ignores,
+        file_ignore_patterns = require("cathy.utils.telescope.config").ignores,
         hidden = true,
         previewer = false,
+        prompt_prefix = " Find Files :: ",
     })
 end
 
@@ -41,19 +30,22 @@ M.buffers = function()
     require("telescope.builtin").buffers({
         previewer = false,
         ignore_current_buffer = true,
+        prompt_prefix = " Buffers :: ",
     })
 end
 
 M.get_nvim = function()
-    builtin.find_files({
+    require("telescope.builtin").find_files({
         cwd = "~/.config/nvim",
         previewer = false,
+        prompt_prefix = " Neovim Files :: ",
     })
 end
 
 M.grep_current_file = function()
     require("telescope.builtin").live_grep({
         search_dirs = { vim.fn.expand("%:p") },
+        prompt_prefix = " Grep Current File :: ",
     })
 end
 
@@ -88,6 +80,7 @@ M.multi_grep = function(opts)
     require("telescope.pickers").new(opts, {
         debounce = 100,
         prompt_title = "Grep (multi)",
+        prompt_prefix = " Multi Grep :: ",
         finder = finder,
         previewer = require("telescope.config").values.grep_previewer(opts),
         sorter = require("telescope.sorters").empty(),
@@ -132,6 +125,7 @@ M.find_file = function(opts)
     require("telescope.pickers").new(opts, {
         debounce = 100,
         prompt_title = "Find File",
+        prompt_prefix = " Find File :: ",
         default_text = vim.uv.cwd() .. "/",
         finder = finder,
         previewer = false,
@@ -149,6 +143,20 @@ M.find_file = function(opts)
                 end
 
                 picker:set_prompt(value)
+            end)
+
+            map("i", "<c-w>", function(prompt_bufnr)
+                local picker = actions_state.get_current_picker(prompt_bufnr)
+                local prompt = picker:_get_prompt()
+                if string.sub(prompt, -1) == "/" then
+                    if #prompt > 1 then
+                        local pos = string.match(string.sub(prompt, 1, -2), ".*()/")
+                        picker:set_prompt(string.sub(prompt, 1, pos))
+                    end
+                else
+                    local last_slash = string.match(prompt, ".*()/")
+                    picker:set_prompt(string.sub(prompt, 1, last_slash))
+                end
             end)
 
             map("i", "<bs>", function(prompt_bufnr)
@@ -174,26 +182,47 @@ M.find_file = function(opts)
     }):find()
 end
 
----@deprecated
-M.file_browser = function()
-    error "picker deprecated"
-    local pph = vim.fn.expand("%:p:h")
-    if pph:find("term://") then
-        pph = pph:gsub("term://", ""):gsub("//.*$", "/")
-    end
-    require("telescope").extensions.file_browser.file_browser({
-        hide_parent_dir = true,
-        create_from_prompt = true,
-        previewer = false,
-        no_ignore = true,
-        hidden = true,
-        quiet = true,
-        cwd = pph
+M.get_word = function()
+    require("telescope.builtin").grep_string({
+        search = vim.fn.expand("<cword>"),
+        prompt_prefix = " Get Word :: ",
     })
 end
 
-M.get_word = function()
-    builtin.grep_string({ search = vim.fn.expand("<cword>") })
+M.oldfiles = function()
+    require("telescope.builtin").oldfiles({
+        previewer = false,
+        prompt_prefix = " Oldfiles :: ",
+    })
+end
+
+M.help_tags = function()
+    require("telescope.builtin").help_tags({
+        previewer = false,
+        prompt_prefix = " Help Tags :: ",
+    })
+end
+
+M.treesitter = function()
+    require("telescope.builtin").treesitter({
+        prompt_prefix = " Treesitter :: ",
+    })
+end
+
+M.spell_suggest = function()
+    require("telescope.builtin").spell_suggest({
+        prompt_prefix = " Spell Suggest :: ",
+    })
+end
+
+M.diagnostics = function()
+    require("telescope.builtin").diagnostics({
+        prompt_prefix = " Diagnostics :: ",
+    })
+end
+
+M.resume = function()
+    require("telescope.builtin").resume()
 end
 
 return M
