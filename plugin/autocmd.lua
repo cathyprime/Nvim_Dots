@@ -65,19 +65,19 @@ vim.api.nvim_create_autocmd("FileType", {
     group = augroup("close_with_q"),
     pattern = {
         "help",
-        "lspinfo",
+        "query",
         "man",
         "tsplayground",
         "checkhealth",
     },
     callback = function(event)
         vim.bo[event.buf].buflisted = false
-        vim.keymap.set(
-            "n",
-            "q",
-            "<cmd>close<cr>",
-            { buffer = event.buf, silent = true }
-        )
+        vim.keymap.set("n", "q", function()
+            local ok, _ = pcall(vim.cmd.close)
+            if not ok then
+                vim.cmd.bdelete()
+            end
+        end, { buffer = event.buf, silent = true, noremap = true, nowait = true })
     end,
 })
 
