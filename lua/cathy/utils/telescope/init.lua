@@ -63,7 +63,7 @@ M.multi_grep = function(opts)
     local finder = require("telescope.finders").new_async_job {
         command_generator = function(prompt)
 
-            if not prompt or promot == "" then
+            if not prompt or prompt == "" then
                 return
             end
 
@@ -91,6 +91,86 @@ M.multi_grep = function(opts)
         finder = finder,
         previewer = require("telescope.config").values.grep_previewer(opts),
         sorter = require("telescope.sorters").empty(),
+    }):find()
+end
+
+M.find_file = function(opts)
+    opts = opts or {}
+    opts.cwd = opts.cwd or vim.uv.cwd()
+    local finder = require("telescope.finders").new_async_job {
+        command_generator = function(prompt)
+
+            if not prompt or prompt == "" then
+                return
+            end
+
+            local pos = prompt:match("^.*()/")
+            local path = string.sub(prompt, 1, pos or 1)
+
+            if path == "" then
+                path = "/"
+            end
+
+            return { "find", path, "-mindepth", 1, "-maxdepth", 1 }
+        end,
+        entry_maker = function(entry)
+            local pos = entry:match("^.*()/")
+            pos = (pos or 1) + 1
+            local filename = string.sub(entry, pos, #entry)
+
+            if require("plenary.path"):new(entry):is_dir() then
+                filename = filename .. "/"
+            end
+            return {
+                value = entry,
+                display = filename,
+                ordinal = entry,
+            }
+        end,
+        cwd = opts.cwd,
+    }
+    require("telescope.pickers").new(opts, {
+        debounce = 100,
+        prompt_title = "Find File",
+        default_text = vim.uv.cwd() .. "/",
+        finder = finder,
+        previewer = false,
+        sorter = require("telescope.config").values.file_sorter(opts),
+        attach_mappings = function(prompt_bufnr, map)
+            local actions       = require "telescope.actions"
+            local actions_state = require "telescope.actions.state"
+
+            map({ "i", "n" }, "<tab>", function(prompt_bufnr)
+                local selection = actions_state.get_selected_entry()
+                local picker    = actions_state.get_current_picker(prompt_bufnr)
+                local value = selection.value
+                if require("plenary.path"):new(value):is_dir() then
+                    value = value .. "/"
+                end
+
+                picker:set_prompt(value)
+            end)
+
+            map("i", "<bs>", function(prompt_bufnr)
+                local picker = actions_state.get_current_picker(prompt_bufnr)
+                local prompt = picker:_get_prompt(prompt_bufnr)
+                if string.sub(prompt, -1) == "/" then
+                    if #prompt > 1 then
+                        local pos = string.match(string.sub(prompt, 1, -2), ".*()/")
+                        picker:set_prompt(string.sub(prompt, 1, pos))
+                    end
+                else
+                    picker:set_prompt(string.sub(prompt, 1, -2))
+                end
+            end)
+
+            map({ "i", "n" }, "<c-h>", function(prompt_bufnr)
+                local picker = actions_state.get_current_picker(prompt_bufnr)
+                picker:set_prompt(os.getenv("HOME") .. "/")
+            end)
+
+            return true
+        end
     }):find()
 end
 

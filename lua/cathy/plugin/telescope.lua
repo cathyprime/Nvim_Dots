@@ -74,6 +74,7 @@ return {
         { "<leader>fG",       telescope_utils.grep_current_file,                                            desc = "grep current file" },
         { "<leader>b",        telescope_utils.buffers,                                                      desc = "switch buffers"    },
         { "<leader>fg",       telescope_utils.multi_grep,                                                   desc = "grep"              },
+        { "<leader>ff",       telescope_utils.find_file,                                                    desc = "files"             },
         { "<leader>fF",       function() require("telescope.builtin").resume() end,                         desc = "resume"            },
         { "<leader>fs",       function() require("telescope.builtin").treesitter() end,                     desc = "treesitter"        },
         { "<leader>fd",       function() require("telescope.builtin").diagnostics() end,                    desc = "diagnostics"       },

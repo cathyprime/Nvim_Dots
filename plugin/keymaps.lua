@@ -97,7 +97,6 @@ end, { expr = true })
 map("n", "<leader>ot", "<cmd>e todo.md<cr>")
 map("x", "<leader>;", [[<cmd>'<,'>norm A;<cr>]])
 map("n", "<c-z>", "<Nop>")
-map("n", "<leader>ff", "<cmd>FindFile<cr>", { desc = "find file", silent = false })
 map("n", "<c-,>", function() -- duplicate line and stay in the same pos
     if not vim.opt_local.modifiable:get() then return end
     local pos = vim.api.nvim_win_get_cursor(0)
