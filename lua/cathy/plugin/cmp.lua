@@ -1,3 +1,25 @@
+local modes = {
+    c = true,
+    cr = true,
+    cv = true,
+    cvr = true,
+}
+
+function show(cmp)
+    if not modes[vim.fn.mode()] then
+        cmp.show()
+    end
+end
+
+function select_gen(way)
+    return function (cmp)
+        if require("blink.cmp").is_visible() or not modes[vim.fn.mode()] then
+            cmp["select_" .. way]()
+            return true
+        end
+    end
+end
+
 return {
     {
         "folke/lazydev.nvim",
@@ -21,8 +43,8 @@ return {
                 ["<tab>"] = {},
                 ["<s-tab>"] = {},
 
-                ["<C-p>"] = { "show", "select_prev", "fallback" },
-                ["<C-n>"] = { "show", "select_next", "fallback" },
+                ["<C-p>"] = { show, select_gen("prev"), "fallback" },
+                ["<C-n>"] = { show, select_gen("next"), "fallback" },
 
                 ["<C-d>"] = { "scroll_documentation_down", "fallback" },
                 ["<C-u>"] = { "scroll_documentation_up", "fallback" },
@@ -63,7 +85,7 @@ return {
                         if ctx.mode == "cmdline" then
                             return #vim.fn.getcmdline() > 5 and true or false
                         end
-                        return false
+                        return ctx.mode == "cmdline"
                     end,
                     draw = {
                         padding = 0,
