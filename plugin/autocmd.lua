@@ -94,7 +94,7 @@ vim.api.nvim_create_autocmd({ "BufWritePre" }, {
 })
 
 -- set filetype c for header and .c files instead of c++
-vim.api.nvim_create_autocmd({"BufRead", "BUfNewFile"}, {
+vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {
     group = augroup("c_filetypes"),
     once = false,
     pattern = {"*.c", "*.h"},
