@@ -138,6 +138,15 @@ M.find_file = function(opts)
             local actions       = require "telescope.actions"
             local actions_state = require "telescope.actions.state"
 
+            actions.select_default:replace(function()
+                actions.close(prompt_bufnr)
+                local selection = actions_state.get_selected_entry()
+                vim.cmd.edit(selection.value)
+                if string.sub(selection.value, -1) == "/" then
+                    vim.cmd.cd(selection.value)
+                end
+            end)
+
             map({ "i", "n" }, "<tab>", function(prompt_bufnr)
                 local selection = actions_state.get_selected_entry()
                 local picker    = actions_state.get_current_picker(prompt_bufnr)
