@@ -66,9 +66,12 @@ return {
             signature = { enabled = false },
             completion = {
                 list = {
-                    selection = function(ctx)
-                        return ctx.mode == "cmdline" and "auto_insert" or "preselect"
-                    end
+                    selection = {
+                        preselect = true,
+                        auto_insert = function(ctx)
+                            return ctx.mode == "cmdline"
+                        end
+                    }
                 },
                 keyword = { range = "prefix" },
                 accept = { auto_brackets = { enabled = false } },
