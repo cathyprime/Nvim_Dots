@@ -141,6 +141,9 @@ M.find_file = function(opts)
             actions.select_default:replace(function()
                 actions.close(prompt_bufnr)
                 local selection = actions_state.get_selected_entry()
+                if not selection then
+                    selection = { value = actions_state.get_current_line() }
+                end
                 vim.cmd.edit(selection.value)
                 if string.sub(selection.value, -1) == "/" then
                     vim.cmd.cd(selection.value)
@@ -157,7 +160,7 @@ M.find_file = function(opts)
 
             map("i", "<c-w>", function(prompt_bufnr)
                 local picker = actions_state.get_current_picker(prompt_bufnr)
-                local prompt = picker:_get_prompt()
+                local prompt = actions_state.get_current_line()
                 if string.sub(prompt, -1) == "/" then
                     if #prompt > 1 then
                         local pos = string.match(string.sub(prompt, 1, -2), ".*()/")
@@ -171,7 +174,7 @@ M.find_file = function(opts)
 
             map("i", "<bs>", function(prompt_bufnr)
                 local picker = actions_state.get_current_picker(prompt_bufnr)
-                local prompt = picker:_get_prompt(prompt_bufnr)
+                local prompt = actions_state.get_current_line()
                 if string.sub(prompt, -1) == "/" then
                     if #prompt > 1 then
                         local pos = string.match(string.sub(prompt, 1, -2), ".*()/")
