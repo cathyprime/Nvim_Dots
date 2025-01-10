@@ -1,5 +1,9 @@
 local M = {}
 
+local prefix = function(str)
+    return string.format(" %s :: ", str)
+end
+
 M.project_files = function()
     local p = require("project_nvim.project")
     local root = p.get_project_root()
@@ -13,7 +17,7 @@ end
 
 M.project = function()
     require("telescope").extensions.projects.projects({
-        prompt_prefix = " Projects :: "
+        prompt_prefix = prefix("Projects")
     })
 end
 
@@ -22,7 +26,7 @@ M.find_files = function()
         file_ignore_patterns = require("cathy.utils.telescope.config").ignores,
         hidden = true,
         previewer = false,
-        prompt_prefix = " Find Files :: ",
+        prompt_prefix = prefix("Find Files"),
     })
 end
 
@@ -30,7 +34,7 @@ M.buffers = function()
     require("telescope.builtin").buffers({
         previewer = false,
         ignore_current_buffer = true,
-        prompt_prefix = " Buffers :: ",
+        prompt_prefix = prefix("Buffers")
     })
 end
 
@@ -38,14 +42,14 @@ M.get_nvim = function()
     require("telescope.builtin").find_files({
         cwd = "~/.config/nvim",
         previewer = false,
-        prompt_prefix = " Neovim Files :: ",
+        prompt_prefix = prefix("Neovim Files"),
     })
 end
 
 M.grep_current_file = function()
     require("telescope.builtin").live_grep({
         search_dirs = { vim.fn.expand("%:p") },
-        prompt_prefix = " Grep Current File :: ",
+        prompt_prefix = prefix("Grep Current File"),
     })
 end
 
@@ -80,7 +84,7 @@ M.multi_grep = function(opts)
     require("telescope.pickers").new(opts, {
         debounce = 100,
         prompt_title = "Grep (multi)",
-        prompt_prefix = " Multi Grep :: ",
+        prompt_prefix = prefix("Multi Grep"),
         finder = finder,
         previewer = require("telescope.config").values.grep_previewer(opts),
         sorter = require("telescope.sorters").empty(),
@@ -129,7 +133,7 @@ M.find_file = function(opts)
     require("telescope.pickers").new(opts, {
         debounce = 100,
         prompt_title = "Find File",
-        prompt_prefix = " Find File :: ",
+        prompt_prefix = prefix("Find File"),
         default_text = vim.uv.cwd() .. "/",
         finder = finder,
         previewer = false,
@@ -198,39 +202,39 @@ end
 M.get_word = function()
     require("telescope.builtin").grep_string({
         search = vim.fn.expand("<cword>"),
-        prompt_prefix = " Get Word :: ",
+        prompt_prefix = prefix("Get Word"),
     })
 end
 
 M.oldfiles = function()
     require("telescope.builtin").oldfiles({
         previewer = false,
-        prompt_prefix = " Oldfiles :: ",
+        prompt_prefix = prefix("Oldfiles"),
     })
 end
 
 M.help_tags = function()
     require("telescope.builtin").help_tags({
         previewer = false,
-        prompt_prefix = " Help Tags :: ",
+        prompt_prefix = prefix("Help Tags"),
     })
 end
 
 M.treesitter = function()
     require("telescope.builtin").treesitter({
-        prompt_prefix = " Treesitter :: ",
+        prompt_prefix = prefix("Treesitter"),
     })
 end
 
 M.spell_suggest = function()
     require("telescope.builtin").spell_suggest({
-        prompt_prefix = " Spell Suggest :: ",
+        prompt_prefix = prefix("Spell Suggest"),
     })
 end
 
 M.diagnostics = function()
     require("telescope.builtin").diagnostics({
-        prompt_prefix = " Diagnostics :: ",
+        prompt_prefix = prefix("Diagnostics"),
     })
 end
 
@@ -242,7 +246,7 @@ M.references = function()
     require("telescope.builtin").lsp_references({
         include_declaration = true,
         show_line = true,
-        prompt_prefix = " References :: ",
+        prompt_prefix = prefix("References"),
         layout_config = {
             preview_width = 0.45,
         }
@@ -251,13 +255,13 @@ end
 
 M.lsp_document_symbols = function()
     require("telescope.builtin").lsp_document_symbols({
-        prompt_prefix = " Document Symbols :: "
+        prompt_prefix = prefix("Document Symbols")
     })
 end
 
 M.lsp_workspace_symbols = function()
     require("telescope.builtin").lsp_workspace_symbols({
-        prompt_prefix = " Workspace Symbols :: "
+        prompt_prefix = prefix("Workspace Symbols")
     })
 end
 
