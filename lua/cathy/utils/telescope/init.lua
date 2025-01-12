@@ -94,34 +94,50 @@ end
 M.find_file = function(opts)
     opts = opts or {}
     opts.cwd = opts.cwd or vim.uv.cwd()
-    local finder = require("telescope.finders").new_async_job {
-        command_generator = function(prompt)
-
-            if not prompt or prompt == "" then
-                return
-            end
-
+    local finder = require("telescope.finders").new_dynamic {
+        fn = function(prompt)
             local pos = prompt:match("^.*()/")
             local path = string.sub(prompt, 1, pos or 1)
-
             if path == "" then
                 path = "/"
             end
 
-            return { "fd", "-L", "--exact-depth=1", "-HI", '.', path }
+            local obj = vim.system({"fd", "-L", "--exact-depth=1", "-HI", '.', path}, { text = true }):wait()
+            local stdout = vim.split(obj.stdout, "\n", { trimempty = true, plain = true })
+
+            if string.sub(prompt, -1) == "/" then
+                table.insert(stdout, 1, path .. ".")
+                if #prompt ~= 1 then
+                    table.insert(stdout, 2, path .. "..")
+                end
+            end
+            return stdout
         end,
         entry_maker = function(entry)
-            local pos
+            if entry:match("%.%.$") then
+                return {
+                    value = entry,
+                    ordinal = entry,
+                    display = "../",
+                }
+            end
+            if entry:match("%.$") then
+                return {
+                    value = entry,
+                    ordinal = entry,
+                    display = "./",
+                }
+            end
 
+            local pos
             if string.sub(entry, -1) == "/" then
                 pos = string.match(string.sub(entry, 1, -2), ".*()/")
             else
                 pos = entry:match("^.*()/")
             end
-
             pos = (pos or 1) + 1
-            local filename = string.sub(entry, pos, #entry)
 
+            local filename = string.sub(entry, pos, #entry)
             return {
                 value = entry,
                 display = filename,
@@ -157,7 +173,18 @@ M.find_file = function(opts)
             map({ "i", "n" }, "<tab>", function(prompt_bufnr)
                 local selection = actions_state.get_selected_entry()
                 local picker    = actions_state.get_current_picker(prompt_bufnr)
-                local value = selection.value
+                local value     = selection.value
+                if selection.display == "./" then
+                    return
+                end
+                if selection.display == "../" then
+                    local new_path = vim.fs.normalize(selection.value)
+                    if #new_path ~= 1 then
+                        new_path = new_path .. "/"
+                    end
+                    picker:set_prompt(new_path)
+                    return
+                end
 
                 picker:set_prompt(value)
             end)
