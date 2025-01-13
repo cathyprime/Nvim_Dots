@@ -92,6 +92,16 @@ M.multi_grep = function(opts)
 end
 
 M.find_file = function(opts)
+    local cache = {}
+    local function get_files(path)
+        if cache[path] then
+            return cache[path]
+        end
+        local obj = vim.system({"fd", "-L", "--exact-depth=1", "-HI", '.', path}, { text = true }):wait()
+        local stdout = vim.split(obj.stdout, "\n", { trimempty = true, plain = true })
+        cache[path] = stdout
+        return stdout
+    end
     opts = opts or {}
     opts.cwd = opts.cwd or vim.uv.cwd()
     local finder = require("telescope.finders").new_dynamic {
@@ -102,9 +112,7 @@ M.find_file = function(opts)
                 path = "/"
             end
 
-            local obj = vim.system({"fd", "-L", "--exact-depth=1", "-HI", '.', path}, { text = true }):wait()
-            local stdout = vim.split(obj.stdout, "\n", { trimempty = true, plain = true })
-
+            local stdout = get_files(path)
             if string.sub(prompt, -1) == "/" then
                 table.insert(stdout, 1, path .. ".")
                 if #prompt ~= 1 then
@@ -165,7 +173,11 @@ M.find_file = function(opts)
                     selection = { value = actions_state.get_current_line() }
                 end
                 vim.cmd.edit(selection.value)
-                if string.sub(selection.value, -1) == "/" then
+                local cd_chars = {
+                    ["/"] = true,
+                    ["."] = true,
+                }
+                if cd_chars[string.sub(selection.value, -1)] then
                     vim.cmd.cd(selection.value)
                 end
             end)
