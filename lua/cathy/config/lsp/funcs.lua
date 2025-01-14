@@ -1,29 +1,6 @@
 local telescope = require("cathy.utils.telescope")
 local lspconfig = require("lspconfig")
 
-local function telescope_references()
-    require("telescope.builtin").lsp_references({
-        include_declaration = true,
-        show_line = true,
-        prompt_prefix = " References :: ",
-        layout_config = {
-            preview_width = 0.45,
-        }
-    })
-end
-
-local function telescope_lsp_document_symbols()
-    require("telescope.builtin").lsp_document_symbols({
-        prompt_prefix = " Document Symbols :: "
-    })
-end
-
-local function telescope_lsp_workspace_symbols()
-    require("telescope.builtin").lsp_workspace_symbols({
-        prompt_prefix = " Workspace Symbols :: "
-    })
-end
-
 local attach = function(client, bufnr, alt_keys)
     local opts = { buffer = bufnr }
     local frop = vim.tbl_deep_extend("force", { desc = "references" }, opts)
