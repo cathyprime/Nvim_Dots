@@ -1,10 +1,10 @@
 local M = {}
 
-local prefix = function(str)
+local prefix = function (str)
     return string.format(" %s :: ", str)
 end
 
-M.project_files = function()
+M.project_files = function ()
     local p = require("project_nvim.project")
     local root = p.get_project_root()
 
@@ -15,13 +15,13 @@ M.project_files = function()
     end
 end
 
-M.project = function()
+M.project = function ()
     require("telescope").extensions.projects.projects({
         prompt_prefix = prefix("Projects")
     })
 end
 
-M.find_files = function()
+M.find_files = function ()
     require("telescope.builtin").find_files({
         file_ignore_patterns = require("cathy.utils.telescope.config").ignores,
         hidden = true,
@@ -30,7 +30,7 @@ M.find_files = function()
     })
 end
 
-M.buffers = function()
+M.buffers = function ()
     require("telescope.builtin").buffers({
         previewer = false,
         ignore_current_buffer = true,
@@ -38,7 +38,7 @@ M.buffers = function()
     })
 end
 
-M.get_nvim = function()
+M.get_nvim = function ()
     require("telescope.builtin").find_files({
         cwd = "~/.config/nvim",
         previewer = false,
@@ -46,18 +46,18 @@ M.get_nvim = function()
     })
 end
 
-M.grep_current_file = function()
+M.grep_current_file = function ()
     require("telescope.builtin").live_grep({
         search_dirs = { vim.fn.expand("%:p") },
         prompt_prefix = prefix("Grep Current File"),
     })
 end
 
-M.multi_grep = function(opts)
+M.multi_grep = function (opts)
     opts = opts or {}
     opts.cwd = opts.cwd or vim.uv.cwd()
     local finder = require("telescope.finders").new_async_job {
-        command_generator = function(prompt)
+        command_generator = function (prompt)
 
             if not prompt or prompt == "" then
                 return
@@ -91,7 +91,7 @@ M.multi_grep = function(opts)
     }):find()
 end
 
-M.find_file = function(opts)
+M.find_file = function (opts)
     local cache = {}
     local function get_files(path)
         if cache[path] then
@@ -99,58 +99,77 @@ M.find_file = function(opts)
         end
         local obj = vim.system({"fd", "-L", "--exact-depth=1", "-HI", '.', path}, { text = true }):wait()
         local stdout = vim.split(obj.stdout, "\n", { trimempty = true, plain = true })
+        table.insert(stdout, 1, path .. ".")
+        table.insert(stdout, 2, path .. "..")
         cache[path] = stdout
         return stdout
     end
     opts = opts or {}
     opts.cwd = opts.cwd or vim.uv.cwd()
+    local displayer = require("telescope.pickers.entry_display").create({
+        separator = " ",
+        items = {
+            { width = 1 },
+            { remaining = true }
+        }
+    })
     local finder = require("telescope.finders").new_dynamic {
-        fn = function(prompt)
-            local pos = prompt:match("^.*()/")
-            local path = string.sub(prompt, 1, pos or 1)
-            if path == "" then
-                path = "/"
+        fn = function (prompt)
+            local path
+            if prompt == "" then
+                prompt = "/"
             end
-
-            local stdout = get_files(path)
             if string.sub(prompt, -1) == "/" then
-                table.insert(stdout, 1, path .. ".")
-                if #prompt ~= 1 then
-                    table.insert(stdout, 2, path .. "..")
-                end
-            end
-            return stdout
-        end,
-        entry_maker = function(entry)
-            if entry:match("%.%.$") then
-                return {
-                    value = entry,
-                    ordinal = entry,
-                    display = "../",
-                }
-            end
-            if entry:match("%.$") then
-                return {
-                    value = entry,
-                    ordinal = entry,
-                    display = "./",
-                }
-            end
-
-            local pos
-            if string.sub(entry, -1) == "/" then
-                pos = string.match(string.sub(entry, 1, -2), ".*()/")
+                path = prompt
             else
-                pos = entry:match("^.*()/")
+                path = vim.fn.fnamemodify(prompt, ":h")
             end
-            pos = (pos or 1) + 1
 
-            local filename = string.sub(entry, pos, #entry)
-            return {
+            return get_files(path)
+        end,
+        entry_maker = function (entry)
+            local function make_display (entry_tbl)
+                local is_dir = string.sub(
+                    require("telescope.actions.state").get_current_line(), -1) == "/"
+
+                if entry_tbl.value:match("%.%.$") and is_dir then
+                    local icon, highlight = require("mini.icons").get("directory", vim.fs.normalize(entry_tbl.value))
+                    return displayer {
+                        { icon, highlight },
+                        "../"
+                    }
+                end
+                if entry_tbl.value:match("%.$") and is_dir then
+                    local icon, highlight = require("mini.icons").get("directory", vim.fs.normalize(entry_tbl.value))
+                    return displayer {
+                        { icon, highlight },
+                        "./"
+                    }
+                end
+                local t
+                local name
+                if string.sub(entry_tbl.value, -1) == "/" then
+                    t = "directory"
+                    name = vim.fn.fnamemodify(entry_tbl.value, ":h:t") .. "/"
+                else
+                    t = "file"
+                    name = vim.fn.fnamemodify(entry_tbl.value, ":t")
+                end
+                local icon, hl = require("mini.icons").get(t, entry_tbl.value)
+                return displayer {
+                    { icon, hl },
+                    name
+                }
+            end
+            if entry == "" then
+                return nil
+            end
+
+            return require("telescope.make_entry").set_default_entry_mt({
                 value = entry,
-                display = filename,
                 ordinal = entry,
-            }
+                display = make_display
+            }, opts)
         end,
         cwd = opts.cwd,
     }
@@ -162,11 +181,11 @@ M.find_file = function(opts)
         finder = finder,
         previewer = false,
         sorter = require("telescope.config").values.file_sorter(opts),
-        attach_mappings = function(prompt_bufnr, map)
+        attach_mappings = function (prompt_bufnr, map)
             local actions       = require "telescope.actions"
             local actions_state = require "telescope.actions.state"
 
-            actions.select_default:replace(function()
+            actions.select_default:replace(function ()
                 actions.close(prompt_bufnr)
                 local selection = actions_state.get_selected_entry()
                 if not selection then
@@ -182,14 +201,13 @@ M.find_file = function(opts)
                 end
             end)
 
-            map({ "i", "n" }, "<tab>", function(prompt_bufnr)
+            map({ "i", "n" }, "<tab>", function (prompt_bufnr)
                 local selection = actions_state.get_selected_entry()
+                local display   = selection.display(selection)
                 local picker    = actions_state.get_current_picker(prompt_bufnr)
                 local value     = selection.value
-                if selection.display == "./" then
-                    return
-                end
-                if selection.display == "../" then
+
+                if display:match "%.%.%/$" then
                     local new_path = vim.fs.normalize(selection.value)
                     if #new_path ~= 1 then
                         new_path = new_path .. "/"
@@ -197,11 +215,14 @@ M.find_file = function(opts)
                     picker:set_prompt(new_path)
                     return
                 end
+                if display:match "%.%/$" then
+                    return
+                end
 
                 picker:set_prompt(value)
             end)
 
-            map("i", "<c-w>", function(prompt_bufnr)
+            map("i", "<c-w>", function (prompt_bufnr)
                 local picker = actions_state.get_current_picker(prompt_bufnr)
                 local prompt = actions_state.get_current_line()
                 if string.sub(prompt, -1) == "/" then
@@ -215,7 +236,7 @@ M.find_file = function(opts)
                 end
             end)
 
-            map("i", "<bs>", function(prompt_bufnr)
+            map("i", "<bs>", function (prompt_bufnr)
                 local picker = actions_state.get_current_picker(prompt_bufnr)
                 local prompt = actions_state.get_current_line()
                 if string.sub(prompt, -1) == "/" then
@@ -228,7 +249,7 @@ M.find_file = function(opts)
                 end
             end)
 
-            map({ "i", "n" }, "<c-h>", function(prompt_bufnr)
+            map({ "i", "n" }, "<c-h>", function (prompt_bufnr)
                 local picker = actions_state.get_current_picker(prompt_bufnr)
                 picker:set_prompt(os.getenv("HOME") .. "/")
             end)
@@ -238,50 +259,50 @@ M.find_file = function(opts)
     }):find()
 end
 
-M.get_word = function()
+M.get_word = function ()
     require("telescope.builtin").grep_string({
         search = vim.fn.expand("<cword>"),
         prompt_prefix = prefix("Get Word"),
     })
 end
 
-M.oldfiles = function()
+M.oldfiles = function ()
     require("telescope.builtin").oldfiles({
         previewer = false,
         prompt_prefix = prefix("Oldfiles"),
     })
 end
 
-M.help_tags = function()
+M.help_tags = function ()
     require("telescope.builtin").help_tags({
         previewer = false,
         prompt_prefix = prefix("Help Tags"),
     })
 end
 
-M.treesitter = function()
+M.treesitter = function ()
     require("telescope.builtin").treesitter({
         prompt_prefix = prefix("Treesitter"),
     })
 end
 
-M.spell_suggest = function()
+M.spell_suggest = function ()
     require("telescope.builtin").spell_suggest({
         prompt_prefix = prefix("Spell Suggest"),
     })
 end
 
-M.diagnostics = function()
+M.diagnostics = function ()
     require("telescope.builtin").diagnostics({
         prompt_prefix = prefix("Diagnostics"),
     })
 end
 
-M.resume = function()
+M.resume = function ()
     require("telescope.builtin").resume()
 end
 
-M.references = function()
+M.references = function ()
     require("telescope.builtin").lsp_references({
         include_declaration = true,
         show_line = true,
@@ -292,13 +313,13 @@ M.references = function()
     })
 end
 
-M.lsp_document_symbols = function()
+M.lsp_document_symbols = function ()
     require("telescope.builtin").lsp_document_symbols({
         prompt_prefix = prefix("Document Symbols")
     })
 end
 
-M.lsp_workspace_symbols = function()
+M.lsp_workspace_symbols = function ()
     require("telescope.builtin").lsp_workspace_symbols({
         prompt_prefix = prefix("Workspace Symbols")
     })
