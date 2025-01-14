@@ -42,8 +42,8 @@ local minis = {
     move = function()
         require("mini.move").setup({
             mappings = {
-                left       = "<m-h>",
-                right      = "<m-l>",
+                left       = "",
+                right      = "",
                 down       = "<m-j>",
                 up         = "<m-k>",
                 line_left  = "",
@@ -52,6 +52,16 @@ local minis = {
                 line_up    = "<m-k>",
             }
         })
+        vim.keymap.set("n", "<m-h>", function ()
+            vim.cmd.normal("v")
+            require("mini.move").move_selection("left")
+            vim.cmd.normal("v")
+        end)
+        vim.keymap.set("n", "<m-l>", function ()
+            vim.cmd.normal("v")
+            require("mini.move").move_selection("right")
+            vim.cmd.normal("v")
+        end)
     end,
 
     clue = function()
