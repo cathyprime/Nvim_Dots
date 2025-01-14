@@ -97,7 +97,7 @@ M.find_file = function (opts)
         if cache[path] then
             return cache[path]
         end
-        local obj = vim.system({"fd", "-L", "--exact-depth=1", "-HI", '.', path}, { text = true }):wait()
+        local obj = vim.system({ "fd", "-L", "--exact-depth=1", "-HI", '.', path }, { text = true }):wait()
         local stdout = vim.split(obj.stdout, "\n", { trimempty = true, plain = true })
         table.insert(stdout, 1, path .. ".")
         table.insert(stdout, 2, path .. "..")
@@ -165,22 +165,41 @@ M.find_file = function (opts)
                 return nil
             end
 
+            local ordinal
+            if string.sub(entry, -1) == "/" then
+                ordinal = vim.fn.fnamemodify(entry, ":h:t") .. "/"
+            else
+                ordinal = vim.fn.fnamemodify(entry, ":t")
+            end
+
             return require("telescope.make_entry").set_default_entry_mt({
                 value = entry,
-                ordinal = entry,
+                ordinal = ordinal,
                 display = make_display
             }, opts)
         end,
         cwd = opts.cwd,
     }
+    local sorter = require("telescope.config").values.file_sorter(opts)
+    local og_scoring = sorter.scoring_function
+    sorter.scoring_function = function (arg1, prompt, arg3, arg4)
+        if not prompt then return og_scoring(arg1, path_tail(prompt), arg3, arg4) end
+
+        if string.sub(prompt, -1) == "/" then
+            return og_scoring(arg1, "", arg3, arg4)
+        end
+        return og_scoring(arg1, vim.fn.fnamemodify(prompt, ":t"), arg3, arg4)
+    end
     require("telescope.pickers").new(opts, {
         debounce = 100,
         prompt_title = "Find File",
         prompt_prefix = prefix("Find File"),
+        layout_config = { bottom_pane = { height = 10 } },
         default_text = vim.uv.cwd() .. "/",
+        sorting_order = "ascending",
         finder = finder,
         previewer = false,
-        sorter = require("telescope.config").values.file_sorter(opts),
+        sorter = sorter,
         attach_mappings = function (prompt_bufnr, map)
             local actions       = require "telescope.actions"
             local actions_state = require "telescope.actions.state"
