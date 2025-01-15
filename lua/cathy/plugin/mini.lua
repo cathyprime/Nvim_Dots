@@ -42,8 +42,8 @@ local minis = {
     move = function()
         require("mini.move").setup({
             mappings = {
-                left       = "",
-                right      = "",
+                left       = "<m-h>",
+                right      = "<m-l>",
                 down       = "<m-j>",
                 up         = "<m-k>",
                 line_left  = "",
