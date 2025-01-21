@@ -8,12 +8,13 @@ return {
     dependencies = {
         "williamboman/mason.nvim",
         "mfussenegger/nvim-dap",
-        "igorlfs/nvim-dap-view",
+        "rcarriga/nvim-dap-ui",
         "nvim-neotest/nvim-nio",
     },
     keys = { { "<leader>z" } },
     config = function()
         local dap = require("dap")
+        local dapui = require("dapui")
         require("mason-nvim-dap").setup({
             ensure_installed = {
                 "debugpy",
@@ -64,11 +65,46 @@ return {
             },
         })
 
+        ---@diagnostic disable-next-line
+        dapui.setup({
+            expand_lines = false,
+            layouts = {
+                {
+                    -- Bottom layout
+                    elements = {
+                        { id = "scopes", size = 0.5 },
+                        { id = "watches", size = 0.5 },
+                    },
+                    size = 8,
+                    position = "bottom",
+                },
+                -- {
+                --     elements = {
+                --         { id = "console", size = 1 },
+                --     },
+                --     size = 40,
+                --     position = "right",
+                -- },
+            }
+        })
+
+        dap.listeners.after.event_initialized["dapui_config"] = function()
+            dapui.open()
+        end
+
+        dap.listeners.before.event_terminated["dapui_config"] = function()
+            dapui.close()
+        end
+
+        dap.listeners.before.event_exited["dapui_config"] = function()
+            dapui.close()
+        end
+
         local hint = [[
  _n_: step over   _J_: to cursor  _<cr>_: Breakpoint
- _i_: step into   _X_: Quit        _u_: Toggle UI     ^
+ _i_: step into   _X_: Quit        _B_: Condition breakpoint ^
  _o_: step out    _K_: Hover       _L_: Log breakpoint
- _b_: step back   _W_: Watch
+ _b_: step back   _W_ Watch        _u_: Toggle UI
  ^ ^            ^                 ^  ^
  ^ ^ _C_: Continue/Start          ^  ^   Change window
  ^ ^ _R_: Reverse continue        ^  ^       _<c-k>_^
@@ -92,6 +128,7 @@ return {
             mode = { "n", "x" },
             heads = {
                 { "<cr>", function() dap.toggle_breakpoint() end, { silent = true } },
+                { "B", function() dap.set_breakpoint(vim.fn.input("Breakpoint condition: ")) end, { silent = true }},
                 { "L", function()
                     vim.ui.input({ prompt = "Log point message: " }, function(input)
                         dap.set_breakpoint(nil, nil, input)
@@ -102,8 +139,13 @@ return {
                 { "o", function() dap.step_out() end, { silent = false } },
                 { "b", function() dap.step_back() end, { silent = false } },
                 { "R", function() dap.reverse_continue() end, { silent = false } },
-                { "u", "<cmd>DapViewToggle<cr>" },
-                { "W", "<cmd>DapViewWatch<cr>" },
+                { "W", function() dapui.elements.watches.add(vim.fn.expand("<cword>")) end, { silent = false } },
+                { "u", function()
+                    local ok, _ = pcall(dapui.toggle)
+                    if not ok then
+                        vim.notify("no active session", vim.log.levels.INFO)
+                    end
+                end, { silent = false } },
                 { "C", function() dap.continue() end, { silent = false } },
                 { "K", function() require("dap.ui.widgets").hover() end, { silent = false } },
                 { "J", function() dap.run_to_cursor() end, { silent = false } },
@@ -112,11 +154,12 @@ return {
                 { "<c-j>", "<c-w><c-j>", { silent = true } },
                 { "<c-k>", "<c-w><c-k>", { silent = true } },
                 { "<c-l>", "<c-w><c-l>", { silent = true } },
-                { "<esc>", nil, { exit = true,  silent = true } },
+                { "<esc>", "<cmd>let g:debug_mode = v:false<cr>", { exit = true,  silent = true } },
             }
         })
 
         vim.keymap.set("n", "<leader>z", function()
+            vim.g.debug_mode = true
             if require("zen-mode.view").is_open() then
                 require("zen-mode").close()
             end
