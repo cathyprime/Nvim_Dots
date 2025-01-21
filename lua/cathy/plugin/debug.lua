@@ -10,6 +10,7 @@ return {
         "mfussenegger/nvim-dap",
         "rcarriga/nvim-dap-ui",
         "nvim-neotest/nvim-nio",
+        "cathyprime/hydra.nvim",
     },
     keys = { { "<leader>z" } },
     config = function()
@@ -68,27 +69,24 @@ return {
         ---@diagnostic disable-next-line
         dapui.setup({
             expand_lines = false,
+            render = {
+                max_type_length = 0,
+            },
             layouts = {
                 {
-                    -- Bottom layout
                     elements = {
-                        { id = "scopes", size = 0.5 },
-                        { id = "watches", size = 0.5 },
+                        { id = "scopes", size = 0.60 },
+                        { id = "watches", size = 0.40 },
                     },
-                    size = 8,
+                    size = 6,
                     position = "bottom",
                 },
-                -- {
-                --     elements = {
-                --         { id = "console", size = 1 },
-                --     },
-                --     size = 40,
-                --     position = "right",
-                -- },
             }
         })
 
         dap.listeners.after.event_initialized["dapui_config"] = function()
+            dapui.open()
+            dapui.close() -- ugly work around for not rendering on first open
             dapui.open()
         end
 
@@ -103,8 +101,8 @@ return {
         local hint = [[
  _n_: step over   _J_: to cursor  _<cr>_: Breakpoint
  _i_: step into   _X_: Quit        _B_: Condition breakpoint ^
- _o_: step out    _K_: Hover       _L_: Log breakpoint
- _b_: step back   _W_ Watch        _u_: Toggle UI
+ _o_: step out    _K_: Float       _L_: Log breakpoint
+ _b_: step back   _W_: Watch       _u_: Toggle UI
  ^ ^            ^                 ^  ^
  ^ ^ _C_: Continue/Start          ^  ^   Change window
  ^ ^ _R_: Reverse continue        ^  ^       _<c-k>_^
@@ -147,20 +145,27 @@ return {
                     end
                 end, { silent = false } },
                 { "C", function() dap.continue() end, { silent = false } },
-                { "K", function() require("dap.ui.widgets").hover() end, { silent = false } },
+                { "K", function()
+                    dapui.float_element(nil, {
+                        width = 100,
+                        height = 30,
+                        position = "center",
+                        enter = true
+                    })
+                end, { silent = false } },
                 { "J", function() dap.run_to_cursor() end, { silent = false } },
                 { "X", function() dap.disconnect({ terminateDebuggee = false }) end, { silent = false } },
                 { "<c-h>", "<c-w><c-h>", { silent = true } },
                 { "<c-j>", "<c-w><c-j>", { silent = true } },
                 { "<c-k>", "<c-w><c-k>", { silent = true } },
                 { "<c-l>", "<c-w><c-l>", { silent = true } },
-                { "<esc>", "<cmd>let g:debug_mode = v:false<cr>", { exit = true,  silent = true } },
+                { "<esc>", nil, { exit = true,  silent = true } },
             }
         })
 
         vim.keymap.set("n", "<leader>z", function()
-            vim.g.debug_mode = true
-            if require("zen-mode.view").is_open() then
+            local ok, zen = pcall(require, "zen-mode.view")
+            if ok and zen.is_open() then
                 require("zen-mode").close()
             end
             debug_hydra:activate()
