@@ -189,4 +189,8 @@ return {
             })
         end
     },
+    {
+        "RaafatTurki/hex.nvim",
+        opts = {}
+    }
 }
