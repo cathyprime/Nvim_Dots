@@ -119,13 +119,7 @@ M.find_file = function (opts)
             if prompt == "" then
                 prompt = "/"
             end
-            if string.sub(prompt, -1) == "/" then
-                path = prompt
-            else
-                path = vim.fn.fnamemodify(prompt, ":h")
-            end
-
-            return get_files(path)
+            return get_files(vim.fn.fnamemodify(prompt, ":h") .. "/")
         end,
         entry_maker = function (entry)
             local function make_display (entry_tbl)
