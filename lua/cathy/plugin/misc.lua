@@ -144,7 +144,7 @@ return {
                 { "<m-a>", function() grapple.cycle_scopes("next") end },
                 { "<m-x>", function() grapple.cycle_scopes("prev") end },
                 { "<m-h>", function() grapple.cycle_tags("next") end },
-                { "<m-g>", function() grapple.cycle_tags("prev") end }
+                { "<m-b>", function() grapple.cycle_tags("prev") end }
             }
         end
     },
