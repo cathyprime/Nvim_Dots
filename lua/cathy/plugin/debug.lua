@@ -17,16 +17,11 @@ return {
         local dap = require("dap")
         local dapui = require("dapui")
         require("mason-nvim-dap").setup({
-            ensure_installed = {
-                "debugpy",
-                "netcoredbg"
-            },
-            automatic_installation = true,
             handlers = {
                 function(config)
                     require("mason-nvim-dap").default_setup(config)
                 end,
-                 coreclr = function(config)
+                coreclr = function(config)
                     config.adapters = {
                         type = 'executable',
                         command = require("mason-core.path").package_prefix("netcoredbg") .. "/netcoredbg",
@@ -75,8 +70,17 @@ return {
             layouts = {
                 {
                     elements = {
+                        { id = "watches", size = 0.30},
+                        { id = "console", size = 0.55 },
+                        { id = "breakpoints", size = 0.15 },
+                    },
+                    size = 40,
+                    position = "left",
+                },
+                {
+                    elements = {
                         { id = "scopes", size = 0.60 },
-                        { id = "watches", size = 0.40 },
+                        { id = "stacks", size = 0.40 },
                     },
                     size = 6,
                     position = "bottom",
@@ -84,10 +88,12 @@ return {
             }
         })
 
-        dap.listeners.after.event_initialized["dapui_config"] = function()
-            dapui.open()
-            dapui.close() -- ugly work around for not rendering on first open
-            dapui.open()
+        dap.listeners.before.attach.dapui_config = function()
+            dapui.open({ layout = 2 })
+        end
+
+        dap.listeners.before.launch.dapui_config = function()
+            dapui.open({ layout = 2 })
         end
 
         dap.listeners.before.event_terminated["dapui_config"] = function()
@@ -102,7 +108,7 @@ return {
  _n_: step over   _J_: to cursor  _<cr>_: Breakpoint
  _i_: step into   _X_: Quit        _B_: Condition breakpoint ^
  _o_: step out    _K_: Float       _L_: Log breakpoint
- _b_: step back   _W_: Watch       _u_: Toggle UI
+ _b_: step back   _W_: Watch       _u_: Toggle additional UI
  ^ ^            ^                 ^  ^
  ^ ^ _C_: Continue/Start          ^  ^   Change window
  ^ ^ _R_: Reverse continue        ^  ^       _<c-k>_^
@@ -139,7 +145,7 @@ return {
                 { "R", function() dap.reverse_continue() end, { silent = false } },
                 { "W", function() dapui.elements.watches.add(vim.fn.expand("<cword>")) end, { silent = false } },
                 { "u", function()
-                    local ok, _ = pcall(dapui.toggle)
+                    local ok, _ = pcall(dapui.toggle, { layout = 1 })
                     if not ok then
                         vim.notify("no active session", vim.log.levels.INFO)
                     end
