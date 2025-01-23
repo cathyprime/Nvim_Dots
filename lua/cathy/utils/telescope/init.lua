@@ -216,6 +216,7 @@ M.find_file = function (opts)
 
             map({ "i", "n" }, "<tab>", function (prompt_bufnr)
                 local selection = actions_state.get_selected_entry()
+                if not selection then return end
                 local display   = selection.display(selection)
                 local picker    = actions_state.get_current_picker(prompt_bufnr)
                 local value     = selection.value
