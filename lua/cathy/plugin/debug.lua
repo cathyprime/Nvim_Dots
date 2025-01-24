@@ -88,6 +88,8 @@ return {
             }
         })
 
+        dap.defaults.fallback.exception_breakpoints = { "raised" }
+
         dap.listeners.before.attach.dapui_config = function()
             dapui.open({ layout = 2 })
         end
