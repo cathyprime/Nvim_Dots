@@ -51,13 +51,12 @@ return {
             modes = {
                 current_project_diagnostics = {
                     auto_close = false,
-                    mode = "diagnostics", -- inherit from diagnostics mode
+                    mode = "diagnostics",
                     filter = {
                         any = {
-                            buf = 0, -- current buffer
+                            buf = 0,
                             {
-                                severity = vim.diagnostic.severity.ERROR, -- errors only
-                                -- limit to files in the current project
+                                severity = vim.diagnostic.severity.ERROR,
                                 function(item)
                                     return item.filename:find(vim.uv.cwd(), 1, true)
                                 end,
@@ -90,36 +89,6 @@ return {
     },
     "milisims/nvim-luaref",
     {
-        "folke/zen-mode.nvim",
-        cmd = "ZenMode",
-        keys = { { "<leader>w", "<cmd>ZenMode<cr>" } },
-        config = function()
-            require("zen-mode").setup({
-                plugins = {
-                    options = {
-                        enabled = true,
-                        ruler = false,
-                        showcmd = false,
-                        laststatus = 0,
-                    },
-                    twilight = { enabled = false },
-                    gitsigns = { enabled = true },
-                    wezterm = {
-                        enabled = true,
-                        font = 4,
-                    },
-                    neovide = {
-                        enabled = true,
-                        scale = 1.02
-                    },
-                },
-                on_open = function()
-                    vim.opt.fillchars = [[foldclose:>,foldopen:v,foldsep: ,fold: ]]
-                end
-            })
-        end
-    },
-    {
         "chrishrb/gx.nvim",
         cmd = "Browse",
         config = true,
@@ -147,50 +116,5 @@ return {
                 { "<m-b>", function() grapple.cycle_tags("prev") end }
             }
         end
-    },
-    {
-        "cathyprime/project.nvim",
-        config = function()
-            require("project_nvim").setup({
-                show_hidden = true,
-                detection_methods = { "pattern" },
-                exclude_dirs = {
-                    ".",
-                    "~/.cargo/*",
-                    "~/.rustup/*",
-                    "~/.local/*",
-                    "~/go/pkg/*",
-                    "*neovide-derive*",
-                    "/usr/*",
-                    "*src*",
-                    "*node_modules/*",
-                },
-                patterns = {
-                    ".git",
-                    "_darcs",
-                    ".hg",
-                    ".bzr",
-                    ".svn",
-                    "*.csproj",
-                    "Makefile",
-                    "README.md",
-                    "package.json",
-                    "build.sbt",
-                    "main.c",
-                    "main.cc",
-                    "main.cpp",
-                    "gradlew",
-                    "go.mod",
-                    "Cargo.toml",
-                    "docker-compose.yml",
-                    "index.html",
-                },
-                file_ignore_patterns = require("cathy.utils.telescope.config").ignores,
-            })
-        end
-    },
-    {
-        "RaafatTurki/hex.nvim",
-        opts = {}
     }
 }

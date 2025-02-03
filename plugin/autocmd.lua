@@ -93,6 +93,19 @@ vim.api.nvim_create_autocmd({ "BufWritePre" }, {
     end,
 })
 
+vim.api.nvim_create_autocmd({ "BufEnter" }, {
+    group = augroup("rooter"),
+    pattern = "*",
+    callback = function ()
+        local git_root = Snacks.git.get_root()
+        if git_root then
+            vim.cmd.cd(git_root)
+        else
+            vim.cmd.cd("%:p:h")
+        end
+    end
+})
+
 -- set filetype c for header and .c files instead of c++
 vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {
     group = augroup("c_filetypes"),

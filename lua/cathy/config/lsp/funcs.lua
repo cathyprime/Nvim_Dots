@@ -1,19 +1,52 @@
-local telescope = require("cathy.utils.telescope")
 local lspconfig = require("lspconfig")
+
+local references = function ()
+    Snacks.picker.lsp_references({
+        prompt = " References :: ",
+        layouts = {
+            ivy = {
+                layout = {
+                    box = "vertical",
+                    backdrop = false,
+                    row = -1,
+                    width = 0,
+                    height = 0.4,
+                    border = "top",
+                    title = "{live} {flags}",
+                    title_pos = "left",
+                    { win = "input", height = 1, border = "none" },
+                    {
+                        box = "horizontal",
+                        { win = "list", border = "none" },
+                        { win = "preview", title = "{preview}", width = 0.6, border = "left" },
+                    },
+                },
+            }
+        }
+    })
+end
+
+local lsp_document_symbols = function ()
+    Snacks.picker.lsp_symbols({ prompt = " Document Symbols :: " })
+end
+
+local lsp_workspace_symbols = function ()
+    Snacks.picker.lsp_workspace_symbols({ prompt = " Workspace Symbols :: " })
+end
 
 local attach = function(client, bufnr, alt_keys)
     local opts = { buffer = bufnr }
     local frop = vim.tbl_deep_extend("force", { desc = "references" }, opts)
     local fsop = vim.tbl_deep_extend("force", { desc = "document symbols" }, opts)
     local fSop = vim.tbl_deep_extend("force", { desc = "workspace symbols" }, opts)
-    vim.keymap.set("n", "<leader>fr", alt_keys and alt_keys.telescope_references  or telescope.references,            frop)
-    vim.keymap.set("n", "<leader>ca", alt_keys and alt_keys.code_action           or vim.lsp.buf.code_action,         opts)
-    vim.keymap.set("n", "<leader>cr", alt_keys and alt_keys.codelens_run          or vim.lsp.codelens.run,            opts)
-    vim.keymap.set("n", "<leader>cc", alt_keys and alt_keys.rename                or vim.lsp.buf.rename,              opts)
-    vim.keymap.set("n", "<c-]>",      alt_keys and alt_keys.definition            or vim.lsp.buf.definition,          opts)
-    vim.keymap.set("n", "K",          alt_keys and alt_keys.hover                 or vim.lsp.buf.hover,               opts)
-    vim.keymap.set("n", "<leader>fs", alt_keys and alt_keys.lsp_document_symbols  or telescope.lsp_document_symbols,  fsop)
-    vim.keymap.set("n", "<leader>fS", alt_keys and alt_keys.lsp_workspace_symbols or telescope.lsp_workspace_symbols, fSop)
+    vim.keymap.set("n", "<leader>fr", alt_keys and alt_keys.references            or references,              frop)
+    vim.keymap.set("n", "<leader>ca", alt_keys and alt_keys.code_action           or vim.lsp.buf.code_action, opts)
+    vim.keymap.set("n", "<leader>cr", alt_keys and alt_keys.codelens_run          or vim.lsp.codelens.run,    opts)
+    vim.keymap.set("n", "<leader>cc", alt_keys and alt_keys.rename                or vim.lsp.buf.rename,      opts)
+    vim.keymap.set("n", "<c-]>",      alt_keys and alt_keys.definition            or vim.lsp.buf.definition,  opts)
+    vim.keymap.set("n", "K",          alt_keys and alt_keys.hover                 or vim.lsp.buf.hover,       opts)
+    vim.keymap.set("n", "<leader>fs", alt_keys and alt_keys.lsp_document_symbols  or lsp_document_symbols,    fsop)
+    vim.keymap.set("n", "<leader>fS", alt_keys and alt_keys.lsp_workspace_symbols or lsp_workspace_symbols,   fSop)
     if not package.loaded["lsp_signature"] then
         vim.keymap.set("i", "<c-h>",      alt_keys and alt_keys.signature_help        or vim.lsp.buf.signature_help,      opts)
         vim.keymap.set("n", "gK",         alt_keys and alt_keys.signature_help        or vim.lsp.buf.signature_help,      opts)
