@@ -1,13 +1,26 @@
 require("cathy.utils.snacks.set_ui_select")
 local from_snacks = require("cathy.utils.snacks.from_snacks")
 
+local f = require("cathy.utils.snacks.format")
+
+local cb_maker = function (picker_type, opts)
+    return function (picker, item)
+        picker:close()
+        opts = vim.tbl_deep_extend("force", opts or {}, { cwd = item.file })
+        Snacks.picker[picker_type](opts)
+    end
+end
+
 local project_opts = {
     prompt = " Projects :: ",
     dev = { "~/polygon", "~/langs", "~/Repositories/" },
-    formatters = {
-        file = { truncate = 10000 }
+    format = f,
+    actions = {
+        ["picker_files"] = cb_maker("files", { prompt = " Find Files :: " }),
+        ["picker_grep"] = cb_maker("grep", { prompt = " Grep :: " }),
+        ["picker_recent"] = cb_maker("recent", { prompt = " Oldfiles :: ", format = f }),
     },
-    format = require("cathy.utils.snacks.format")
+    confirm = cb_maker("files", { prompt = " Find Files :: " }),
 }
 
 return {
@@ -36,6 +49,7 @@ return {
             layout = {
                 preset = "ivy"
             },
+            format = f,
             formatters = {
                 file = {
                     truncate = vim.opt.columns:get(),
@@ -74,8 +88,8 @@ return {
         { "<leader>fG",       from_snacks.picker.grep_buffers         { prompt = " Grep Buffers :: " },                          desc = "grep current file" },
         { "<leader>fh",       from_snacks.picker.help                 { prompt = " Help Tags :: " },                             desc = "help"              },
         { "<leader>fw",       from_snacks.picker.grep_word            { prompt = ">>= Grep :: " },                               desc = "cursor grep"       },
-        { "<leader><leader>", from_snacks.picker.buffers              { prompt = " Buffers :: " },                               desc = "switch buffers"    },
-        { "<leader>fo",       from_snacks.picker.recent               { prompt = " Oldfiles :: " },                              desc = "oldfiles"          },
+        { "<leader><leader>", from_snacks.picker.buffers              { prompt = " Buffers :: ", format = f, nofile = true },    desc = "switch buffers"    },
+        { "<leader>fo",       from_snacks.picker.recent               { prompt = " Oldfiles :: ", format = f },                  desc = "oldfiles"          },
         { "<leader>fp",       from_snacks.picker.projects             (project_opts),                                            desc = "project files"     },
         { "<c-p>",            from_snacks.picker.files                { prompt = " Find Files :: " },                            desc = "files"             },
         { "z=",               from_snacks.picker.spelling             { prompt = " Spelling :: ", layout = "ivy" },              desc = "spell suggestion"  },

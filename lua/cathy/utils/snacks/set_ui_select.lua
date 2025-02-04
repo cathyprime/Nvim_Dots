@@ -23,6 +23,7 @@ vim.ui.select = function (items, opts, on_choice)
         items = finder_items,
         format = Snacks.picker.format.ui_select(opts.kind, #items),
         title = title,
+        prompt = " Select :: ",
         layout = {
             preview = false,
             layout = {
