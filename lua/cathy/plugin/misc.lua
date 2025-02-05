@@ -112,8 +112,8 @@ return {
                 { "<c-f>", function() grapple.select({ index = vim.v.count1 }) end },
                 { "<m-a>", function() grapple.cycle_scopes("next") end },
                 { "<m-x>", function() grapple.cycle_scopes("prev") end },
-                { "<m-h>", function() grapple.cycle_tags("next") end },
-                { "<m-b>", function() grapple.cycle_tags("prev") end }
+                { "<m-t>", function() grapple.cycle_tags("next") end },
+                { "<m-g>", function() grapple.cycle_tags("prev") end }
             }
         end
     }
