@@ -101,7 +101,12 @@ vim.api.nvim_create_autocmd({ "BufEnter" }, {
         if git_root then
             vim.cmd.cd(git_root)
         else
-            vim.cmd.cd("%:p:h")
+            local cur_dir = require("oil").get_current_dir()
+            if cur_dir then
+                vim.cmd.cd(cur_dir)
+            else
+                vim.cmd.cd("%:p:h")
+            end
         end
     end
 })
