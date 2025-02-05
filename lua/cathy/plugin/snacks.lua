@@ -11,6 +11,22 @@ local cb_maker = function (picker_type, opts)
     end
 end
 
+local buffer_opts = {
+    prompt = " Buffers :: ",
+    format = f,
+    nofile = true,
+    hidden = true,
+    -- filter = {
+    --     filter = function (arg1, arg2)
+    --         print("arg1:")
+    --         put(arg1)
+    --         print("arg2:")
+    --         put(arg2)
+    --         return true
+    --     end
+    -- }
+}
+
 local project_opts = {
     prompt = " Projects :: ",
     dev = { "~/polygon", "~/langs", "~/Repositories/" },
@@ -36,6 +52,11 @@ return {
         zen = {
             toggles = {
                 dim = false,
+            },
+            win = {
+                backdrop = {
+                    transparent = false
+                }
             }
         },
         picker = {
@@ -88,8 +109,8 @@ return {
         { "<leader>fG",       from_snacks.picker.grep_buffers         { prompt = " Grep Buffers :: " },                          desc = "grep current file" },
         { "<leader>fh",       from_snacks.picker.help                 { prompt = " Help Tags :: " },                             desc = "help"              },
         { "<leader>fw",       from_snacks.picker.grep_word            { prompt = ">>= Grep :: " },                               desc = "cursor grep"       },
-        { "<leader><leader>", from_snacks.picker.buffers              { prompt = " Buffers :: ", format = f, nofile = true },    desc = "switch buffers"    },
         { "<leader>fo",       from_snacks.picker.recent               { prompt = " Oldfiles :: ", format = f },                  desc = "oldfiles"          },
+        { "<leader><leader>", from_snacks.picker.buffers              (buffer_opts),                                             desc = "switch buffers"    },
         { "<leader>fp",       from_snacks.picker.projects             (project_opts),                                            desc = "project files"     },
         { "<c-p>",            from_snacks.picker.files                { prompt = " Find Files :: " },                            desc = "files"             },
         { "z=",               from_snacks.picker.spelling             { prompt = " Spelling :: ", layout = "ivy" },              desc = "spell suggestion"  },
