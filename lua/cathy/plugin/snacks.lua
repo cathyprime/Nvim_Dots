@@ -11,9 +11,14 @@ local cb_maker = function (picker_type, opts)
     end
 end
 
-local nopreview = function (opts)
-    return vim.tbl_deep_extend("force", { layout = { preview = false } }, opts or {})
+local with_layout = function (p)
+    return function (opts)
+        return vim.tbl_deep_extend("force", { layout = p }, opts or {})
+    end
 end
+
+local nopreview = with_layout { preview = false }
+local mainprevw = with_layout { preview = "main" }
 
 local picker_mappings = {
     undo         = "<leader>u",
@@ -33,9 +38,9 @@ local picker_mappings = {
 }
 
 local picker_opts = {
-    undo         = { prompt = " Undo :: ",      desc = "undo" },
     find_file    = { prompt = " Find file :: ", desc = "find file" },
     resume       = nopreview { desc = "resume" },
+    undo         = mainprevw { prompt = " Undo :: ",         desc = "undo" },
     files        = nopreview { prompt = " Neovim Files :: ", desc = "config files", cwd = "~/.config/nvim/" },
     lazy         = nopreview { prompt = " Lazy :: ",         desc = "lazy declarations" },
     grep         = nopreview { prompt = " Grep :: ",         desc = "grep" },
@@ -51,8 +56,8 @@ local picker_opts = {
         dev      = { "~/polygon", "~/langs", "~/Repositories/" },
         format   = f,
         actions  = {
-            ["picker_files"]  = cb_maker("files",  { prompt = " Find Files :: " }),
             ["picker_grep"]   = cb_maker("grep",   { prompt = " Grep :: " }),
+            ["picker_files"]  = cb_maker("files",  { prompt = " Find Files :: " }),
             ["picker_recent"] = cb_maker("recent", { prompt = " Oldfiles :: ", format = f }),
         },
         confirm = cb_maker("files", { prompt = " Find Files :: " }),
