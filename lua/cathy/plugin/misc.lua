@@ -74,19 +74,6 @@ return {
             { "[d", trouble_jump({ forward = false }), desc = "Prev trouble item" },
         }
     },
-    {
-        "mbbill/undotree",
-        config = function()
-            vim.g.undotree_WindowLayout = 2
-            vim.g.undotree_ShortIndicators = 0
-            vim.g.undotree_SplitWidth = 40
-            vim.g.undotree_SetFocusWhenToggle = 1
-            vim.g.undotree_DiffCommand = [[diff]]
-        end,
-        keys = {
-            { "<leader>u", "<cmd>UndotreeToggle<cr>" }
-        }
-    },
     "milisims/nvim-luaref",
     {
         "chrishrb/gx.nvim",

@@ -16,6 +16,7 @@ local nopreview = function (opts)
 end
 
 local picker_mappings = {
+    undo         = "<leader>u",
     find_file    = "<leader>ff",
     resume       = "<leader>fF",
     files        = "<leader>fn",
@@ -32,6 +33,7 @@ local picker_mappings = {
 }
 
 local picker_opts = {
+    undo         = { prompt = " Undo :: ",      desc = "undo" },
     find_file    = { prompt = " Find file :: ", desc = "find file" },
     resume       = nopreview { desc = "resume" },
     files        = nopreview { prompt = " Neovim Files :: ", desc = "config files", cwd = "~/.config/nvim/" },
