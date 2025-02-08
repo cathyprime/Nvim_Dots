@@ -55,6 +55,7 @@ local picker_opts = {
         prompt   = " Projects :: ",
         dev      = { "~/polygon", "~/langs", "~/Repositories/" },
         format   = f,
+        desc     = "projects",
         actions  = {
             ["picker_grep"]   = cb_maker("grep",   { prompt = " Grep :: " }),
             ["picker_files"]  = cb_maker("files",  { prompt = " Find Files :: " }),
@@ -71,7 +72,7 @@ local with_pickers = function (keys)
             (name == "find_file"
                 and require("cathy.utils.snacks.find_file")
                 or from_snacks.picker[name])(picker_opts[name]),
-            picker_opts[name].desc
+            desc = picker_opts[name].desc
         })
     end
     return keys
