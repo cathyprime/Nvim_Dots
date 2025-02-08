@@ -11,17 +11,64 @@ local cb_maker = function (picker_type, opts)
     end
 end
 
-local project_opts = {
-    prompt = " Projects :: ",
-    dev = { "~/polygon", "~/langs", "~/Repositories/" },
-    format = f,
-    actions = {
-        ["picker_files"] = cb_maker("files", { prompt = " Find Files :: " }),
-        ["picker_grep"] = cb_maker("grep", { prompt = " Grep :: " }),
-        ["picker_recent"] = cb_maker("recent", { prompt = " Oldfiles :: ", format = f }),
-    },
-    confirm = cb_maker("files", { prompt = " Find Files :: " }),
+local nopreview = function (opts)
+    return vim.tbl_deep_extend("force", { layout = { preview = false } }, opts or {})
+end
+
+local picker_mappings = {
+    find_file    = "<leader>ff",
+    resume       = "<leader>fF",
+    files        = "<leader>fn",
+    lazy         = "<leader>fl",
+    grep         = "<leader>fg",
+    grep_buffers = "<leader>fG",
+    help         = "<leader>fh",
+    grep_word    = "<leader>fw",
+    recent       = "<leader>fo",
+    buffers      = "<leader><leader>",
+    files        = "<c-p>",
+    spelling     = "z=",
+    projects     = "<leader>fp"
 }
+
+local picker_opts = {
+    find_file    = { prompt = " Find file :: ", desc = "find file" },
+    resume       = nopreview { desc = "resume" },
+    files        = nopreview { prompt = " Neovim Files :: ", desc = "config files", cwd = "~/.config/nvim/" },
+    lazy         = nopreview { prompt = " Lazy :: ",         desc = "lazy declarations" },
+    grep         = nopreview { prompt = " Grep :: ",         desc = "grep" },
+    grep_buffers = nopreview { prompt = " Grep Buffers :: ", desc = "grep current file" },
+    help         = nopreview { prompt = " Help Tags :: ",    desc = "help" },
+    grep_word    = nopreview { prompt = ">>= Grep :: ",      desc = "cursor grep" },
+    recent       = nopreview { prompt = " Oldfiles :: ",     desc = "oldfiles", format = f },
+    buffers      = nopreview { prompt = " Buffers :: ",      desc = "switch buffers", format = f, nofile = true },
+    files        = nopreview { prompt = " Files :: ",        desc = "files" },
+    spelling     = nopreview { prompt = " Spelling :: ",     desc = "spell suggestion", layout = "ivy" },
+    projects     = nopreview {
+        prompt   = " Projects :: ",
+        dev      = { "~/polygon", "~/langs", "~/Repositories/" },
+        format   = f,
+        actions  = {
+            ["picker_files"]  = cb_maker("files",  { prompt = " Find Files :: " }),
+            ["picker_grep"]   = cb_maker("grep",   { prompt = " Grep :: " }),
+            ["picker_recent"] = cb_maker("recent", { prompt = " Oldfiles :: ", format = f }),
+        },
+        confirm = cb_maker("files", { prompt = " Find Files :: " }),
+    },
+}
+
+local with_pickers = function (keys)
+    for name, map in pairs(picker_mappings) do
+        table.insert(keys, {
+            map,
+            (name == "find_file"
+                and require("cathy.utils.snacks.find_file")
+                or from_snacks.picker[name])(picker_opts[name]),
+            picker_opts[name].desc
+        })
+    end
+    return keys
+end
 
 return {
     "folke/snacks.nvim",
@@ -75,28 +122,18 @@ return {
                         title = "{live} {flags}",
                         title_pos = "left",
                         { win = "input", height = 1, border = "none" },
-                        { box = "horizontal", { win = "list", border = "none" }, },
+                        {
+                            box = "horizontal",
+                            { win = "list", border = "none" },
+                            { win = "preview", title = "{preview}", width = 0.6, border = "left" },
+                        },
                     },
                 }
             }
         },
     },
-    keys = {
+    keys = with_pickers {
         { "<leader>wz", from_snacks.zen.zen() },
         { "<leader>wZ", from_snacks.zen.zoom() },
-
-        { "<leader>fF",       from_snacks.picker.resume               {},                                                        desc = "resume"            },
-        { "<leader>ff",       require("cathy.utils.snacks.find_file") { prompt = " Find File :: " },                             desc = "find file"         },
-        { "<leader>fn",       from_snacks.picker.files                { prompt = " Neovim Files :: ", cwd = "~/.config/nvim/" }, desc = "config files"      },
-        { "<leader>fl",       from_snacks.picker.lazy                 { prompt = " Lazy :: " },                                  desc = "lazy declarations" },
-        { "<leader>fg",       from_snacks.picker.grep                 { prompt = " Grep :: " },                                  desc = "grep"              },
-        { "<leader>fG",       from_snacks.picker.grep_buffers         { prompt = " Grep Buffers :: " },                          desc = "grep current file" },
-        { "<leader>fh",       from_snacks.picker.help                 { prompt = " Help Tags :: " },                             desc = "help"              },
-        { "<leader>fw",       from_snacks.picker.grep_word            { prompt = ">>= Grep :: " },                               desc = "cursor grep"       },
-        { "<leader>fo",       from_snacks.picker.recent               { prompt = " Oldfiles :: ", format = f },                  desc = "oldfiles"          },
-        { "<leader><leader>", from_snacks.picker.buffers              { prompt = " Buffers :: ", format = f, nofile = true },    desc = "switch buffers"    },
-        { "<leader>fp",       from_snacks.picker.projects             (project_opts),                                            desc = "project files"     },
-        { "<c-p>",            from_snacks.picker.files                { prompt = " Find Files :: " },                            desc = "files"             },
-        { "z=",               from_snacks.picker.spelling             { prompt = " Spelling :: ", layout = "ivy" },              desc = "spell suggestion"  },
     }
 }

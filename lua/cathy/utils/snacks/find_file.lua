@@ -27,6 +27,9 @@ return function (opts)
 
     return function()
         return Snacks.picker({
+            layout = {
+                preview = false
+            },
             prompt = opts.prompt,
             on_change = function (picker)
                 local prompt = picker:filter().pattern
