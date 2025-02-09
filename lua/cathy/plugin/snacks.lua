@@ -24,7 +24,7 @@ local picker_mappings = {
     undo         = "<leader>u",
     find_file    = "<leader>ff",
     resume       = "<leader>fF",
-    files        = "<leader>fn",
+    nvim_files   = "<leader>fn",
     lazy         = "<leader>fl",
     grep         = "<leader>fg",
     grep_buffers = "<leader>fG",
@@ -39,9 +39,9 @@ local picker_mappings = {
 
 local picker_opts = {
     find_file    = { prompt = " Find file :: ", desc = "find file" },
-    resume       = nopreview { desc = "resume" },
+    resume       = { desc = "resume" },
     undo         = mainprevw { prompt = " Undo :: ",         desc = "undo" },
-    files        = nopreview { prompt = " Neovim Files :: ", desc = "config files", cwd = "~/.config/nvim/" },
+    nvim_files   = nopreview { prompt = " Neovim Files :: ", desc = "config files", cwd = "~/.config/nvim/" },
     lazy         = nopreview { prompt = " Lazy :: ",         desc = "lazy declarations" },
     grep         = nopreview { prompt = " Grep :: ",         desc = "grep" },
     grep_buffers = nopreview { prompt = " Grep Buffers :: ", desc = "grep current file" },
@@ -65,13 +65,20 @@ local picker_opts = {
     },
 }
 
+local picks = setmetatable({
+    find_file = require("cathy.utils.snacks.find_file"),
+    nvim_files = from_snacks.picker.files
+}, {
+    __index = function (tbl, key)
+        return rawget(tbl, key) or from_snacks.picker[key]
+    end
+})
+
 local with_pickers = function (keys)
     for name, map in pairs(picker_mappings) do
         table.insert(keys, {
             map,
-            (name == "find_file"
-                and require("cathy.utils.snacks.find_file")
-                or from_snacks.picker[name])(picker_opts[name]),
+            picks[name](picker_opts[name]),
             desc = picker_opts[name].desc
         })
     end
