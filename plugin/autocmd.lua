@@ -97,6 +97,10 @@ vim.api.nvim_create_autocmd({ "BufEnter" }, {
     group = augroup("rooter"),
     pattern = "*",
     callback = function ()
+        local expand = vim.fn.expand("%:p:h")
+        if expand:match "^term" then
+            return
+        end
         local git_root = Snacks.git.get_root()
         if git_root then
             vim.cmd.cd(git_root)
