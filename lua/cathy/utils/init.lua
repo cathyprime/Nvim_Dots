@@ -43,9 +43,23 @@ local function map_gen(default_opts)
     end
 end
 
+local function cur_buffer_path()
+    local oil = require("oil").get_current_dir()
+    if oil then
+        return oil
+    else
+        local expand = vim.fn.expand("%:p:h")
+        if expand:match "^term" then
+            expand = vim.fn.fnamemodify(expand:gsub("term://", ""):gsub("//.*", "/"), ":p")
+        end
+        return expand
+    end
+end
+
 return {
     rooter = require("cathy.rooter"),
     tab_term = tab_term,
     clear_buf_maps = clear_maps,
-    map_gen = map_gen
+    map_gen = map_gen,
+    cur_buffer_path = cur_buffer_path
 }

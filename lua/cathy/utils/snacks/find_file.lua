@@ -48,14 +48,19 @@ return function (opts)
             end,
             pattern = vim.uv.cwd() .. "/",
             finder = function (ctx)
-                local picker = Snacks.picker.get()[1]
-                local cwd = picker:cwd()
+                local picker = Snacks.picker.get({ tab = true })[1]
+                local cwd
+                if not picker then
+                    cwd = require("cathy.utils").cur_buffer_path()
+                else
+                    cwd = picker:cwd()
+                end
                 if cache[cwd] then
                     return cache[cwd]
                 end
 
                 local items = {}
-                for i, item in ipairs(get_files(picker:cwd())) do
+                for i, item in ipairs(get_files(cwd)) do
                     local ft = vim.fn.fnamemodify(item, ":p:t:e")
                     if ft == "" then
                         ft = nil
