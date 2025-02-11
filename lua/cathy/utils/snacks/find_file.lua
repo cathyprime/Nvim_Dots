@@ -1,8 +1,11 @@
 local from_snacks = require("cathy.utils.snacks.from_snacks")
+local ns = vim.api.nvim_create_namespace("Magda_Find_File")
+local home = os.getenv("HOME")
 
 return function (opts)
     local cache = {}
     local prev_wd
+    local extmark_id = nil
 
     local function get_files(path)
         if cache[path] then
@@ -13,11 +16,25 @@ return function (opts)
         table.insert(stdout, 1, path .. ".")
         table.insert(stdout, 2, path .. "..")
         cache[path] = stdout
-        return stdout
+        return cache[path]
     end
     local set_prompt = function (picker, new_prompt)
         picker:set_cwd(new_prompt)
         vim.api.nvim_buf_set_lines(picker.input.win.buf, 0, -1, false, { new_prompt })
+        if new_prompt:match(home .. ".*") then
+            extmark_id = vim.api.nvim_buf_set_extmark(
+                picker.input.win.buf, ns, 0, 0, {
+                    id = extmark_id,
+                    end_col = #home,
+                    hl_group = "Normal",
+                    virt_text = {
+                        { "~", "Normal" }
+                    },
+                    virt_text_pos = "inline",
+                    conceal = "",
+                }
+            )
+        end
         vim.api.nvim_win_set_cursor(picker.input.win.win, { 1, #new_prompt })
         picker:find()
     end
@@ -31,10 +48,25 @@ return function (opts)
                 preview = false
             },
             prompt = opts.prompt,
+            pattern = require("cathy.utils").cur_buffer_path() .. "/",
             on_change = function (picker)
-                local prompt = picker:filter().pattern
+                local prompt = get_prompt(picker)
                 if prompt == "" then
                     prompt = "/"
+                end
+                if prompt:match(home .. ".*") then
+                    extmark_id = vim.api.nvim_buf_set_extmark(
+                        picker.input.win.buf, ns, 0, 0, {
+                            id = extmark_id,
+                            end_col = #home,
+                            hl_group = "Normal",
+                            virt_text = {
+                                { "~", "Normal" }
+                            },
+                            virt_text_pos = "inline",
+                            conceal = "",
+                        }
+                    )
                 end
                 if picker:cwd() ~= prev_wd then
                     prev_wd = picker:cwd()
@@ -43,10 +75,6 @@ return function (opts)
                     picker:find()
                 end
             end,
-            on_show = function (picker)
-                picker:set_cwd(vim.uv.cwd() .. "/")
-            end,
-            pattern = vim.uv.cwd() .. "/",
             finder = function (ctx)
                 local picker = Snacks.picker.get({ tab = true })[1]
                 local cwd
@@ -80,26 +108,17 @@ return function (opts)
                     keys = {
                         ["<tab>"] = { "complete_from_selected", mode = { "i", "n" }, desc = "Complete from selected entry" },
                         ["<c-h>"] = { "c_h", mode = { "i" }, desc = "Go to $HOME directory" },
-                        ["<c-w>"] = { "c_w", mode = { "i" }, desc = "delete till /" },
                         ["<bs>"] = { "backspace", mode = { "i" }, desc = "backspace" },
                     },
+                    wo = {
+                        conceallevel = 3,
+                        concealcursor = "nivc",
+                    }
                 },
             },
             actions = {
                 c_h = function (picker)
                     set_prompt(picker, os.getenv("HOME") .. "/")
-                end,
-                c_w = function (picker)
-                    local prompt = get_prompt(picker)
-                    if string.sub(prompt, -1) == "/" then
-                        if #prompt > 1 then
-                            local pos = string.match(string.sub(prompt, 1, -2), ".*()/")
-                            set_prompt(picker, string.sub(prompt, 1, pos))
-                        end
-                    else
-                        local last_slash = string.match(prompt, ".*()/")
-                        set_prompt(picker, string.sub(prompt, 1, last_slash))
-                    end
                 end,
                 backspace = function (picker)
                     local prompt = get_prompt(picker)
@@ -130,7 +149,7 @@ return function (opts)
                     end
 
                     local buf = picker.input.win.buf
-                    set_prompt(picker, item.file)
+                    set_prompt(picker, item.file:gsub("//", "/"))
                 end
             },
             format = function(item, _)
@@ -153,7 +172,7 @@ return function (opts)
             confirm = function(picker, item)
                 local result
                 if not item.match_topk then
-                    result = picker:filter().pattern
+                    result = get_prompt(picker)
                 else
                     result = item.text
                 end
