@@ -43,6 +43,8 @@ return {
                 ["<tab>"] = {},
                 ["<s-tab>"] = {},
 
+                ["<C-h>"] = { "hide_signature", "show_signature", "fallback" },
+
                 ["<C-p>"] = { show, select_gen("prev"), "fallback" },
                 ["<C-n>"] = { show, select_gen("next"), "fallback" },
 
@@ -63,7 +65,18 @@ return {
                 use_nvim_cmp_as_default = false,
                 nerd_font_variant = "mono",
             },
-            signature = { enabled = false },
+            signature = {
+                enabled = true,
+                trigger = {
+                    enabled = false,
+                    show_on_trigger_character = false,
+                    show_on_insert = false,
+                    show_on_insert_on_trigger_character = false,
+                },
+                window = {
+                    border = "single"
+                }
+            },
             completion = {
                 list = {
                     selection = {
