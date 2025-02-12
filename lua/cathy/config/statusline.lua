@@ -264,10 +264,9 @@ local diagnostic_is_disabled = function()
 end
 
 local diagnostic_levels = {
-    { name = "ERROR", hl = "StatusDiagnosticSignError" },
-    { name = "WARN",  hl = "StatusDiagnosticSignWarn"  },
     { name = "INFO",  hl = "StatusDiagnosticSignInfo"  },
-    { name = "HINT",  hl = "StatusDiagnosticSignHint"  },
+    { name = "WARN",  hl = "StatusDiagnosticSignWarn"  },
+    { name = "ERROR", hl = "StatusDiagnosticSignError" },
 }
 
 local function diagnostics_component(args)
@@ -277,10 +276,8 @@ local function diagnostics_component(args)
     local severity, t = vim.diagnostic.severity, {}
     for _, level in ipairs(diagnostic_levels) do
         local n = count[severity[level.name]] or 0
-        if n > 0 then
-            local item = format_element(level.hl, n)
-            table.insert(t, item)
-        end
+        local item = format_element(level.hl, n)
+        table.insert(t, item)
     end
     if #t == 0 then
         return ""
