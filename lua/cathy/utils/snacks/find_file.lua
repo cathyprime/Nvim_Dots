@@ -49,6 +49,19 @@ return function (opts)
             },
             prompt = opts.prompt,
             pattern = require("cathy.utils").cur_buffer_path() .. "/",
+            on_show = function (picker)
+                vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
+                    buffer = picker.input.win.buf,
+                    callback = function()
+                        local prompt = get_prompt(picker)
+                        local pos = prompt:match(".*()/")
+                        local cursor = vim.api.nvim_win_get_cursor(picker.input.win.win)
+                        if cursor[2] < pos then
+                            vim.api.nvim_win_set_cursor(picker.input.win.win, { 1, pos })
+                        end
+                    end,
+                })
+            end,
             on_change = function (picker)
                 local prompt = get_prompt(picker)
                 if prompt == "" then
@@ -107,8 +120,10 @@ return function (opts)
                 input = {
                     keys = {
                         ["<tab>"] = { "complete_from_selected", mode = { "i", "n" }, desc = "Complete from selected entry" },
-                        ["<c-h>"] = { "c_h", mode = { "i" }, desc = "Go to $HOME directory" },
-                        ["<bs>"] = { "backspace", mode = { "i" }, desc = "backspace" },
+                        ["<c-h>"] = { "go_home", mode = { "i" }, desc = "Go to $HOME directory" },
+                        ["<c-w>"] = { "delete_word", mode = { "i" }, desc = "Delete word" },
+                        ["<c-bs>"] = { "delete_word", mode = { "i" }, desc = "Delete word" },
+                        ["<bs>"] = { "delete_char_or_path", mode = { "i" }, desc = "backspace" },
                     },
                     wo = {
                         conceallevel = 3,
@@ -117,13 +132,27 @@ return function (opts)
                 },
             },
             actions = {
-                c_h = function (picker)
+                go_home = function (picker)
                     set_prompt(picker, os.getenv("HOME") .. "/")
                 end,
-                backspace = function (picker)
+                delete_word = function (picker)
                     local prompt = get_prompt(picker)
                     if string.sub(prompt, -1) == "/" then
-                        local pos = string.match(string.sub(prompt, 1, -2), ".*()/")
+                        if #prompt > 1 then
+                            local pos = string.match(string.sub(prompt, 1, -2), ".*()/")
+                            set_prompt(picker, string.sub(prompt, 1, pos))
+                        end
+                    else
+                        local last_slash = string.match(prompt, ".*()/")
+                        set_prompt(picker, string.sub(prompt, 1, last_slash))
+                    end
+                end,
+                delete_char_or_path = function (picker)
+                    local prompt = get_prompt(picker)
+                    local cursor = vim.api.nvim_win_get_cursor(picker.input.win.win)
+                    local last_slash = prompt:match(".*()/")
+                    if prompt:sub(cursor[2], cursor[2]) == "/" then
+                        local pos = string.match(string.sub(prompt, 1, cursor[2] - 1), ".*()/")
                         local new_prompt = string.sub(prompt, 1, pos)
                         set_prompt(picker, new_prompt)
                         return
