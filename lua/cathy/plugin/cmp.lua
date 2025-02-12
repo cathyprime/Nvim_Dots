@@ -32,6 +32,7 @@ return {
     },
     {
         "saghen/blink.cmp",
+        lazy = false,
         version = "v0.*",
         opts = {
             keymap = {
@@ -74,7 +75,7 @@ return {
                     show_on_insert_on_trigger_character = false,
                 },
                 window = {
-                    border = "single"
+                    border = "rounded"
                 }
             },
             completion = {
@@ -91,7 +92,7 @@ return {
                 documentation = {
                     treesitter_highlighting = true,
                     window = {
-                        border = "single"
+                        border = "rounded"
                     }
                 },
                 ghost_text = { enabled = true },
