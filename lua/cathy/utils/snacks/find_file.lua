@@ -26,7 +26,6 @@ return function (opts)
                 picker.input.win.buf, ns, 0, 0, {
                     id = extmark_id,
                     end_col = #home,
-                    hl_group = "Normal",
                     virt_text = {
                         { "~", "Normal" }
                     },
@@ -48,7 +47,7 @@ return function (opts)
                 preview = false
             },
             prompt = opts.prompt,
-            pattern = require("cathy.utils").cur_buffer_path() .. "/",
+            pattern = require("cathy.utils").cur_buffer_path(),
             on_show = function (picker)
                 vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
                     buffer = picker.input.win.buf,
