@@ -11,6 +11,7 @@ require("nvim-treesitter.configs").setup({
     auto_install = true,
     context_commentstring = { enabled = true },
     sync_install = false,
+    ignore_install = { "latex" },
     ensure_installed = {
         "bash",
         "diff",
