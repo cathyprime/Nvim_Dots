@@ -1,5 +1,7 @@
 set background=light
-packadd termdebug
+if !exists(':Termdebug')
+    packadd termdebug
+endif
 
 set nu rnu
 set cpo+=>
@@ -47,7 +49,7 @@ set shortmess+=c
 set showmode
 set laststatus=2
 set undofile
-set wildmode=full wildignorecase wildoptions-=pum
+set nowildmenu wildmode=full wildignorecase wildoptions-=pum
 set winminwidth=5
 set pumheight=4
 set wrap
