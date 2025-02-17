@@ -1,106 +1,42 @@
-local series = {}
-local last_message = ""
-local timer = vim.uv.new_timer()
-
-local function clear()
-    timer:stop()
-    timer:start(
-        3000,
-        0,
-        vim.schedule_wrap(function()
-            last_message = ""
-            vim.api.nvim_command('echo ""')
-        end)
-    )
-end
-
-local function log(msg)
-    local client = msg.client or ""
-    local title = msg.title or ""
-    local message = msg.message or ""
-    local percentage = msg.percentage or 0
-
-    local out = ""
-    if client ~= "" then
-        out = out .. "[" .. client .. ']'
+local progress = vim.defaulttable()
+vim.api.nvim_create_autocmd("LspProgress", {
+  ---@param ev {data: {client_id: integer, params: lsp.ProgressParams}}
+  callback = function(ev)
+    local client = vim.lsp.get_client_by_id(ev.data.client_id)
+    local value = ev.data.params.value --[[@as {percentage?: number, title?: string, message?: string, kind: "begin" | "report" | "end"}]]
+    if not client or type(value) ~= "table" then
+      return
     end
+    local p = progress[client.id]
 
-    if percentage > 0 then
-        out = out .. " [" .. percentage .. '%]'
-    end
-
-    if title ~= "" then
-        out = out .. " " .. title
-    end
-
-    if message ~= "" then
-        if title ~= "" and vim.startswith(message, title) then
-            message = string.sub(message, string.len(title) + 1)
-        end
-
-        message = message:gsub("%s*%d+%%", '')
-        message = message:gsub("^%s*-", '')
-        message = vim.trim(message)
-        if message ~= "" then
-            if title ~= "" then
-                out = out .. " - " .. message
-            else
-                out = out .. " " .. message
-            end
-        end
-    end
-
-    last_message = out
-    vim.api.nvim_command(
-        string.format('echo "%s"', string.sub(out, 1, vim.v.echospace))
-    )
-end
-
-local function lsp_progress(err, progress, ctx)
-    if err then
-        return
-    end
-
-    local client = vim.lsp.get_client_by_id(ctx.client_id)
-    local client_name = client and client.name or ""
-    local token = progress.token
-    local value = progress.value
-
-    if value.kind == "begin" then
-        series[token] = {
-            client = client_name,
-            title = value.title or "",
-            message = value.message or "",
-            percentage = value.percentage or 0,
+    for i = 1, #p + 1 do
+      if i == #p + 1 or p[i].token == ev.data.params.token then
+        p[i] = {
+          token = ev.data.params.token,
+          msg = ("[%3d%%] %s%s"):format(
+            value.kind == "end" and 100 or value.percentage or 100,
+            value.title or "",
+            value.message and (" **%s**"):format(value.message) or ""
+          ),
+          done = value.kind == "end",
         }
-
-        local cur = series[token]
-        log({
-            client = cur.client,
-            title = cur.title,
-            message = cur.message .. " - Starting",
-            percentage = cur.percentage,
-        })
-    elseif value.kind == "report" then
-        local cur = series[token]
-        log({
-            client = client_name or (cur and cur.client),
-            title = value.title or (cur and cur.title),
-            message = value.message or (cur and cur.message),
-            percentage = value.percentage or (cur and cur.percentage),
-        })
-    elseif value.kind == "end" then
-        local cur = series[token]
-        local msg = value.message or (cur and cur.message)
-        msg = msg and msg .. " - Done" or 'Done'
-        log({
-            client = client_name or (cur and cur.client),
-            title = value.title or (cur and cur.title),
-            message = msg,
-        })
-        series[token] = nil
-        clear()
+        break
+      end
     end
-end
 
-vim.lsp.handlers['$/progress'] = lsp_progress
+    local msg = {} ---@type string[]
+    progress[client.id] = vim.tbl_filter(function(v)
+      return table.insert(msg, v.msg) or not v.done
+    end, p)
+
+    local spinner = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" }
+    vim.notify(table.concat(msg, "\n"), "info", {
+      id = "lsp_progress",
+      title = client.name,
+      opts = function(notif)
+        notif.icon = #progress[client.id] == 0 and " "
+          or spinner[math.floor(vim.uv.hrtime() / (1e6 * 80)) % #spinner + 1]
+      end,
+    })
+  end,
+})

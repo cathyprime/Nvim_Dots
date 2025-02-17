@@ -17,6 +17,14 @@ local with_layout = function (p)
     end
 end
 
+_G.dd = function(...)
+  Snacks.debug.inspect(...)
+end
+_G.bt = function()
+  Snacks.debug.backtrace()
+end
+vim.print = _G.dd
+
 local nopreview = with_layout { preview = false }
 local mainprevw = with_layout { preview = "main" }
 
@@ -87,16 +95,50 @@ local with_pickers = function (keys)
     return keys
 end
 
+local old_print = _G.print
+
+print = function (...)
+    local print_safe_args = {}
+    local _ = { ... }
+    for i = 1, #_ do
+        table.insert(print_safe_args, tostring(_[i]))
+    end
+    vim.notify(table.concat(print_safe_args, ' '), "info")
+end
+
 return {
     "folke/snacks.nvim",
     lazy = false,
     priority = 1000,
     opts = {
+        styles = {
+            notification_history = {
+                border = "rounded",
+                zindex = 100,
+                width = 0.8,
+                height = 0.8,
+                minimal = false,
+                title = " Notification History ",
+                title_pos = "center",
+                ft = "markdown",
+                bo = { filetype = "snacks_notif_history", modifiable = false },
+                wo = { winhighlight = "Normal:SnacksNotifierHistory" },
+                keys = { q = "close" },
+            }
+        },
         bigfile = {
             notify = true,
             size = 1.5 * 1024 * 1024,
         },
         git = {},
+        notifier = {
+            style = "minimal",
+            top_down = false,
+            margin = {
+                bottom = 1,
+                right = 0,
+            }
+        },
         zen = {
             toggles = {
                 dim = false,
@@ -108,7 +150,7 @@ return {
             }
         },
         picker = {
-            sources = { explorer = { format = "file", } },
+            sources = { explorer = { format = "file" } },
             ui_select = false,
             icons = {
                 ui = {
@@ -153,5 +195,6 @@ return {
     keys = with_pickers {
         { "<leader>wz", from_snacks.zen.zen() },
         { "<leader>wZ", from_snacks.zen.zoom() },
+        { "<leader>n",  from_snacks.notifier.show_history() }
     }
 }
