@@ -78,6 +78,20 @@ return {
                     border = "rounded"
                 }
             },
+            cmdline = {
+                completion = {
+                    menu = {
+                        auto_show = function(ctx)
+                            return #vim.fn.getcmdline() > 5 and true or false
+                        end,
+                        draw = {
+                            columns = {
+                                { "kind_icon", gap = 1 }, { "label", "label_description" },
+                            },
+                        }
+                    }
+                }
+            },
             completion = {
                 list = {
                     selection = {
@@ -98,15 +112,19 @@ return {
                 ghost_text = { enabled = true },
                 menu = {
                     max_height = 6,
-                    auto_show = function(ctx)
-                        if ctx.mode == "cmdline" then
-                            return #vim.fn.getcmdline() > 5 and true or false
-                        end
-                        return ctx.mode == "cmdline"
-                    end,
+                    auto_show = false,
                     draw = {
+                        columns = {
+                            { "kind_icon", gap = 1 }, { "label", "label_description", "pad", gap = 1 },
+                        },
                         padding = 0,
+                        treesitter = {
+                            "lsp"
+                        },
                         components = {
+                            pad = {
+                                text = function(ctx) return string.rep(" ", ctx.self.gap or 1) end,
+                            },
                             kind_icon = {
                                 ellipsis = false,
                                 text = function(ctx) return " " .. ctx.kind_icon .. " " .. ctx.icon_gap end,
