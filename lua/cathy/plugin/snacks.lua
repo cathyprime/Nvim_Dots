@@ -34,12 +34,14 @@ local picker_mappings = {
     buffers      = "<leader><leader>",
     files        = "<c-p>",
     spelling     = "z=",
-    projects     = "<leader>fp"
+    projects     = "<leader>fp",
+    explorer     = "<leader>fe"
 }
 
 local picker_opts = {
     find_file    = { prompt = " Find file :: ", desc = "find file" },
     resume       = { desc = "resume" },
+    explorer     = { desc = "explorer" },
     undo         = mainprevw { prompt = " Undo :: ",         desc = "undo" },
     nvim_files   = nopreview { prompt = " Neovim Files :: ", desc = "config files", cwd = "~/.config/nvim/" },
     lazy         = nopreview { prompt = " Lazy :: ",         desc = "lazy declarations" },
@@ -79,7 +81,7 @@ local with_pickers = function (keys)
         table.insert(keys, {
             map,
             picks[name](picker_opts[name]),
-            desc = picker_opts[name].desc
+            desc = picker_opts[name] and picker_opts[name].desc or ""
         })
     end
     return keys
@@ -106,6 +108,7 @@ return {
             }
         },
         picker = {
+            sources = { explorer = { format = "file", } },
             ui_select = false,
             icons = {
                 ui = {
