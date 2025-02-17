@@ -199,7 +199,7 @@ return function (opts)
             end,
             confirm = function(picker, item)
                 local result
-                if not item.match_topk then
+                if not item or not item.match_topk then
                     result = get_prompt(picker)
                 else
                     result = item.text
