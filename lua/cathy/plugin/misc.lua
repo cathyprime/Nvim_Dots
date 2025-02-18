@@ -108,6 +108,13 @@ return {
         "folke/noice.nvim",
         event = "VeryLazy",
         opts = {
+            views = {
+                confirm = {
+                    position = {
+                        row = math.floor(vim.opt.lines:get() * .80)
+                    }
+                },
+            },
             presets = { bottom_search = true },
             cmdline = {
                 view = "cmdline",
@@ -124,7 +131,7 @@ return {
             lsp = {
                 hover = { enabled = false },
                 signature = { enabled = false },
-                progress = { enabled = false },
+                progress = { enabled = true },
                 message = { enabled = false },
                 smart_move = { enabled = false },
             },

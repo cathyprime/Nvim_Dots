@@ -131,14 +131,14 @@ return {
             size = 1.5 * 1024 * 1024,
         },
         git = {},
-        notifier = {
-            style = "minimal",
-            top_down = false,
-            -- margin = {
-            --     bottom = 0,
-            --     right = 0,
-            -- }
-        },
+        -- notifier = {
+        --     style = "minimal",
+        --     top_down = false,
+        --     margin = {
+        --         bottom = 0,
+        --         right = 0,
+        --     }
+        -- },
         zen = {
             toggles = {
                 dim = false,
