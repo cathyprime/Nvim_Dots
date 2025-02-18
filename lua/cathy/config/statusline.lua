@@ -217,7 +217,7 @@ local function get_hl()
     if vim.fn.reg_recording() ~= "" then
         return "statuslineRegisterRecording"
     else
-        return five_hls[vim.fn.mode()]
+        return background_five_hls[vim.fn.mode()]
     end
 end
 
@@ -233,7 +233,7 @@ local function recording_component(args)
     if register == "%" then
         register = "%%"
     end
-    return format_element(get_hl(), string.format(" %s%s", register, recording))
+    return string.format("%s%s", register, recording)
 end
 
 local function filename_component(args)
@@ -379,6 +379,7 @@ return {
     diagnostics = diagnostics_component,
     cursor_pos = cursor_pos_component,
     recording = recording_component,
+    record_hl = get_hl,
     filename = filename_component,
     window = window_component,
     mode = mode_component,

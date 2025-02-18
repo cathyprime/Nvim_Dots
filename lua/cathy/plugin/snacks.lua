@@ -134,10 +134,10 @@ return {
         notifier = {
             style = "minimal",
             top_down = false,
-            margin = {
-                bottom = 1,
-                right = 0,
-            }
+            -- margin = {
+            --     bottom = 0,
+            --     right = 0,
+            -- }
         },
         zen = {
             toggles = {

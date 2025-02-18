@@ -103,5 +103,31 @@ return {
                 { "<m-t>", function() grapple.cycle_tags("prev") end }
             }
         end
-    }
+    },
+    {
+        "folke/noice.nvim",
+        event = "VeryLazy",
+        opts = {
+            presets = { bottom_search = true },
+            cmdline = {
+                view = "cmdline",
+                format = {
+                    cmdline = { conceal = false },
+                    search_down = { conceal = false },
+                    search_up = { conceal = false },
+                    filter = { conceal = false },
+                    lua = { conceal = false },
+                    help = { conceal = false },
+                    input = { conceal = false },
+                }
+            },
+            lsp = {
+                hover = { enabled = false },
+                signature = { enabled = false },
+                progress = { enabled = false },
+                message = { enabled = false },
+                smart_move = { enabled = false },
+            },
+        }
+    },
 }

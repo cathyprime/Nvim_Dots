@@ -1,3 +1,9 @@
+local statusline = {
+    hint = {
+        type = "statusline",
+    }
+}
+
 return {
     "cathyprime/hydra.nvim",
     config = function()
@@ -6,6 +12,7 @@ return {
             name = "Side scroll",
             mode = "n",
             body = "z",
+            config = statusline,
             heads = {
                 { "h", "5zh" },
                 { "l", "5zl", { desc = "<-/->" } },
@@ -18,6 +25,7 @@ return {
             name = "resize window",
             mode = "n",
             body = "<C-w>",
+            config = statusline,
             heads = {
                 { "<", "<C-w><" },
                 { ">", "<C-w>>", { desc = "width" } },
