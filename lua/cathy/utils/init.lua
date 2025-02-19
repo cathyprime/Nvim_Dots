@@ -50,7 +50,7 @@ local function cur_buffer_path()
     else
         local expand = vim.fn.expand("%:p:h")
         if expand:match "^term" then
-            expand = vim.fn.fnamemodify(expand:gsub("term://", ""):gsub("//.*", "/"), ":p")
+            expand = vim.fn.fnamemodify(expand:gsub("term://", ""):gsub("//.*", ""), ":p")
         end
         return expand .. "/"
     end
