@@ -71,7 +71,12 @@ local picker_opts = {
             ["picker_files"]  = cb_maker("files",  { prompt = " Find Files :: " }),
             ["picker_recent"] = cb_maker("recent", { prompt = " Oldfiles :: ", format = f }),
         },
-        confirm = cb_maker("files", { prompt = " Find Files :: " }),
+        confirm = function (picker, item)
+            local result = item.text
+            picker:close()
+            vim.cmd.cd(result)
+            vim.cmd.edit(result)
+        end,
     },
 }
 
