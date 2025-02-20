@@ -69,7 +69,6 @@ vim.api.nvim_create_autocmd("VimEnter", {
                             buffer = env.buf,
                             callback = function ()
                                 local pid = vim.b[env.buf].terminal_job_id
-                                print("buf:", env.buf, " pid:", pid)
                                 vim.fn.jobstop(pid)
                                 vim.defer_fn(function()
                                     pcall(vim.api.nvim_buf_delete, env.buf, { force = true })
