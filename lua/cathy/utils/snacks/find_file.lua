@@ -3,20 +3,15 @@ local ns = vim.api.nvim_create_namespace("Magda_Find_File")
 local home = os.getenv("HOME")
 
 return function (opts)
-    local cache = {}
     local prev_wd
     local extmark_id = nil
 
     local function get_files(path)
-        if cache[path] then
-            return cache[path]
-        end
         local obj = vim.system({ "fd", "-L", "--exact-depth=1", "-HI", '.', path }, { text = true }):wait()
         local stdout = vim.split(obj.stdout, "\n", { trimempty = true, plain = true })
         table.insert(stdout, 1, path .. ".")
         table.insert(stdout, 2, path .. "..")
-        cache[path] = stdout
-        return cache[path]
+        return stdout
     end
     local set_prompt = function (picker, new_prompt)
         picker:set_cwd(new_prompt)
@@ -95,9 +90,6 @@ return function (opts)
                 else
                     cwd = picker:cwd()
                 end
-                if cache[cwd] then
-                    return cache[cwd]
-                end
 
                 local items = {}
                 for i, item in ipairs(get_files(cwd)) do
@@ -112,7 +104,6 @@ return function (opts)
                         ft = ft,
                     })
                 end
-                cache[cwd] = items
                 return items
             end,
             win = {
