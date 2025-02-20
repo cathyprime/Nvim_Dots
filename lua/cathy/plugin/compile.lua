@@ -50,7 +50,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
                 local count = 0
                 local args = oil_args(opts.args or "")
                 local mods = opts.mods or ""
-                local bang = opts.bang and 1 or 0
+                -- local bang = opts.bang and 1 or 0
 
                 if opts.count < 0 or opts.line1 == opts.line2 then
                     count = opts.count
@@ -59,7 +59,26 @@ vim.api.nvim_create_autocmd("VimEnter", {
                     args = vim.b.start or ""
                 end
                 vim.b["start"] = args
-                vim.fn["dispatch#start_command"](bang, args, count, mods)
+                vim.api.nvim_create_autocmd("BufAdd", {
+                    callback = function(env)
+                        vim.keymap.set("n", "q", function()
+                            vim.api.nvim_win_close(0, false)
+                        end, { buffer = env.buf, silent = true, noremap = true, nowait = true })
+
+                        vim.api.nvim_create_autocmd("BufHidden", {
+                            buffer = env.buf,
+                            callback = function ()
+                                local pid = vim.b[env.buf].terminal_job_id
+                                print("buf:", env.buf, " pid:", pid)
+                                vim.fn.jobstop(pid)
+                                vim.defer_fn(function()
+                                    pcall(vim.api.nvim_buf_delete, env.buf, { force = true })
+                                end, 100)
+                            end
+                        })
+                    end,
+                })
+                vim.fn["dispatch#start_command"](1, "-wait=always " .. args, count, mods)
             end,
             {
                 bang = true,
