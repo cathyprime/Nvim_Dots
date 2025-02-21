@@ -31,7 +31,12 @@ return {
                 ["gx"] = false,
                 ["gX"] = { "<cmd>Browse<cr>", desc = "open in browser" },
                 ["<A-cr>"] = "actions.open_external",
-                ["gq"] = { "<cmd>close<cr>", desc = "close buffer" },
+                ["q"] = { function ()
+                    local ok, _ = pcall(vim.cmd.close)
+                    if not ok then
+                        vim.cmd.bdelete()
+                    end
+                end, desc = "close buffer" },
                 ["<C-t>"] = "actions.open_terminal",
                 ["<C-q>"] = "actions.send_to_qflist",
                 ["gy"] = "actions.yank_entry",
