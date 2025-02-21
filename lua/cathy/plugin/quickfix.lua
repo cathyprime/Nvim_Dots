@@ -29,10 +29,21 @@ return {
                 keys = {
                     {
                         "<c-l>",
-                        "<cmd>silent Refresh<cr>",
-                        silent = true,
+                        require("quicker").refresh,
                         desc = "Refresh quickfix list",
                     },
+                    {
+                        "+",
+                        function()
+                            require("quicker").expand({ before = 2, after = 2, add_to_existing = true })
+                        end,
+                        desc = "Expand quickfix context"
+                    },
+                    {
+                        "-",
+                        require("quicker").collapse,
+                        desc = "Collapse quickfix context"
+                    }
                 },
             })
         end,
