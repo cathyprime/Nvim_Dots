@@ -31,6 +31,7 @@ local mainprevw = with_layout { preview = "main" }
 local picker_mappings = {
     undo         = "<leader>u",
     find_file    = "<leader>ff",
+    jumps        = "<leader>fj",
     resume       = "<leader>fF",
     nvim_files   = "<leader>fn",
     lazy         = "<leader>fl",
@@ -48,6 +49,7 @@ local picker_mappings = {
 
 local picker_opts = {
     find_file    = { prompt = " Find file :: ", desc = "find file" },
+    jumps        = { prompt = " Jumps :: ", desc = "jumps" },
     resume       = { desc = "resume" },
     explorer     = { desc = "explorer" },
     undo         = mainprevw { prompt = " Undo :: ",         desc = "undo" },
@@ -136,14 +138,6 @@ return {
             size = 1.5 * 1024 * 1024,
         },
         git = {},
-        -- notifier = {
-        --     style = "minimal",
-        --     top_down = false,
-        --     margin = {
-        --         bottom = 0,
-        --         right = 0,
-        --     }
-        -- },
         zen = {
             toggles = {
                 dim = false,
