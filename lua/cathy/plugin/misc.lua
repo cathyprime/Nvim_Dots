@@ -107,6 +107,9 @@ return {
     {
         "folke/noice.nvim",
         event = "VeryLazy",
+        keys = {
+            { "<leader>n", "<cmd>Noice<cr>" }
+        },
         opts = {
             views = {
                 confirm = {

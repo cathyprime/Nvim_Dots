@@ -200,6 +200,5 @@ return {
     keys = with_pickers {
         { "<leader>wz", from_snacks.zen.zen() },
         { "<leader>wZ", from_snacks.zen.zoom() },
-        { "<leader>n",  from_snacks.notifier.show_history() }
     }
 }
