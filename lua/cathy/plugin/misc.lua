@@ -117,6 +117,11 @@ return {
                         row = math.floor(vim.opt.lines:get() * .80)
                     }
                 },
+                cmdline_popup = {
+                    position = {
+                        row = math.floor(vim.opt.lines:get() * .90)
+                    }
+                },
             },
             presets = { bottom_search = true },
             cmdline = {
