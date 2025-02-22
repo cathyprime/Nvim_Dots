@@ -123,25 +123,32 @@ return {
                     }
                 },
             },
-            presets = { bottom_search = true },
+            presets = {
+                bottom_search = true,
+                lsp_doc_border = true,
+                long_message_to_split = true,
+            },
             cmdline = {
                 view = "cmdline",
                 format = {
-                    cmdline = { conceal = false },
                     search_down = { conceal = false },
                     search_up = { conceal = false },
+                    cmdline = { conceal = false },
                     filter = { conceal = false },
-                    lua = { conceal = false },
-                    help = { conceal = false },
                     input = { conceal = false },
+                    help = { conceal = false },
+                    lua = { conceal = false },
                 }
             },
             lsp = {
-                hover = { enabled = false },
+                override = {
+                    ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+                    ["vim.lsp.util.stylize_markdown"] = true,
+                },
                 signature = { enabled = false },
                 progress = { enabled = true },
                 message = { enabled = false },
-                smart_move = { enabled = false },
+                hover = { enabled = true },
             },
         }
     },
