@@ -96,6 +96,8 @@ local minis = {
             triggers = {
                 { mode = "n", keys = "<leader>f" },
                 { mode = "i", keys = "<c-x>" },
+                { mode = "n", keys = "<leader>go" },
+                { mode = "v", keys = "<leader>go" },
             },
             clues = {
                 module.gen_clues.builtin_completion(),

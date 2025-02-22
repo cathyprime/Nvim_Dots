@@ -195,6 +195,9 @@ return {
     keys = with_pickers {
         { "<leader>wz", from_snacks.zen.zen() },
         { "<leader>wZ", from_snacks.zen.zoom() },
-        { "<leader>gw", from_snacks.gitbrowse.open() , mode = { "n", "v" }},
+        { "<leader>gow", from_snacks.gitbrowse.open({ what = "repo" }), mode = "n", desc = "repo" },
+        { "<leader>gob", from_snacks.gitbrowse.open({ what = "branch" }), mode = "n", desc = "branch" },
+        { "<leader>gof", from_snacks.gitbrowse.open({ what = "file" }), mode = { "n", "v" }, desc = "file" },
+        { "<leader>gop", from_snacks.gitbrowse.open({ what = "permalink" }), mode = { "n", "v" }, desc = "permalink" },
     }
 }
