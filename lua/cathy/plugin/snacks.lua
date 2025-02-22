@@ -148,6 +148,7 @@ return {
                 }
             }
         },
+        gitbrowse = {},
         picker = {
             sources = { explorer = { format = "file" } },
             ui_select = false,
@@ -194,5 +195,6 @@ return {
     keys = with_pickers {
         { "<leader>wz", from_snacks.zen.zen() },
         { "<leader>wZ", from_snacks.zen.zoom() },
+        { "<leader>gw", from_snacks.gitbrowse.open() , mode = { "n", "v" }},
     }
 }
