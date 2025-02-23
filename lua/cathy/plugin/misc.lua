@@ -111,6 +111,15 @@ return {
             { "<leader>n", "<cmd>Noice<cr>" }
         },
         opts = {
+            routes = {
+                {
+                    filter = {
+                        event = "msg_show",
+                        cmdline = ":grep"
+                    },
+                    opts = { skip = true }
+                }
+            },
             views = {
                 confirm = {
                     position = {
