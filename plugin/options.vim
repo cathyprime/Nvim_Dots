@@ -54,6 +54,7 @@ set winminwidth=5
 set pumheight=4
 set wrap
 set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case
+set spellfile=~/.config/nvim/spell/en.utf-8.add,~/.config/nvim/spell/pl.utf-8.add
 set messagesopt=wait:0,history:800
 let g:markdown_recommended_style=0
 

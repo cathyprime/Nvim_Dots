@@ -1,8 +1,5 @@
+# vim: set nospell
 unnecessary
-#xrc
-#xrc/!
-exrc/!
-wrap/!
 wrap
 exrc
 expandtab
@@ -46,14 +43,8 @@ mongodb
 localhost
 redoot
 struct
-bio1/!
-author/!
 Backend
-0/!
-bool/!
 kanagawa
-hint/!
-profile/!
 TODO
 Bèzier
 bèzier
@@ -61,12 +52,3 @@ raylib
 flavortown
 TypeScript
 Architecting
-wyestymowanej
-CLN
-Sopharma
-SPH
-jest
-elementowych
-Wyestymowane
-Wyestymowana
-monotonicznie
