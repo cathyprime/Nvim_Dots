@@ -47,10 +47,11 @@ local picker_mappings = {
 }
 
 local picker_opts = {
-    find_file    = { prompt = " Find file :: ", desc = "find file" },
-    jumps        = { prompt = " Jumps :: ", desc = "jumps" },
     resume       = { desc = "resume" },
     explorer     = { desc = "explorer" },
+    find_file    = { prompt = " Find file :: ",              desc = "find file" },
+    jumps        = { prompt = " Jumps :: ",                  desc = "jumps" },
+    spelling     = { prompt = " Spelling :: ",               desc = "spell suggestion", layout = { preset = "ivy_noprev" } },
     undo         = mainprevw { prompt = " Undo :: ",         desc = "undo" },
     nvim_files   = nopreview { prompt = " Neovim Files :: ", desc = "config files", cwd = "~/.config/nvim/" },
     lazy         = nopreview { prompt = " Lazy :: ",         desc = "lazy declarations" },
@@ -61,7 +62,6 @@ local picker_opts = {
     recent       = nopreview { prompt = " Oldfiles :: ",     desc = "oldfiles", format = f },
     buffers      = nopreview { prompt = " Buffers :: ",      desc = "switch buffers", format = f, nofile = true },
     files        = nopreview { prompt = " Files :: ",        desc = "files" },
-    spelling     = nopreview { prompt = " Spelling :: ",     desc = "spell suggestion", layout = "ivy" },
     projects     = nopreview {
         prompt   = " Projects :: ",
         dev      = { "~/polygon", "~/langs", "~/Repositories/" },
@@ -170,6 +170,23 @@ return {
                 }
             },
             layouts = {
+                ivy_noprev = {
+                    layout = {
+                        box = "vertical",
+                        backdrop = false,
+                        row = -1,
+                        width = 0,
+                        height = 0.4,
+                        border = "top",
+                        title = "{live} {flags}",
+                        title_pos = "left",
+                        { win = "input", height = 1, border = "none" },
+                        {
+                            box = "horizontal",
+                            { win = "list", border = "none" },
+                        },
+                    },
+                },
                 ivy = {
                     layout = {
                         box = "vertical",
