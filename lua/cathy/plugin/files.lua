@@ -49,6 +49,7 @@ return {
                     if not ok or cmd == nil then return end
                     vim.cmd.Start(string.format("-dir=%s -wait=always %s %s", require("oil").get_current_dir(), cmd, parsed_name))
                 end, desc = "perform an action on item" },
+                ["<C-p>"] = false,
                 ["g\\"] = false,
                 ["gs"] = false,
                 ["~"] = false,
