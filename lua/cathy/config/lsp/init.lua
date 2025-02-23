@@ -39,3 +39,5 @@ require("mason-lspconfig").setup({
         lua_ls = lsp_funcs.lua_ls,
     }
 })
+
+vim.keymap.del("n", "gO")
