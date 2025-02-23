@@ -93,10 +93,18 @@ vim.api.nvim_create_autocmd({ "BufWritePre" }, {
     end,
 })
 
+local fts = {
+    man = true,
+    [""] = true
+}
+
 vim.api.nvim_create_autocmd({ "BufEnter" }, {
     group = augroup("rooter"),
     pattern = "*",
-    callback = function ()
+    callback = function (env)
+        if fts[vim.bo[env.buf].filetype] then
+            return
+        end
         local expand = vim.fn.expand("%:p:h")
         if expand:match "^term" then
             return

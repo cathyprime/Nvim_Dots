@@ -23,7 +23,6 @@ end
 _G.bt = function()
   Snacks.debug.backtrace()
 end
-vim.print = _G.dd
 
 local nopreview = with_layout { preview = false }
 local mainprevw = with_layout { preview = "main" }
