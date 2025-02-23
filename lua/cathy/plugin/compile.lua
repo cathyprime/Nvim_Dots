@@ -50,7 +50,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
                 local count = 0
                 local args = oil_args(opts.args or "")
                 local mods = opts.mods or ""
-                -- local bang = opts.bang and 1 or 0
+                local bang = opts.bang and 0 or 1
 
                 if opts.count < 0 or opts.line1 == opts.line2 then
                     count = opts.count
@@ -69,7 +69,9 @@ vim.api.nvim_create_autocmd("VimEnter", {
                             buffer = env.buf,
                             callback = function ()
                                 local pid = vim.b[env.buf].terminal_job_id
-                                vim.fn.jobstop(pid)
+                                if pid then
+                                    vim.fn.jobstop(pid)
+                                end
                                 vim.defer_fn(function()
                                     pcall(vim.api.nvim_buf_delete, env.buf, { force = true })
                                 end, 100)
@@ -77,7 +79,11 @@ vim.api.nvim_create_autocmd("VimEnter", {
                         })
                     end,
                 })
-                vim.fn["dispatch#start_command"](1, "-wait=always " .. args, count, mods)
+                if args:find "sudo" then
+                    vim.fn["dispatch#start_command"](0, "-wait=always " .. args, count, mods)
+                else
+                    vim.fn["dispatch#start_command"](bang, "-wait=always " .. args, count, mods)
+                end
             end,
             {
                 bang = true,
