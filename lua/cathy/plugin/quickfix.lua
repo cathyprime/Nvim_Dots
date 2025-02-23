@@ -1,11 +1,28 @@
+local gen = function (try, otherwise)
+    return function ()
+        pcall(vim.cmd, try)
+        if vim.v.errmsg:find "E553" then
+            vim.cmd(otherwise)
+        end
+    end
+end
+
+local jumps = {
+    qf = {
+        next = gen("cnext", "cfirst"),
+        prev = gen("cprev", "clast"),
+    },
+    loclist = {
+        next = gen("lnext", "llast"),
+        prev = gen("lprev", "lfirst"),
+    },
+}
+
 local function jump_quickfix(options)
     return function()
         require("demicolon.jump").repeatably_do(function(opts)
-            if opts.forward then
-                vim.cmd([[execute "normal! \<Plug>(qf_qf_next)"]])
-            else
-                vim.cmd([[execute "normal! \<Plug>(qf_qf_previous)"]])
-            end
+            local has_loclist = vim.fn.getloclist(0, {winid=0}).winid ~= 0
+            jumps[has_loclist and "loclist" or "qf"][opts.forward and "next" or "prev"]()
         end, options)
     end
 end
@@ -15,14 +32,13 @@ return {
         "romainl/vim-qf",
         config = function()
             vim.g.qf_auto_quit = 0
-            vim.g.qf_max_height = 12
             vim.g.qf_auto_resize = 0
             vim.g.qf_auto_open_quickfix = 0
         end
     },
     {
         "stevearc/quicker.nvim",
-        ft = "qf",
+        event = "VeryLazy",
         dependencies = "mawkler/demicolon.nvim",
         config = function()
             require("quicker").setup({
@@ -59,12 +75,21 @@ return {
                 desc = "Prev quickfix item"
             },
             { "<leader>q", function()
+                local has_loclist = vim.fn.getloclist(0, {winid=0}).winid ~= 0
+                if has_loclist then
+                    require("quicker").close({ loclist = true })
+                    return
+                end
                 if vim.g.dispatch_ready then
                     vim.cmd("Copen")
                 else
                     require("quicker").toggle()
                 end
-            end }
+            end },
+            {
+                "<leader>Q",
+                function() require("quicker").toggle({ loclist = true }) end
+            }
         }
     }
 }
