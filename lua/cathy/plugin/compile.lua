@@ -6,7 +6,7 @@ vim.g.dispatch_handlers = {
 
 local function oil_args(args)
     local dir = require("oil").get_current_dir(vim.api.nvim_get_current_buf())
-    if dir == nil then
+    if not dir then
         return args
     end
     return string.format("-dir=%s %s", dir, args)
@@ -97,7 +97,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
             "Make",
             function(opts)
                 local count = 0
-                local args = oil_args(opts.args or "")
+                local args = opts.args
                 local mods = opts.mods or ""
                 local bang = opts.bang and 1 or 0
 
