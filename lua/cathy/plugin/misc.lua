@@ -156,7 +156,7 @@ return {
                 },
                 signature = { enabled = false },
                 progress = { enabled = true },
-                message = { enabled = false },
+                message = { enabled = true },
                 hover = { enabled = true },
             },
         }
