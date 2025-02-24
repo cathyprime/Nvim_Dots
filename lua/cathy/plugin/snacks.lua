@@ -68,9 +68,9 @@ local picker_opts = {
         format   = f,
         desc     = "projects",
         actions  = {
-            ["picker_grep"]   = cb_maker("grep",   { prompt = " Grep :: " }),
-            ["picker_files"]  = cb_maker("files",  { prompt = " Find Files :: " }),
-            ["picker_recent"] = cb_maker("recent", { prompt = " Oldfiles :: ", format = f }),
+            ["picker_grep"]   = cb_maker("grep",   nopreview { prompt = " Grep :: " }),
+            ["picker_files"]  = cb_maker("files",  nopreview { prompt = " Find Files :: " }),
+            ["picker_recent"] = cb_maker("recent", nopreview { prompt = " Oldfiles :: ", format = f }),
         },
         confirm = function (picker, item)
             local result = item.text
