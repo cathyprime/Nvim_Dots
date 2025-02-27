@@ -14,6 +14,25 @@ vim.api.nvim_create_autocmd("BufReadPost", {
     end,
 })
 
+-- generate spell files if missing
+vim.api.nvim_create_autocmd("VimEnter", {
+    once = true,
+    callback = function ()
+        local path = vim.fn.expand "~/.config/nvim/spell/"
+        local filter_bins = function (f)
+            return not f:match "%.spl"
+        end
+        local work = function (f)
+            local full_f = path .. f
+            if not vim.uv.fs_stat(full_f .. ".spl") then
+                vim.cmd.mkspell(full_f)
+            end
+        end
+        local spell_files = vim.fs.dir(path)
+        vim.iter(spell_files):filter(filter_bins):each(work)
+    end
+})
+
 -- options.vim
 vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
     pattern = "options.vim",
