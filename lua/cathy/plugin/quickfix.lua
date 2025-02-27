@@ -1,8 +1,8 @@
 local gen = function (try, otherwise)
     return function ()
-        pcall(vim.cmd, try)
-        if vim.v.errmsg:find "E553" then
-            vim.cmd(otherwise)
+        local ok = pcall(vim.cmd, try)
+        if not ok then
+            pcall(vim.cmd, otherwise)
         end
     end
 end
