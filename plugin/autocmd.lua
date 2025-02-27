@@ -19,13 +19,33 @@ vim.api.nvim_create_autocmd("VimEnter", {
     once = true,
     callback = function ()
         local path = vim.fn.expand "~/.config/nvim/spell/"
+        local download_spellfile = function (lang, cb)
+            vim.system({
+                "wget",
+                "-P",
+                path,
+                "https://ftp.nluug.nl/pub/vim/runtime/spell/" .. lang .. "utf-8.spl"
+            }, {}, cb)
+        end
         local filter_bins = function (f)
             return not f:match "%.spl"
         end
+        local confirmed = nil
         local work = function (f)
             local full_f = path .. f
             if not vim.uv.fs_stat(full_f .. ".spl") then
-                vim.cmd.mkspell(full_f)
+                if confirmed == nil then
+                    confirmed = vim.fn.confirm("Download spell files?", "&Yes\n&No")
+                end
+                local pos = f:find "%.utf%-8%.add"
+                local lang = f:sub(1, pos)
+                if confirmed == 1 then
+                    download_spellfile(lang, vim.schedule_wrap(function ()
+                        vim.cmd.mkspell(full_f)
+                    end))
+                else
+                    vim.cmd.mkspell(full_f)
+                end
             end
         end
         local spell_files = vim.fs.dir(path)
