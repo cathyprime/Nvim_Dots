@@ -3,6 +3,50 @@ local cache = {
     netcoredbg_args = "",
 }
 
+local layouts = {
+    {
+        elements = {
+            { id = "watches", size = 0.30},
+            { id = "console", size = 0.55 },
+            { id = "breakpoints", size = 0.15 },
+        },
+        size = 40,
+        position = "left",
+    },
+    {
+        elements = {
+            { id = "scopes", size = 0.60 },
+            { id = "stacks", size = 0.40 },
+        },
+        size = 12,
+        position = "bottom",
+    },
+    {
+        elements = {
+            { id = "watches", size = 0.60 },
+            { id = "stacks", size = 0.40 },
+        },
+        size = 12,
+        position = "bottom",
+    },
+}
+
+local clamp = function (idx)
+    return ((idx - 2) % (#layouts - 1)) + 2
+end
+
+local indexer = {
+    current = 2,
+    next = function (self)
+        self.current = clamp(self.current + 1)
+        return self.current
+    end,
+    prev = function (self)
+        self.current = clamp(self.current - 1)
+        return self.current
+    end
+}
+
 return {
     "jay-babu/mason-nvim-dap.nvim",
     dependencies = {
@@ -67,43 +111,22 @@ return {
             render = {
                 max_type_length = 0,
             },
-            layouts = {
-                {
-                    elements = {
-                        { id = "watches", size = 0.30},
-                        { id = "console", size = 0.55 },
-                        { id = "breakpoints", size = 0.15 },
-                    },
-                    size = 40,
-                    position = "left",
-                },
-                {
-                    elements = {
-                        { id = "scopes", size = 0.60 },
-                        { id = "stacks", size = 0.40 },
-                    },
-                    size = 6,
-                    position = "bottom",
-                },
-            }
+            layouts = layouts
         })
 
         dap.defaults.fallback.exception_breakpoints = { "raised" }
 
-        dap.listeners.before.attach.dapui_config = function()
-            dapui.open({ layout = 2 })
-        end
+        local plug = "dapui_config"
+        local open = function () dapui.open({ layout = 2 }) end
+        local close = function () dapui.close() end
 
-        dap.listeners.before.launch.dapui_config = function()
-            dapui.open({ layout = 2 })
-        end
-
-        dap.listeners.before.event_terminated["dapui_config"] = function()
-            dapui.close()
-        end
-
-        dap.listeners.before.event_exited["dapui_config"] = function()
-            dapui.close()
+        for event, func in pairs({
+            attach = open,
+            launch = open,
+            event_terminated = close,
+            event_exited = close
+        }) do
+            dap.listeners.before[event][plug] = func
         end
 
         local hint = [[
@@ -111,6 +134,7 @@ return {
  _i_: step into   _X_: Quit        _B_: Condition breakpoint ^
  _o_: step out    _K_: Float       _L_: Log breakpoint
  _b_: step back   _W_: Watch       _u_: Toggle additional UI
+         _\^_: Prev layout     _$_: Next layout
  ^ ^            ^                 ^  ^
  ^ ^ _C_: Continue/Start          ^  ^   Change window
  ^ ^ _R_: Reverse continue        ^  ^       _<c-k>_^
@@ -146,6 +170,22 @@ return {
                 { "b", function() dap.step_back() end, { silent = false } },
                 { "R", function() dap.reverse_continue() end, { silent = false } },
                 { "W", function() dapui.elements.watches.add(vim.fn.expand("<cword>")) end, { silent = false } },
+                { "^", function ()
+                    local ok, _ = pcall(dapui.toggle, { layout = indexer.current })
+                    if not ok then
+                        vim.notify("no active session", vim.log.levels.INFO)
+                        return
+                    end
+                    dapui.open({ layout = indexer:prev() })
+                end },
+                { "$", function ()
+                    local ok, _ = pcall(dapui.toggle, { layout = indexer.current })
+                    if not ok then
+                        vim.notify("no active session", vim.log.levels.INFO)
+                        return
+                    end
+                    dapui.open({ layout = indexer:next() })
+                end },
                 { "u", function()
                     local ok, _ = pcall(dapui.toggle, { layout = 1 })
                     if not ok then
