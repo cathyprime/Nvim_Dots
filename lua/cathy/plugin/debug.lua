@@ -3,6 +3,17 @@ local cache = {
     netcoredbg_args = "",
 }
 
+local make_simple_layout = function (opts)
+    return {
+        elements = {
+            { id = opts.left, size = opts.size or 0.60 },
+            { id = opts.right, size = 1 - (opts.size or 0.60) }
+        },
+        size = opts.height or 12,
+        position = opts.position or "bottom",
+    }
+end
+
 local layouts = {
     {
         elements = {
@@ -13,21 +24,13 @@ local layouts = {
         size = 40,
         position = "left",
     },
-    {
-        elements = {
-            { id = "scopes", size = 0.60 },
-            { id = "stacks", size = 0.40 },
-        },
-        size = 12,
-        position = "bottom",
+    make_simple_layout {
+        left = "watches",
+        right = "console"
     },
-    {
-        elements = {
-            { id = "watches", size = 0.60 },
-            { id = "stacks", size = 0.40 },
-        },
-        size = 12,
-        position = "bottom",
+    make_simple_layout {
+        left = "scopes",
+        right = "stacks",
     },
 }
 
