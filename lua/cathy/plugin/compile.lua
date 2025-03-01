@@ -4,6 +4,25 @@ vim.g.dispatch_handlers = {
     "job",
 }
 
+local close_term = function(env)
+    vim.keymap.set("n", "q", function()
+        vim.api.nvim_win_close(0, false)
+    end, { buffer = env.buf, silent = true, noremap = true, nowait = true })
+
+    vim.api.nvim_create_autocmd("BufHidden", {
+        buffer = env.buf,
+        callback = function ()
+            local pid = vim.b[env.buf].terminal_job_id
+            if pid then
+                vim.fn.jobstop(pid)
+            end
+            vim.defer_fn(function()
+                pcall(vim.api.nvim_buf_delete, env.buf, { force = true })
+            end, 100)
+        end
+    })
+end
+
 local function oil_args(args)
     local dir = require("oil").get_current_dir(vim.api.nvim_get_current_buf())
     if not dir then
@@ -47,6 +66,20 @@ vim.api.nvim_create_autocmd("VimEnter", {
         vim.api.nvim_create_user_command(
             "Start",
             function(opts)
+                local no_bang = function (opts)
+                    vim.fn["dispatch#start_command"](0, "-wait=always " .. opts.args, opts.count, opts.mods)
+                end
+                local default = function (opts)
+                    vim.fn["dispatch#start_command"](opts.bang, "-wait=always " .. opts.args, opts.count, opts.mods)
+                end
+
+                local options = {
+                    [function (args) return args == "" end] = function (opts)
+                        vim.fn["dispatch#start_command"](0, opts.args, opts.count, opts.mods)
+                    end,
+                    [function (args) return args:find "sudo" end] = no_bang,
+                }
+
                 local count = 0
                 local args = oil_args(opts.args or "")
                 local mods = opts.mods or ""
@@ -60,30 +93,23 @@ vim.api.nvim_create_autocmd("VimEnter", {
                 end
                 vim.b["start"] = args
                 vim.api.nvim_create_autocmd("BufAdd", {
-                    callback = function(env)
-                        vim.keymap.set("n", "q", function()
-                            vim.api.nvim_win_close(0, false)
-                        end, { buffer = env.buf, silent = true, noremap = true, nowait = true })
-
-                        vim.api.nvim_create_autocmd("BufHidden", {
-                            buffer = env.buf,
-                            callback = function ()
-                                local pid = vim.b[env.buf].terminal_job_id
-                                if pid then
-                                    vim.fn.jobstop(pid)
-                                end
-                                vim.defer_fn(function()
-                                    pcall(vim.api.nvim_buf_delete, env.buf, { force = true })
-                                end, 100)
-                            end
-                        })
-                    end,
+                    callback = close_term,
                 })
-                if args:find "sudo" then
-                    vim.fn["dispatch#start_command"](0, "-wait=always " .. args, count, mods)
-                else
-                    vim.fn["dispatch#start_command"](bang, "-wait=always " .. args, count, mods)
+
+                local arguments = {
+                    bang = bang,
+                    args = args,
+                    count = count,
+                    mods = mods,
+                }
+
+                for ok, func in pairs(options) do
+                    if ok(args) then
+                        func(arguments)
+                        return
+                    end
                 end
+                default(arguments)
             end,
             {
                 bang = true,
