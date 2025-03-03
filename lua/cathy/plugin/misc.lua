@@ -106,7 +106,7 @@ return {
     },
     {
         "folke/noice.nvim",
-        event = "VeryLazy",
+        lazy = false,
         keys = {
             { "<leader>n", "<cmd>Noice<cr>" }
         },
