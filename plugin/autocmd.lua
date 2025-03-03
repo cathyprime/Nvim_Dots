@@ -2,10 +2,25 @@ local function augroup(name)
     return vim.api.nvim_create_augroup(string.format("Magda_%s", name), { clear = true })
 end
 
+local save_sudo = function (e)
+    vim.api.nvim_create_autocmd("BufWriteCmd", {
+        buffer = e.buf,
+        callback = function ()
+            if require("cathy.utils").sudo_write() then
+                vim.bo[e.buf].modified = false
+                if vim.bo[e.buf].readonly then
+                    vim.bo[e.buf].readonly = false
+                end
+            end
+        end
+    })
+end
+
 vim.api.nvim_create_autocmd("BufReadPost", {
-    callback = function()
+    callback = function(e)
         if not vim.fn.expand("%:p"):match("^" .. os.getenv("HOME")) then
             vim.opt_local.modifiable = false
+            save_sudo(e)
             return
         end
         if vim.fn.expand("%:p"):match("%.cargo") or vim.fn.expand("%:p"):match("%.rustup") then

@@ -56,10 +56,69 @@ local function cur_buffer_path()
     end
 end
 
+local function validate_sudo_timeout()
+    local out = vim.system({ "sudo", "-n", "true" }, {}):wait()
+    return out.code == 0
+end
+
+local function not_interactive_sudo(cmd)
+    local out = vim.system({ "sudo", "-n", "sh", "-c", cmd }, { stderr = true }):wait()
+    if out.code ~= 0 then
+        vim.notify(out.stderr, vim.log.levels.ERROR)
+        return false
+    end
+    return true
+end
+
+local function sudo_exec(cmd)
+    if validate_sudo_timeout() then
+        return not_interactive_sudo(cmd)
+    end
+    vim.fn.inputsave()
+    local password = vim.fn.inputsecret("Password: ")
+    vim.fn.inputrestore()
+    if not password or #password == 0 then
+        vim.notify("Invalid password, sudo aborted", vim.log.levels.WARN)
+
+        return false
+    end
+
+    local out = vim.system({ "sudo", "-S", "sh", "-c", cmd }, { stderr = true, stdin = password .. '\n' }):wait()
+    collectgarbage("collect")
+
+    if out.code ~= 0 then
+        vim.notify(out.stderr, vim.log.levels.ERROR)
+        return false
+    end
+    return true
+end
+
+local function sudo_write()
+    local tmpfile = vim.fn.tempname()
+    local filepath = vim.fn.expand("%")
+    if not filepath or #filepath == 0 then
+        vim.notify("E32: No file name", vim.log.levels.ERROR)
+        return
+    end
+    local cmd = string.format("dd if=%s of=%s bs=1048576",
+        vim.fn.shellescape(tmpfile),
+        vim.fn.shellescape(filepath))
+    vim.api.nvim_exec2(string.format("write! %s", tmpfile), { output = true })
+    if sudo_exec(cmd) then
+        -- refreshes the buffer and prints the "written" message
+        vim.cmd.checktime()
+        vim.api.nvim_feedkeys(vim.keycode "<Esc>", "n", true)
+    end
+    vim.fn.delete(tmpfile)
+    return true
+end
+
 return {
     rooter = require("cathy.rooter"),
     tab_term = tab_term,
     clear_buf_maps = clear_maps,
     map_gen = map_gen,
-    cur_buffer_path = cur_buffer_path
+    cur_buffer_path = cur_buffer_path,
+    sudo_write = sudo_write,
+    sudo_exec = sudo_exec,
 }
