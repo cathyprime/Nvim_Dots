@@ -2,7 +2,7 @@ local map = require("cathy.utils").map_gen({ silent = true })
 
 local jump = function(direction)
     local ret = ""
-    if vim.v.count > 1 then
+    if vim.v.count ~= 0 then
         ret = "m'" .. vim.v.count
     else
         ret = "g"
@@ -112,10 +112,6 @@ if package.loaded["rooter"] then
         vim.cmd.Rooter()
     end)
 end
-
--- diagnostic
--- map("n", "<leader>dt", toggle_diagnostics, { desc = "toggle diagnostics display" })
--- map("n", "<leader>dq", vim.diagnostic.setqflist, { desc = "show diagnostics in quickfix" })
 
 -- command line
 map("c", "<c-a>", "<home>", { silent = false })
