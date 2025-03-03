@@ -18,12 +18,12 @@ end
 
 vim.api.nvim_create_autocmd("BufReadPost", {
     callback = function(e)
-        if not vim.fn.expand("%:p"):match("^" .. os.getenv("HOME")) then
+        if not require("cathy.utils").cur_buffer_path():match("^" .. os.getenv("HOME")) then
             vim.opt_local.modifiable = false
             save_sudo(e)
             return
         end
-        if vim.fn.expand("%:p"):match("%.cargo") or vim.fn.expand("%:p"):match("%.rustup") then
+        if require("cathy.utils").cur_buffer_path():match("%.cargo") or vim.fn.expand("%:p"):match("%.rustup") then
             vim.opt_local.modifiable = false
         end
     end,
