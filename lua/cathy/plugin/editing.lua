@@ -1,8 +1,5 @@
 return {
     {
-        "tpope/vim-eunuch"
-    },
-    {
         "kylechui/nvim-surround",
         event = "InsertEnter",
         opts = {

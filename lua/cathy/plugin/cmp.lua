@@ -33,8 +33,11 @@ return {
     {
         "saghen/blink.cmp",
         lazy = false,
-        version = "v0.12.4",
+        version = "v0.*",
         opts = {
+            fuzzy = {
+                implementation = "rust"
+            },
             keymap = {
                 preset = "default",
                 ["<C-space>"] = { "show", "show_documentation", "hide_documentation" },
@@ -78,22 +81,21 @@ return {
                     border = "rounded"
                 }
             },
-            -- waiting for 0.13.2 or above
-            -- cmdline = {
-            --     completion = {
-            --         ghost_text = { enabled = true },
-            --         menu = {
-            --             auto_show = function(ctx)
-            --                 return #vim.fn.getcmdline() > 5 and true or false
-            --             end,
-            --             draw = {
-            --                 columns = {
-            --                     { "kind_icon", gap = 1 }, { "label", "label_description" },
-            --                 },
-            --             }
-            --         }
-            --     }
-            -- },
+            cmdline = {
+                completion = {
+                    ghost_text = { enabled = true },
+                    menu = {
+                        auto_show = function(ctx)
+                            return #vim.fn.getcmdline() > 5 and true or false
+                        end,
+                        draw = {
+                            columns = {
+                                { "kind_icon", gap = 1 }, { "label", "label_description" },
+                            },
+                        }
+                    }
+                }
+            },
             completion = {
                 list = {
                     selection = {
