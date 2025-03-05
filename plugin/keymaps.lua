@@ -106,13 +106,6 @@ map("n", "<c-,>", function() -- duplicate line and stay in the same pos
     vim.api.nvim_win_set_cursor(0, pos)
 end)
 
-if package.loaded["rooter"] then
-    map("n", "<leader>r", function()
-        vim.cmd.Rooter("toggle")
-        vim.cmd.Rooter()
-    end)
-end
-
 -- command line
 map("c", "<c-a>", "<home>", { silent = false })
 map("c", "<m-f>", "<c-right>", { silent = false })
