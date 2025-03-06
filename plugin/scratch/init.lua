@@ -116,3 +116,4 @@ vim.api.nvim_create_user_command(
 
 vim.keymap.set("n", "<leader>oS", "<cmd>Scratch<cr>", { desc = "open scratch buffer" })
 vim.keymap.set("n", "<leader>os", "<cmd>Scratch sh<cr>", { desc = "open scratch shell buffer" })
+vim.keymap.set("n", "<leader>ot", "<cmd>Scratch markdown<cr>", { desc = "open scratch todo buffer" })
