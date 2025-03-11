@@ -17,13 +17,6 @@ local with_layout = function (p)
     end
 end
 
-_G.dd = function(...)
-  Snacks.debug.inspect(...)
-end
-_G.bt = function()
-  Snacks.debug.backtrace()
-end
-
 local nopreview = with_layout { preview = false }
 local mainprevw = with_layout { preview = "main" }
 
