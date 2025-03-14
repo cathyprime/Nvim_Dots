@@ -97,20 +97,17 @@ return function (opts)
                     if ft == "" then
                         ft = nil
                     end
+                    local allowed = {
+                        ["."] = true,
+                        [".."] = true,
+                    }
                     local new = {
                         idx = i,
                         file = item,
                         text = item,
                         ft = ft,
-                        ico_type = item:sub(-1) == "/" and "directory" or "filetype"
+                        is_dir = item:sub(-1) == "/" or allowed[vim.fn.fnamemodify(item, ":t")]
                     }
-                    local allowed = {
-                        ["."] = true,
-                        [".."] = true,
-                    }
-                    if allowed[vim.fn.fnamemodify(item, ":t")] then
-                        new.ico_type = "directory"
-                    end
                     table.insert(items, new)
                 end
                 return items
@@ -184,7 +181,7 @@ return function (opts)
                 local ret = {}
                 local fname = item.file
                 local a = Snacks.picker.util.align
-                local icon, icon_hl = Snacks.util.icon(item.ft, item.ico_type)
+                local icon, icon_hl = Snacks.util.icon(item.file, item.is_dir and "directory")
 
                 if string.sub(fname, -1) == "/" then
                     fname = vim.fn.fnamemodify(fname, ":h:t") .. "/"
