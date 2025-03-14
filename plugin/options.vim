@@ -3,6 +3,7 @@ if !exists(':Termdebug')
     packadd termdebug
 endif
 
+set confirm
 set nu rnu
 set cpo+=>
 set diffopt+=iwhite
