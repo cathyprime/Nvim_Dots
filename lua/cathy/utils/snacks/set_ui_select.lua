@@ -51,9 +51,11 @@ vim.ui.select = function (items, opts, on_choice)
                     return
                 end
                 completed = true
+                local prompt = vim.api.nvim_buf_get_lines(picker.input.win.buf, 0, -1, false)[1]
                 picker:close()
                 vim.schedule(function ()
-                    on_choice(item and item.item, item and item.idx)
+                    on_choice(item and item.item or prompt,
+                              item and item.idx or 1)
                 end)
             end,
         },
