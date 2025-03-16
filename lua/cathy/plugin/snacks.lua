@@ -136,6 +136,7 @@ return {
                 keys = { q = "close" },
             }
         },
+        terminal = {},
         bigfile = {
             notify = true,
             size = 1.5 * 1024 * 1024,
@@ -213,11 +214,12 @@ return {
         },
     },
     keys = with_pickers {
-        { "<leader>wz", from_snacks.zen.zen() },
-        { "<leader>wZ", from_snacks.zen.zoom() },
-        { "<leader>gow", from_snacks.gitbrowse.open({ what = "repo" }), mode = "n", desc = "repo" },
-        { "<leader>gob", from_snacks.gitbrowse.open({ what = "branch" }), mode = "n", desc = "branch" },
-        { "<leader>gof", from_snacks.gitbrowse.open({ what = "file" }), mode = { "n", "v" }, desc = "file" },
-        { "<leader>gop", from_snacks.gitbrowse.open({ what = "permalink" }), mode = { "n", "v" }, desc = "permalink" },
+        { "<leader>wz",   from_snacks.zen.zen() },
+        { "<leader>wZ",   from_snacks.zen.zoom() },
+        { "<leader><cr>", from_snacks.terminal() },
+        { "<leader>gow",  from_snacks.gitbrowse.open({ what = "repo" }), mode = "n", desc = "repo" },
+        { "<leader>gob",  from_snacks.gitbrowse.open({ what = "branch" }), mode = "n", desc = "branch" },
+        { "<leader>gof",  from_snacks.gitbrowse.open({ what = "file" }), mode = { "n", "v" }, desc = "file" },
+        { "<leader>gop",  from_snacks.gitbrowse.open({ what = "permalink" }), mode = { "n", "v" }, desc = "permalink" },
     }
 }
