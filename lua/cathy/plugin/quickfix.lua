@@ -29,14 +29,6 @@ end
 
 return {
     {
-        "romainl/vim-qf",
-        config = function()
-            vim.g.qf_auto_quit = 0
-            vim.g.qf_auto_resize = 0
-            vim.g.qf_auto_open_quickfix = 0
-        end
-    },
-    {
         "stevearc/quicker.nvim",
         event = "VeryLazy",
         dependencies = "mawkler/demicolon.nvim",

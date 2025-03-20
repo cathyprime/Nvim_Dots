@@ -42,26 +42,3 @@ vim.keymap.set("n", "q", function()
         end
     })
 end, { buffer = true, silent = true, expr = true })
-
-vim.keymap.set("x", "R", ":Reject<cr>", { buffer = true, silent = true})
-vim.keymap.set("x", "K", ":Keep<cr>", { buffer = true, silent = true})
-
-vim.keymap.set("n", "R", function()
-    vim.o.operatorfunc = "v:lua.require'cathy.repeats'.reject"
-    vim.cmd.normal "g@l"
-end, { buffer = true, silent = true })
-
-vim.keymap.set("n", "K", function()
-    vim.o.operatorfunc = "v:lua.require'cathy.repeats'.keep"
-    vim.cmd.normal "g@l"
-end, { buffer = true, silent = true })
-
-vim.keymap.set("n", "gR", function()
-    vim.o.operatorfunc = "v:lua.require'cathy.repeats'.g_reject"
-    vim.cmd.normal "g@l"
-end, { buffer = true, silent = true })
-
-vim.keymap.set("n", "gK",  function()
-    vim.o.operatorfunc = "v:lua.require'cathy.repeats'.g_keep"
-    vim.cmd.normal "g@l"
-end, { buffer = true, silent = true })

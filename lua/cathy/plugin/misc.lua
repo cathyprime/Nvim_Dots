@@ -15,10 +15,6 @@ end
 
 return {
     {
-        "Eandrju/cellular-automaton.nvim",
-        cmd = "CellularAutomaton"
-    },
-    {
         "mawkler/demicolon.nvim",
         lazy = true,
         opts = {
