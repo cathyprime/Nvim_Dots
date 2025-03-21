@@ -2,13 +2,50 @@ local from_snacks = require("cathy.utils.snacks.from_snacks")
 local ns = vim.api.nvim_create_namespace("Magda_Find_File")
 local home = os.getenv("HOME")
 
+local fd_exec = function ()
+    return (vim.fn.executable("fd") == 1 and "fd")
+        or (vim.fn.executable("fd-find") == 1 and "fd-find")
+        or "find"
+end
+
+local find_cmds = {
+    ["fd"] = function (path)
+        local fd = { "fd", "-L", "--exact-depth=1", "-HI", '.', path }
+        local obj = vim.system(fd, { text = true }):wait()
+        return vim.split(obj.stdout, "\n", { trimempty = true, plain = true })
+    end,
+    ["fd-find"] = function (path)
+        local fd = { "fd-find", "-L", "--exact-depth=1", "-HI", '.', path }
+        local obj = vim.system(fd, { text = true }):wait()
+        return vim.split(obj.stdout, "\n", { trimempty = true, plain = true })
+    end,
+    ["find"] = function (path)
+        local fd = {
+            "find", path,
+            "-mindepth", "1",
+            "-maxdepth", "1",
+        }
+        local obj = vim.system(fd, { text = true }):wait()
+        local entries = vim.split(obj.stdout, "\n", { trimempty = true, plain = true })
+        local processed_entries = {}
+        for _, entry in ipairs(entries) do
+            local is_dir = vim.fn.isdirectory(entry) == 1
+            if is_dir then
+                table.insert(processed_entries, entry .. "/")
+            else
+                table.insert(processed_entries, entry)
+            end
+        end
+        return processed_entries
+    end
+}
+
 return function (opts)
     local prev_wd
     local extmark_id = nil
 
     local function get_files(path)
-        local obj = vim.system({ "fd", "-L", "--exact-depth=1", "-HI", '.', path }, { text = true }):wait()
-        local stdout = vim.split(obj.stdout, "\n", { trimempty = true, plain = true })
+        local stdout = find_cmds[fd_exec()](path)
         table.insert(stdout, 1, path .. ".")
         table.insert(stdout, 2, path .. "..")
         return stdout
