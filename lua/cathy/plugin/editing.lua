@@ -144,31 +144,4 @@ return {
             end)
         end,
     },
-    {
-        "chaoren/vim-wordmotion",
-        init = function ()
-            vim.g.wordmotion_extra = {
-                "\\%([[:upper:]][[:lower:]]\\+\\)\\+",
-                "\\<[[:upper:]]\\@![[:lower:]]\\+\\%([[:upper:]][[:lower:]]\\+\\)\\+",
-                "\\%([[:lower:]]\\|[[:upper:]]\\)\\+\\d\\+",
-                "\\<[[:upper:]]\\+[[:lower:]]\\+\\>"
-            }
-            vim.g.wordmotion_spaces = { ".", "_", "-" }
-            vim.g.wordmotion_mappings = {
-                ["<C-R><C-W>"] = "",
-                ["<C-R><C-A>"] = ""
-            }
-        end
-    },
-    {
-        "cathyprime/substitute.nvim",
-        build = "make",
-        config = function ()
-            require("substitute")
-            vim.keymap.set("n", "gs", "<Plug>(substitute)")
-            vim.keymap.set("n", "gss", "<Plug>(substitute-linewise)")
-            vim.keymap.set("n", "gS", "<Plug>(substitute-quickfix)")
-            vim.keymap.set("x", "gs", "<Plug>(substitute)")
-        end
-    }
 }

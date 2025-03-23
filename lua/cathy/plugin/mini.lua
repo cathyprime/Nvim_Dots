@@ -14,32 +14,6 @@ local minis = {
                 end
             end
         })
-        vim.keymap.set("o", "o", function()
-            local operator = vim.v.operator
-            if operator == "d" then
-                local scope = MiniIndentscope.get_scope()
-                local top = scope.border.top
-                local bottom = scope.border.bottom
-                local row, col = vim.api.nvim_win_get_cursor(0)
-                local move = ""
-                if row == bottom then
-                    move = "k"
-                elseif row == top then
-                    move = "j"
-                end
-                local ns = vim.api.nvim_create_namespace("border")
-                vim.api.nvim_buf_add_highlight(0, ns, "Substitute", top - 1, 0, -1)
-                vim.api.nvim_buf_add_highlight(0, ns, "Substitute", bottom - 1, 0, -1)
-                vim.defer_fn(function()
-                    vim.api.nvim_buf_set_text(0, top - 1, 0, top - 1, -1, {})
-                    vim.api.nvim_buf_set_text(0, bottom - 1, 0, bottom - 1, -1, {})
-                    vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
-                end, 150)
-                return "<esc>" .. move
-            else
-                return "o"
-            end
-        end, { expr = true })
     end,
 
     operators = function()
@@ -72,22 +46,12 @@ local minis = {
                 right      = "<m-l>",
                 down       = "<m-j>",
                 up         = "<m-k>",
-                line_left  = "",
-                line_right = "",
+                line_left  = "<m-h>",
+                line_right = "<m-l>",
                 line_down  = "<m-j>",
                 line_up    = "<m-k>",
             }
         })
-        vim.keymap.set("n", "<m-h>", function ()
-            vim.cmd.normal("v")
-            require("mini.move").move_selection("left")
-            vim.cmd.normal("v")
-        end)
-        vim.keymap.set("n", "<m-l>", function ()
-            vim.cmd.normal("v")
-            require("mini.move").move_selection("right")
-            vim.cmd.normal("v")
-        end)
     end,
 
     clue = function()
@@ -168,7 +132,7 @@ local minis = {
             vim.api.nvim_win_set_width(0, 56)
 
             -- Bind both windows so that they scroll together
-            vim.wo[win_src].scrollbind, vim.wo.scrollbind = true, true
+            vim.wo[win_src].scrollbind, vim.wo[win_src].scrollbind = true, true
         end
 
         local au_opts = { pattern = 'MiniGitCommandSplit', callback = align_blame }
@@ -198,16 +162,13 @@ local minis = {
                     local lsp           = MiniStatusline.section_lsp({ trunc_width = 75 })
                     local search        = MiniStatusline.section_searchcount({ trunc_width = 75 })
 
-                    local name_or_index = require("grapple").name_or_index()
-                    local grapple       = name_or_index and string.format("g -> [%d]", name_or_index) or ""
-
                     return MiniStatusline.combine_groups({
                         { hl = mode_hl,                  strings = { mode } },
                         { hl = recording_hl,             strings = { recording } },
                         { hl = 'MiniStatuslineDevinfoB', strings = { filename } },
                         "%=",
                         { hl = 'MiniStatuslineDevinfoB', strings = { last_button, search, diff } },
-                        { hl = five_hls_b,               strings = { grapple, lsp, diagnostics } },
+                        { hl = five_hls_b,               strings = { lsp, diagnostics } },
                         { hl = five_hls,                 strings = { cursor_pos } },
                         "%P ",
                     })

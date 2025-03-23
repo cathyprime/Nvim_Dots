@@ -50,10 +50,6 @@ return {
         end
     },
     {
-        "FabijanZulj/blame.nvim",
-        config = true,
-    },
-    {
         "NeogitOrg/neogit",
         dependencies = {
             "nvim-lua/plenary.nvim"

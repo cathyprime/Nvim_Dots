@@ -80,27 +80,6 @@ return {
         },
     },
     {
-        "cbochs/grapple.nvim",
-        config = function()
-            require("grapple").setup({
-                scope = "git_branch",
-            })
-        end,
-        cmd = "Grapple",
-        keys = function()
-            local grapple = require("grapple")
-            return {
-                { "<leader>a", grapple.toggle },
-                { "<leader>e", grapple.toggle_tags },
-                { "<c-f>", function() grapple.select({ index = vim.v.count1 }) end },
-                { "<m-a>", function() grapple.cycle_scopes("next") end },
-                { "<m-x>", function() grapple.cycle_scopes("prev") end },
-                { "<m-g>", function() grapple.cycle_tags("next") end },
-                { "<m-t>", function() grapple.cycle_tags("prev") end }
-            }
-        end
-    },
-    {
         "folke/noice.nvim",
         lazy = false,
         keys = {
