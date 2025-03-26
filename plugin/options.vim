@@ -1,6 +1,9 @@
 set background=light
-packadd termdebug
+if !exists(':Termdebug')
+    packadd termdebug
+endif
 
+set confirm
 set nu rnu
 set cpo+=>
 set diffopt+=iwhite
@@ -23,14 +26,14 @@ set fillchars+=foldclose:>
 set fillchars+=foldopen:v
 set fillchars+=foldsep:\ 
 set fillchars+=fold:\ 
-set linebreak showbreak=->\ 
+set linebreak
 set path=.,**
 set ignorecase smartcase incsearch
 set foldlevel=4 foldexpr=v:lua.vim.treesitter.foldexpr()
 set foldtext= foldmethod=expr foldcolumn=0 foldnestmax=4
 set formatoptions-=l
 set nohls cursorline cursorlineopt=number guicursor=n-v-i-ci-ve:block-Cursor showcmdloc=statusline
-set cmdwinheight=2 cmdheight=1 showtabline=0
+set cmdwinheight=2 cmdheight=0 showtabline=1
 set scrolloff=8
 set smoothscroll
 set termguicolors
@@ -47,12 +50,16 @@ set shortmess+=c
 set showmode
 set laststatus=2
 set undofile
-set wildmode=full wildignorecase wildoptions-=pum
+set nowildmenu wildmode=full wildignorecase wildoptions-=pum
 set winminwidth=5
 set pumheight=4
 set wrap
-set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case
+set spellfile=~/.config/nvim/spell/en.utf-8.add,~/.config/nvim/spell/pl.utf-8.add
+set messagesopt=wait:0,history:800
 let g:markdown_recommended_style=0
+if executable("rg")
+    set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case
+endif
 
 if exists("g:neovide")
     let g:neovide_scale_factor=1.0

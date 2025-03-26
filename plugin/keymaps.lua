@@ -1,8 +1,8 @@
 local map = require("cathy.utils").map_gen({ silent = true })
 
-local function jump(direction)
+local jump = function(direction)
     local ret = ""
-    if vim.v.count > 1 then
+    if vim.v.count ~= 0 then
         ret = "m'" .. vim.v.count
     else
         ret = "g"
@@ -10,22 +10,7 @@ local function jump(direction)
     return ret .. direction
 end
 
-local function get_char(question, err_question)
-    local char
-    while true do
-        print(question)
-        char = vim.fn.nr2char(vim.fn.getchar())
-        if char == "y" or char == "n" or char == "q" then
-            break
-        else
-            print(err_question)
-            vim.cmd("sleep 300m")
-        end
-    end
-    return char
-end
-
-local function find_if_modified()
+local find_if_modified = function()
     return vim.iter(vim.api.nvim_list_bufs()):any(function(buffer)
         return vim.api.nvim_get_option_value("modified", { buf = buffer }) and vim.api.nvim_buf_is_loaded(buffer)
     end)
@@ -43,16 +28,12 @@ vim.keymap.set("x", "@", function()
             id = x + 1
         })
     end
-    local function consume_marks(marks)
+    local consume_marks = function(marks)
         if #marks == 0 then return end
         local cur = marks[1]
         vim.api.nvim_buf_del_extmark(0, ns, cur[1])
-        vim.schedule(function()
-            vim.cmd(cur[2] .. "norm @" .. char)
-        end)
-        vim.schedule(function()
-            consume_marks(vim.api.nvim_buf_get_extmarks(0, ns, 0, -1, {}))
-        end)
+        vim.schedule_wrap(vim.cmd)(cur[2] .. "norm @" .. char)
+        vim.schedule_wrap(consume_marks)(vim.api.nvim_buf_get_extmarks(0, ns, 0, -1, {}))
     end
     local x = vim.api.nvim_buf_get_extmarks(0, ns, 0, -1, {})
     consume_marks(x)
@@ -113,10 +94,8 @@ end, { expr = true })
 map("n", "k", function()
     return jump("k")
 end, { expr = true })
-map("n", "<leader>ot", "<cmd>e todo.md<cr>")
 map("x", "<leader>;", [[<cmd>'<,'>norm A;<cr>]])
 map("n", "<c-z>", "<Nop>")
-map("n", "<leader>ff", "<cmd>FindFile<cr>", { desc = "find file", silent = false })
 map("n", "<c-,>", function() -- duplicate line and stay in the same pos
     if not vim.opt_local.modifiable:get() then return end
     local pos = vim.api.nvim_win_get_cursor(0)
@@ -125,20 +104,6 @@ map("n", "<c-,>", function() -- duplicate line and stay in the same pos
     vim.api.nvim_buf_set_lines(0, pos[1]-1, pos[1]-1, true, lines)
     vim.api.nvim_win_set_cursor(0, pos)
 end)
-map("n", "<leader>gw", function()
-    vim.system({ "gh", "repo", "view", "--web" }, { text = false })
-end)
-
-if package.loaded["rooter"] then
-    map("n", "<leader>r", function()
-        vim.cmd.Rooter("toggle")
-        vim.cmd.Rooter()
-    end)
-end
-
--- diagnostic
--- map("n", "<leader>dt", toggle_diagnostics, { desc = "toggle diagnostics display" })
--- map("n", "<leader>dq", vim.diagnostic.setqflist, { desc = "show diagnostics in quickfix" })
 
 -- command line
 map("c", "<c-a>", "<home>", { silent = false })
@@ -163,48 +128,39 @@ map("v", "<leader>d", [[:s#\(\S\)\s\+#\1 #g<cr>:noh<cr>]])
 
 -- search
 vim.api.nvim_create_autocmd("CursorHold", { command = "set nohlsearch" })
-local function wrap_simp(str)
+local search_map = function (tbl)
+    vim.keymap.set("n", tbl[1], tbl[2], { expr = true })
+end
+local wrap = function (str)
     return function()
         vim.opt.hlsearch = true
-        vim.cmd(string.format("silent normal! %s", str))
+        return str
     end
 end
-local function wrap(str, ret)
-    return function()
-        local old_wrapscan = vim.opt.wrapscan
+local stable_search = function (forward)
+    return function ()
         vim.opt.hlsearch = true
-        vim.opt.wrapscan = false
-        local ok = pcall(vim.cmd, string.format("silent normal! %s", str))
-        if ok then
-            vim.cmd(string.format("silent normal! %s", ret))
+        if forward then
+            return vim.v.searchforward == 1 and "n" or "N"
         end
-        vim.opt.wrapscan = old_wrapscan
+        return vim.v.searchforward == 0 and "n" or "N"
     end
 end
-local function wrap_fn(str, meow)
-    return function()
-        return string.format("<cmd>set hlsearch<cr><cmd>silent! normal! %s<cr>", str(meow))
-    end
-end
-local function stable_search(forward)
-    return forward
-        and (vim.v.searchforward == 1 and "n" or "N")
-        or (vim.v.searchforward == 0 and "n" or "N")
-end
-vim.keymap.set("n", "/", "<cmd>set hlsearch<cr>/")
-vim.keymap.set("n", "?", "<cmd>set hlsearch<cr>?")
-vim.keymap.set("n", "*", wrap_simp("*"), { silent = true })
-vim.keymap.set("n", "g*", wrap_simp("g*"), { silent = true })
-vim.keymap.set("n", "#", wrap_simp("#"), { silent = true })
-vim.keymap.set("n", "g#", wrap_simp("g#"), { silent = true })
-vim.keymap.set("n", "n", wrap_fn(stable_search, true), { silent = true, expr = true })
-vim.keymap.set("n", "N", wrap_fn(stable_search, false), { silent = true, expr = true })
+
+search_map { "/",  wrap "/"  }
+search_map { "?",  wrap "?"  }
+search_map { "*",  wrap "*"  }
+search_map { "g*", wrap "g*" }
+search_map { "#",  wrap "#"  }
+search_map { "g#", wrap "g#" }
+search_map { "n",  stable_search(true)  }
+search_map { "N",  stable_search(false) }
 
 if vim.g.neovide then
     local change_scale_factor = function()
         vim.g.neovide_scale_factor = vim.g.neovide_scale_factor * delta
     end
-    local function resize(lhs, delta)
+    local resize = function(lhs, delta)
         vim.keymap.set("n", lhs, function()
             if delta == 1.0 then
                 vim.g.neovide_scale_factor = 1.0

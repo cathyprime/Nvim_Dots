@@ -4,9 +4,28 @@ vim.g.dispatch_handlers = {
     "job",
 }
 
+local close_term = function(env)
+    vim.keymap.set("n", "q", function()
+        vim.api.nvim_win_close(0, false)
+    end, { buffer = env.buf, silent = true, noremap = true, nowait = true })
+
+    vim.api.nvim_create_autocmd("BufHidden", {
+        buffer = env.buf,
+        callback = function ()
+            local pid = vim.b[env.buf].terminal_job_id
+            if pid then
+                vim.fn.jobstop(pid)
+            end
+            vim.defer_fn(function()
+                pcall(vim.api.nvim_buf_delete, env.buf, { force = true })
+            end, 100)
+        end
+    })
+end
+
 local function oil_args(args)
     local dir = require("oil").get_current_dir(vim.api.nvim_get_current_buf())
-    if dir == nil then
+    if not dir then
         return args
     end
     return string.format("-dir=%s %s", dir, args)
@@ -47,10 +66,24 @@ vim.api.nvim_create_autocmd("VimEnter", {
         vim.api.nvim_create_user_command(
             "Start",
             function(opts)
+                local no_bang = function (opts)
+                    vim.fn["dispatch#start_command"](0, "-wait=always " .. opts.args, opts.count, opts.mods)
+                end
+                local default = function (opts)
+                    vim.fn["dispatch#start_command"](opts.bang, "-wait=always " .. opts.args, opts.count, opts.mods)
+                end
+
+                local options = {
+                    [function (args) return args == "" end] = function (opts)
+                        vim.fn["dispatch#start_command"](0, opts.args, opts.count, opts.mods)
+                    end,
+                    [function (args) return args:find "sudo" end] = no_bang,
+                }
+
                 local count = 0
                 local args = oil_args(opts.args or "")
                 local mods = opts.mods or ""
-                local bang = opts.bang and 1 or 0
+                local bang = opts.bang and 0 or 1
 
                 if opts.count < 0 or opts.line1 == opts.line2 then
                     count = opts.count
@@ -59,7 +92,49 @@ vim.api.nvim_create_autocmd("VimEnter", {
                     args = vim.b.start or ""
                 end
                 vim.b["start"] = args
-                vim.fn["dispatch#start_command"](bang, args, count, mods)
+                vim.api.nvim_create_autocmd("BufAdd", {
+                    callback = close_term,
+                })
+
+                local arguments = {
+                    bang = bang,
+                    args = args,
+                    count = count,
+                    mods = mods,
+                }
+
+                for ok, func in pairs(options) do
+                    if ok(args) then
+                        func(arguments)
+                        return
+                    end
+                end
+                default(arguments)
+            end,
+            {
+                bang = true,
+                nargs = "*",
+                range = -1,
+                complete = "customlist,dispatch#command_complete",
+            }
+        )
+        vim.api.nvim_del_user_command("Make")
+        vim.api.nvim_create_user_command(
+            "Make",
+            function(opts)
+                local count = 0
+                local args = opts.args
+                local mods = opts.mods or ""
+                local bang = opts.bang and 1 or 0
+
+                if opts.count < 0 or opts.line1 == opts.line2 then
+                    count = opts.count
+                end
+                if args == "" and vim.b.make ~= "" then
+                    args = vim.b.make or ""
+                end
+                vim.b["make"] = args
+                vim.fn["dispatch#compile_command"](bang, "-- " .. args, count, mods)
             end,
             {
                 bang = true,

@@ -20,7 +20,6 @@ end
 
 local valid_nodes = {
     access_specifier = 2,
-    field_initializer_list = -2,
 }
 
 return {

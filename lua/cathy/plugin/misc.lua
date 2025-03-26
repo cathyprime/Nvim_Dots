@@ -15,10 +15,6 @@ end
 
 return {
     {
-        "Eandrju/cellular-automaton.nvim",
-        cmd = "CellularAutomaton"
-    },
-    {
         "mawkler/demicolon.nvim",
         lazy = true,
         opts = {
@@ -51,15 +47,14 @@ return {
             modes = {
                 current_project_diagnostics = {
                     auto_close = false,
-                    mode = "diagnostics", -- inherit from diagnostics mode
+                    mode = "diagnostics",
                     filter = {
                         any = {
-                            buf = 0, -- current buffer
+                            buf = 0,
                             {
-                                severity = vim.diagnostic.severity.ERROR, -- errors only
-                                -- limit to files in the current project
+                                severity = vim.diagnostic.severity.ERROR,
                                 function(item)
-                                    return item.filename:find((vim.loop or vim.uv).cwd(), 1, true)
+                                    return item.filename:find(vim.uv.cwd(), 1, true)
                                 end,
                             },
                         },
@@ -75,50 +70,7 @@ return {
             { "[d", trouble_jump({ forward = false }), desc = "Prev trouble item" },
         }
     },
-    {
-        "mbbill/undotree",
-        config = function()
-            vim.g.undotree_WindowLayout = 2
-            vim.g.undotree_ShortIndicators = 0
-            vim.g.undotree_SplitWidth = 40
-            vim.g.undotree_SetFocusWhenToggle = 1
-            vim.g.undotree_DiffCommand = [[diff]]
-        end,
-        keys = {
-            { "<leader>u", "<cmd>UndotreeToggle<cr>" }
-        }
-    },
     "milisims/nvim-luaref",
-    {
-        "folke/zen-mode.nvim",
-        cmd = "ZenMode",
-        keys = { { "<leader>w", "<cmd>ZenMode<cr>" } },
-        config = function()
-            require("zen-mode").setup({
-                plugins = {
-                    options = {
-                        enabled = true,
-                        ruler = false,
-                        showcmd = false,
-                        laststatus = 0,
-                    },
-                    twilight = { enabled = false },
-                    gitsigns = { enabled = true },
-                    wezterm = {
-                        enabled = true,
-                        font = 4,
-                    },
-                    neovide = {
-                        enabled = true,
-                        scale = 1.02
-                    },
-                },
-                on_open = function()
-                    vim.opt.fillchars = [[foldclose:>,foldopen:v,foldsep: ,fold: ]]
-                end
-            })
-        end
-    },
     {
         "chrishrb/gx.nvim",
         cmd = "Browse",
@@ -128,103 +80,60 @@ return {
         },
     },
     {
-        "cbochs/grapple.nvim",
-        config = function()
-            require("grapple").setup({
-                scope = "git_branch",
-            })
-        end,
-        cmd = "Grapple",
-        keys = function()
-            local grapple = require("grapple")
-            return {
-                { "<leader>a", grapple.toggle },
-                { "<leader>e", grapple.toggle_tags },
-                { "<c-f>", function() grapple.select({ index = vim.v.count1 }) end },
-                { "<m-a>", function() grapple.cycle_scopes("next") end },
-                { "<m-x>", function() grapple.cycle_scopes("prev") end },
-                { "<m-h>", function() grapple.cycle_tags("next") end },
-                { "<m-g>", function() grapple.cycle_tags("prev") end }
-            }
-        end
-    },
-    {
-        "NStefan002/screenkey.nvim",
+        "folke/noice.nvim",
         lazy = false,
-        version = "*",
-    },
-    {
-        "cathyprime/project.nvim",
-        config = function()
-            require("project_nvim").setup({
-                show_hidden = true,
-                detection_methods = { "pattern" },
-                exclude_dirs = {
-                    ".",
-                    "~/.cargo/*",
-                    "~/.rustup/*",
-                    "~/.local/*",
-                    "~/go/pkg/*",
-                    "*neovide-derive*",
-                    "/usr/*",
-                    "*src*",
-                    "*node_modules/*",
+        keys = {
+            { "<leader>n", "<cmd>Noice<cr>" }
+        },
+        opts = {
+            routes = {
+                {
+                    filter = {
+                        event = "msg_show",
+                        cmdline = ":grep"
+                    },
+                    opts = { skip = true }
+                }
+            },
+            views = {
+                confirm = {
+                    position = {
+                        row = math.floor(vim.opt.lines:get() * .80)
+                    }
                 },
-                patterns = {
-                    ".git",
-                    "_darcs",
-                    ".hg",
-                    ".bzr",
-                    ".svn",
-                    "*.csproj",
-                    "Makefile",
-                    "README.md",
-                    "package.json",
-                    "build.sbt",
-                    "main.c",
-                    "main.cc",
-                    "main.cpp",
-                    "gradlew",
-                    "go.mod",
-                    "Cargo.toml",
-                    "docker-compose.yml",
-                    "index.html",
+                cmdline_popup = {
+                    position = {
+                        row = math.floor(vim.opt.lines:get() * .90)
+                    }
                 },
-                file_ignore_patterns = require("cathy.utils.telescope.config").ignores,
-            })
-        end
-    },
-    { -- to be deleted, as I only need R for some time
-        "R-nvim/R.nvim",
-        lazy = false,
-        version = "~0.1.0",
-        config = function()
-            -- Create a table with the options to be passed to setup()
-            local opts = {
-                hook = {
-                    on_filetype = function()
-                        vim.api.nvim_buf_set_keymap(0, "n", "<cr>", "<Plug>RDSendLine", {})
-                        vim.api.nvim_buf_set_keymap(0, "v", "<cr>", "<Plug>RSendSelection", {})
-                    end
+            },
+            presets = {
+                bottom_search = true,
+                lsp_doc_border = true,
+                long_message_to_split = true,
+            },
+            cmdline = {
+                view = "cmdline",
+                format = {
+                    search_down = { conceal = false },
+                    search_up = { conceal = false },
+                    cmdline = { conceal = false },
+                    filter = { conceal = false },
+                    input = { conceal = false },
+                    help = { conceal = false },
+                    lua = { conceal = false },
+                }
+            },
+            lsp = {
+                override = {
+                    ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+                    ["vim.lsp.util.stylize_markdown"] = true,
                 },
-                R_args = {"--quiet", "--no-save"},
-                min_editor_width = 72,
-                rconsole_width = 78,
-                objbr_mappings = { -- Object browser keymap
-                    c = 'class', -- Call R functions
-                    ['<localleader>gg'] = 'head({object}, n = 15)', -- Use {object} notation to write arbitrary R code.
-                    v = function()
-                        -- Run lua functions
-                        require('r.browser').toggle_view()
-                    end
-                },
-                disable_cmds = {
-                    "RClearConsole",
-                    "RCustomStart",
-                    "RSaveClose",
-                },
-            }
-            require("r").setup(opts)
-        end,
+                signature = { enabled = false },
+                progress = { enabled = true },
+                message = { enabled = true },
+                hover = { enabled = true },
+            },
+        }
     },
 }

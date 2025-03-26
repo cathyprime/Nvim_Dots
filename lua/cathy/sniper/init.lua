@@ -9,7 +9,6 @@ local function type_snippet(short, long)
     return s({ trig = short, snippetType = "autosnippet" }, t(long))
 end
 
-
 local function type(query)
     return function(trig, replacement)
         return tsp({

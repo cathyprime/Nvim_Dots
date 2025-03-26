@@ -1,14 +1,37 @@
-local telescope = require("telescope.builtin")
 local lspconfig = require("lspconfig")
 
-local function telescope_references()
-    require("telescope.builtin").lsp_references({
-        include_declaration = true,
-        show_line = true,
-        layout_config = {
-            preview_width = 0.45,
+local references = function ()
+    Snacks.picker.lsp_references({
+        prompt = " References :: ",
+        layouts = {
+            ivy = {
+                layout = {
+                    box = "vertical",
+                    backdrop = false,
+                    row = -1,
+                    width = 0,
+                    height = 0.4,
+                    border = "top",
+                    title = "{live} {flags}",
+                    title_pos = "left",
+                    { win = "input", height = 1, border = "none" },
+                    {
+                        box = "horizontal",
+                        { win = "list", border = "none" },
+                        { win = "preview", title = "{preview}", width = 0.6, border = "left" },
+                    },
+                },
+            }
         }
     })
+end
+
+local lsp_document_symbols = function ()
+    Snacks.picker.lsp_symbols({ prompt = " Document Symbols :: " })
+end
+
+local lsp_workspace_symbols = function ()
+    Snacks.picker.lsp_workspace_symbols({ prompt = " Workspace Symbols :: " })
 end
 
 local attach = function(client, bufnr, alt_keys)
@@ -16,18 +39,14 @@ local attach = function(client, bufnr, alt_keys)
     local frop = vim.tbl_deep_extend("force", { desc = "references" }, opts)
     local fsop = vim.tbl_deep_extend("force", { desc = "document symbols" }, opts)
     local fSop = vim.tbl_deep_extend("force", { desc = "workspace symbols" }, opts)
-    vim.keymap.set("n", "<leader>fr", alt_keys and alt_keys.telescope_references  or telescope_references,            frop)
-    vim.keymap.set("n", "<leader>ca", alt_keys and alt_keys.code_action           or vim.lsp.buf.code_action,         opts)
-    vim.keymap.set("n", "<leader>cr", alt_keys and alt_keys.codelens_run          or vim.lsp.codelens.run,            opts)
-    vim.keymap.set("n", "<leader>cc", alt_keys and alt_keys.rename                or vim.lsp.buf.rename,              opts)
-    vim.keymap.set("n", "<c-]>",      alt_keys and alt_keys.definition            or vim.lsp.buf.definition,          opts)
-    vim.keymap.set("n", "K",          alt_keys and alt_keys.hover                 or vim.lsp.buf.hover,               opts)
-    vim.keymap.set("n", "<leader>fs", alt_keys and alt_keys.lsp_document_symbols  or telescope.lsp_document_symbols,  fsop)
-    vim.keymap.set("n", "<leader>fS", alt_keys and alt_keys.lsp_workspace_symbols or telescope.lsp_workspace_symbols, fSop)
-    if not package.loaded["lsp_signature"] then
-        vim.keymap.set("i", "<c-h>",      alt_keys and alt_keys.signature_help        or vim.lsp.buf.signature_help,      opts)
-        vim.keymap.set("n", "gK",         alt_keys and alt_keys.signature_help        or vim.lsp.buf.signature_help,      opts)
-    end
+    vim.keymap.set("n", "<leader>fr", alt_keys and alt_keys.references            or references,              frop)
+    vim.keymap.set("n", "<leader>ca", alt_keys and alt_keys.code_action           or vim.lsp.buf.code_action, opts)
+    vim.keymap.set("n", "<leader>cr", alt_keys and alt_keys.codelens_run          or vim.lsp.codelens.run,    opts)
+    vim.keymap.set("n", "<leader>cc", alt_keys and alt_keys.rename                or vim.lsp.buf.rename,      opts)
+    vim.keymap.set("n", "<c-]>",      alt_keys and alt_keys.definition            or vim.lsp.buf.definition,  opts)
+    vim.keymap.set("n", "K",          alt_keys and alt_keys.hover                 or vim.lsp.buf.hover,       opts)
+    vim.keymap.set("n", "<leader>fs", alt_keys and alt_keys.lsp_document_symbols  or lsp_document_symbols,    fsop)
+    vim.keymap.set("n", "<leader>fS", alt_keys and alt_keys.lsp_workspace_symbols or lsp_workspace_symbols,   fSop)
 
     vim.bo[bufnr].formatexpr = "v:lua.vim.lsp.formatexpr(#{timeout_ms:250})"
     vim.api.nvim_set_option_value("omnifunc", "v:lua.vim.lsp.omnifunc", { buf = bufnr })
@@ -64,7 +83,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
 })
 
 return {
-    -- on_attach = attach,
+    on_attach = attach,
     default_setup = function(server)
         lspconfig[server].setup({
             -- on_attach = function() end,
@@ -72,14 +91,7 @@ return {
                 "force",
                 {},
                 vim.lsp.protocol.make_client_capabilities(),
-                (function()
-                    local ok, cmp = pcall(require, "cmp_nvim_lsp")
-                    if ok then
-                        return cmp.default_capabilities()
-                    else
-                        return {}
-                    end
-                end)(),
+                require("blink.cmp").get_lsp_capabilities(),
                 lspconfig[server].capabilities or {}
             )
         })
@@ -92,9 +104,9 @@ return {
                 if client.workspace_folders and client.workspace_folders[1] then
                     path = client.workspace_folders[1].name
                 else
-                    path = vim.loop.cwd()
+                    path = vim.uv.cwd()
                 end
-                if vim.loop.fs_stat(path..'/.luarc.json') or vim.loop.fs_stat(path..'/.luarc.jsonc') then
+                if vim.uv.fs_stat(path..'/.luarc.json') or vim.uv.fs_stat(path..'/.luarc.jsonc') then
                     return
                 end
 
@@ -112,7 +124,7 @@ return {
                         },
                     }
                 })
-                client.notify("workspace/didChangeConfiguration", { settings = client.config.settings })
+                client:notify("workspace/didChangeConfiguration", { settings = client.config.settings })
             end,
             settings = {
                 Lua = {}

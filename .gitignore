@@ -2,3 +2,4 @@ undo
 plugin/packer_compiled.lua
 repl_output
 doc/tags
+spell/*.spl

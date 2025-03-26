@@ -14,12 +14,10 @@ vim.api.nvim_create_user_command(
 vim.api.nvim_create_user_command(
     "Read",
     function(opts)
-        local out = vim.split(vim.api.nvim_exec2(opts.args, { output = true }).output, "\n", {})
-        local row = vim.api.nvim_win_get_cursor(0)
-        vim.api.nvim_buf_set_lines(0, row[1], row[1], false, out)
+        print(vim.api.nvim_exec2(opts.args, { output = true }).output)
     end,
     {
-        nargs = "*"
+        nargs = "+"
     }
 )
 
@@ -34,19 +32,6 @@ vim.api.nvim_create_user_command(
     end,
     {
         desc = "toggle dark mode"
-    }
-)
-
-vim.api.nvim_create_user_command(
-    "Gh",
-    function(opts)
-        local cmd = opts.fargs
-        table.insert(cmd, 1, "gh")
-        require("lazy.util").float_term(cmd)
-    end,
-    {
-        nargs = "*",
-        desc = "Execute github cli commands in a terminal"
     }
 )
 
@@ -73,29 +58,34 @@ end
 local function executable_term(cmd, program, opts)
     vim.api.nvim_create_user_command(
         cmd,
-        function()
+        function(env)
             if vim.fn.executable(program) ~= 1 then
-                vim.notify(opts.err_msg or "you've forgot the error message", vim.log.levels.ERROR)
+                vim.notify(program .. " not found!", vim.log.levels.ERROR)
                 return
             end
-            require("cathy.utils")[opts.func_cmd](program, opts.func_opts)
+            table.insert(env.fargs, 1, program)
+            local tab_term = require("cathy.utils")[opts.func_cmd](env.fargs, opts.func_opts)
         end,
         {
             desc = opts.desc or nil,
+            nargs = opts.nargs or nil,
         }
     )
 end
 executable_term("Docker", "lazydocker", {
     desc = "Open lazydocker",
-    err_msg = "lazydocker not found!",
     func_cmd = "tab_term",
-    func_opts = { title = "Docker" }
+    func_opts = { title = "Docker", close = true }
+})
+executable_term("LazyGit", "lazygit", {
+    desc = "Open lazygit",
+    func_cmd = "tab_term",
+    func_opts = { title = "Lazygit", close = true }
 })
 executable_term("Spotify", "spt", {
     desc = "Open spotify",
-    err_msg = "spt not found!",
     func_cmd = "tab_term",
-    func_opts = { title = "Spotify" }
+    func_opts = { title = "Spotify", close = true }
 })
 
 create_command("SpotifyRepeat",  "--repeat",   "toggle repeat mode")

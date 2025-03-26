@@ -1,7 +1,11 @@
 ---@diagnostic disable-next-line
 local ls = require "luasnip"
 
-vim.keymap.set({"i", "s"}, "<c-j>", function()
+vim.keymap.set({ "i", "s" }, "<c-j>", function ()
+    if vim.snippet.active() then
+        vim.snippet.jump(1)
+        return
+    end
     if ls.expand_or_jumpable() then
         local ft = vim.o.filetype
         if not ft:match "commit" and not ft:match "Commit" then
@@ -14,14 +18,15 @@ vim.keymap.set({"i", "s"}, "<c-j>", function()
             end
         end
     end
-end, {silent = true})
-vim.keymap.set({"i", "s"}, "<c-k>", function() ls.jump(-1) end, {silent = true})
+end, { silent = true })
 
-vim.keymap.set({"i", "s"}, "<c-l>", function()
+vim.keymap.set({ "i", "s" }, "<c-k>", function () ls.jump(-1) end, { silent = true })
+
+vim.keymap.set({ "i", "s" }, "<c-l>", function ()
     if ls.choice_active() then
         ls.change_choice(1)
     end
-end, {silent = true})
+end, { silent = true })
 
 local types = require("luasnip.util.types")
 

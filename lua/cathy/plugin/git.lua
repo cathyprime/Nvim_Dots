@@ -50,16 +50,12 @@ return {
         end
     },
     {
-        "FabijanZulj/blame.nvim",
-        config = true,
-    },
-    {
         "NeogitOrg/neogit",
+        dependencies = {
+            "nvim-lua/plenary.nvim"
+        },
         keys = {
             { "ZG",  function()
-                if require("zen-mode.view").is_open() then
-                    require("zen-mode").close()
-                end
                 local cwd = require("oil") and require("oil").get_current_dir()
                 if cwd ~= nil then
                     require("neogit").open({ kind = "tab", cwd = cwd:sub(0, -1) })

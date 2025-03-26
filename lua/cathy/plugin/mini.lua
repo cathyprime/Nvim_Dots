@@ -46,8 +46,8 @@ local minis = {
                 right      = "<m-l>",
                 down       = "<m-j>",
                 up         = "<m-k>",
-                line_left  = "",
-                line_right = "",
+                line_left  = "<m-h>",
+                line_right = "<m-l>",
                 line_down  = "<m-j>",
                 line_up    = "<m-k>",
             }
@@ -60,6 +60,8 @@ local minis = {
             triggers = {
                 { mode = "n", keys = "<leader>f" },
                 { mode = "i", keys = "<c-x>" },
+                { mode = "n", keys = "<leader>go" },
+                { mode = "v", keys = "<leader>go" },
             },
             clues = {
                 module.gen_clues.builtin_completion(),
@@ -130,7 +132,7 @@ local minis = {
             vim.api.nvim_win_set_width(0, 56)
 
             -- Bind both windows so that they scroll together
-            vim.wo[win_src].scrollbind, vim.wo.scrollbind = true, true
+            vim.wo[win_src].scrollbind, vim.wo[win_src].scrollbind = true, true
         end
 
         local au_opts = { pattern = 'MiniGitCommandSplit', callback = align_blame }
@@ -146,7 +148,11 @@ local minis = {
                     if ok then
                         return ft(true)
                     end
+                    local mode          = config.mode({ trunc_width = 110 })
+                    local mode_hl       = config.mode_highlights()
                     local filename      = config.filename({ trunc_width = 110 })
+                    local recording     = config.recording({ trunc_width = 110 })
+                    local recording_hl  = config.record_hl()
                     local last_button   = config.last_button({ trunc_width = 20 })
                     local diff          = config.diff({ trunc_width = 75 })
                     local diagnostics   = config.diagnostics({ trunc_width = 75 })
@@ -156,16 +162,14 @@ local minis = {
                     local lsp           = MiniStatusline.section_lsp({ trunc_width = 75 })
                     local search        = MiniStatusline.section_searchcount({ trunc_width = 75 })
 
-                    local name_or_index = require("grapple").name_or_index()
-                    local grapple       = name_or_index and string.format("g -> [%d]", name_or_index) or ""
-
                     return MiniStatusline.combine_groups({
-                        -- { hl = mode_hl,                 strings = { mode --[[, recording ]] } },
+                        { hl = mode_hl,                  strings = { mode } },
+                        { hl = recording_hl,             strings = { recording } },
                         { hl = 'MiniStatuslineDevinfoB', strings = { filename } },
                         "%=",
                         { hl = 'MiniStatuslineDevinfoB', strings = { last_button, search, diff } },
-                        { hl = five_hls_b, strings = { grapple, lsp, diagnostics } },
-                        { hl = five_hls, strings = { cursor_pos } },
+                        { hl = five_hls_b,               strings = { lsp, diagnostics } },
+                        { hl = five_hls,                 strings = { cursor_pos } },
                         "%P ",
                     })
                 end,
@@ -188,42 +192,42 @@ local minis = {
         })
     end,
 
-    surround = function()
-        local ts_input = require("mini.surround").gen_spec.input.treesitter
-        require("mini.surround").setup({
-            custom_surroundings = {
-                t = {
-                    input = ts_input({ outer = "@type.outer", inner = "@type.inner" }),
-                    output = function()
-                        local type_name = MiniSurround.user_input("Type name")
-                        return { left = type_name.."<", right = ">" }
-                    end
-                },
-                T = {
-                    input = { '<(%w-)%f[^<%w][^<>]->.-</%1>', '^<.->().*()</[^/]->$' },
-                    output = function()
-                        local tag_full = MiniSurround.user_input('Tag')
-                        if tag_full == nil then return nil end
-                        local tag_name = tag_full:match('^%S*')
-                        return { left = '<' .. tag_full .. '>', right = '</' .. tag_name .. '>' }
-                    end,
-                },
-            },
-            mappings = {
-                add = "s",
-                delete = "sd",
-                find = "",
-                find_left = "",
-                highlight = "",
-                replace = "sc",
-                update_n_lines = "",
-                suffix_last = 'l',
-                suffix_next = 'n',
-            },
-        })
-        vim.keymap.set("n", "ss", "s_", { remap = true })
-        vim.keymap.set("n", "S", "s", { remap = false })
-    end,
+    -- surround = function()
+    --     local ts_input = require("mini.surround").gen_spec.input.treesitter
+    --     require("mini.surround").setup({
+    --         custom_surroundings = {
+    --             t = {
+    --                 input = ts_input({ outer = "@type.outer", inner = "@type.inner" }),
+    --                 output = function()
+    --                     local type_name = MiniSurround.user_input("Type name")
+    --                     return { left = type_name.."<", right = ">" }
+    --                 end
+    --             },
+    --             T = {
+    --                 input = { '<(%w-)%f[^<%w][^<>]->.-</%1>', '^<.->().*()</[^/]->$' },
+    --                 output = function()
+    --                     local tag_full = MiniSurround.user_input('Tag')
+    --                     if tag_full == nil then return nil end
+    --                     local tag_name = tag_full:match('^%S*')
+    --                     return { left = '<' .. tag_full .. '>', right = '</' .. tag_name .. '>' }
+    --                 end,
+    --             },
+    --         },
+    --         mappings = {
+    --             add = "s",
+    --             delete = "sd",
+    --             find = "",
+    --             find_left = "",
+    --             highlight = "",
+    --             replace = "sc",
+    --             update_n_lines = "",
+    --             suffix_last = 'l',
+    --             suffix_next = 'n',
+    --         },
+    --     })
+    --     vim.keymap.set("n", "ss", "s_", { remap = true })
+    --     vim.keymap.set("n", "S", "s", { remap = false })
+    -- end,
 
     icons = function()
         require("mini.icons").setup()

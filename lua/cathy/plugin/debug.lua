@@ -1,27 +1,54 @@
-vim.g.termdebug_config = {
-    wide = 1,
-    useFloatingHover = 0,
-}
-
-local termdebug = vim.api.nvim_create_augroup("TermDebug", {})
-
 local cache = {
     netcoredbg_dll_path = "",
     netcoredbg_args = "",
 }
 
-local gdb_filetypes = {
-    "rust",
-    "c",
-    "cpp",
+local make_simple_layout = function (opts)
+    return {
+        elements = {
+            { id = opts.left, size = opts.size or 0.60 },
+            { id = opts.right, size = 1 - (opts.size or 0.60) }
+        },
+        size = opts.height or 12,
+        position = opts.position or "bottom",
+    }
+end
+
+local layouts = {
+    {
+        elements = {
+            { id = "watches", size = 0.30},
+            { id = "console", size = 0.55 },
+            { id = "breakpoints", size = 0.15 },
+        },
+        size = 40,
+        position = "left",
+    },
+    make_simple_layout {
+        left = "watches",
+        right = "console"
+    },
+    make_simple_layout {
+        left = "scopes",
+        right = "stacks",
+    },
 }
 
-local function isGDBFiletype(ft)
-    if ft == "" then return true end
-    return vim.iter(gdb_filetypes):any(function(v)
-        return ft:match(v)
-    end)
+local clamp = function (idx)
+    return ((idx - 2) % (#layouts - 1)) + 2
 end
+
+local indexer = {
+    current = 2,
+    next = function (self)
+        self.current = clamp(self.current + 1)
+        return self.current
+    end,
+    prev = function (self)
+        self.current = clamp(self.current - 1)
+        return self.current
+    end
+}
 
 return {
     "jay-babu/mason-nvim-dap.nvim",
@@ -30,22 +57,18 @@ return {
         "mfussenegger/nvim-dap",
         "rcarriga/nvim-dap-ui",
         "nvim-neotest/nvim-nio",
+        "cathyprime/hydra.nvim",
     },
     keys = { { "<leader>z" } },
     config = function()
         local dap = require("dap")
         local dapui = require("dapui")
         require("mason-nvim-dap").setup({
-            ensure_installed = {
-                "debugpy",
-                "netcoredbg"
-            },
-            automatic_installation = true,
             handlers = {
                 function(config)
                     require("mason-nvim-dap").default_setup(config)
                 end,
-                 coreclr = function(config)
+                coreclr = function(config)
                     config.adapters = {
                         type = 'executable',
                         command = require("mason-core.path").package_prefix("netcoredbg") .. "/netcoredbg",
@@ -87,73 +110,34 @@ return {
 
         ---@diagnostic disable-next-line
         dapui.setup({
-            layouts = {
-                {
-                    -- Left side layout
-                    elements = {
-                        { id = "stacks", size = 0.33 },
-                        { id = "console", size = 0.33 },
-                        { id = "repl", size = 0.33 },
-                    },
-                    size = 40, -- Width of the window
-                    position = "left",
-                },
-                {
-                    -- Bottom layout
-                    elements = {
-                        { id = "scopes", size = 0.50 },
-                        { id = "watches", size = 0.50 },
-                    },
-                    size = 10, -- Height of the window
-                    position = "bottom",
-                },
-            }}
-        )
-
-        dap.listeners.after.event_initialized["dapui_config"] = function()
-            dapui.open()
-        end
-
-        dap.listeners.before.event_terminated["dapui_config"] = function()
-            dapui.close()
-        end
-
-        dap.listeners.before.event_exited["dapui_config"] = function()
-            dapui.close()
-        end
-
-        local hint_termdebug = [[
- _<F1>_: Source _<F2>_: Gdb
- _<F3>_: Var    _<F4>_: Program ^
-  _K_: Evaluate _<esc>_: exit
-]]
-        local termdebug_hydra = require("hydra")({
-            hint = hint_termdebug,
-            config = {
-                color = "pink",
-                hint = {
-                    position = "top-right",
-                    float_opts = {
-                        border = "rounded",
-                    }
-                }
+            expand_lines = false,
+            render = {
+                max_type_length = 0,
             },
-            name = "termdebug",
-            mode = { "n", "x" },
-            heads = {
-                { "<F1>", "<cmd>Source<cr>",  { silent = true } },
-                { "<F2>", "<cmd>Gdb<cr>",     { silent = true } },
-                { "<F3>", "<cmd>Var<cr>",     { silent = true } },
-                { "<F4>", "<cmd>Program<cr>", { silent = true } },
-                { "K", "<cmd>Evaluate<cr>",   { silent = true } },
-                { "<esc>", nil,               { exit = true, silent = true } },
-            }
+            layouts = layouts
         })
+
+        dap.defaults.fallback.exception_breakpoints = { "raised" }
+
+        local plug = "dapui_config"
+        local open = function () dapui.open({ layout = 2 }) end
+        local close = function () dapui.close() end
+
+        for event, func in pairs({
+            attach = open,
+            launch = open,
+            event_terminated = close,
+            event_exited = close
+        }) do
+            dap.listeners.before[event][plug] = func
+        end
+
         local hint = [[
  _n_: step over   _J_: to cursor  _<cr>_: Breakpoint
  _i_: step into   _X_: Quit        _B_: Condition breakpoint ^
- _o_: step out    _K_: Hover       _L_: Log breakpoint
- _b_: step back   _u_: Toggle UI
+ _o_: step out    _K_: Float       _L_: Log breakpoint
+ _b_: step back   _W_: Watch       _u_: Toggle additional UI
+         _\^_: Prev layout     _$_: Next layout
  ^ ^            ^                 ^  ^
  ^ ^ _C_: Continue/Start          ^  ^   Change window
  ^ ^ _R_: Reverse continue        ^  ^       _<c-k>_^
@@ -188,94 +172,54 @@ return {
                 { "o", function() dap.step_out() end, { silent = false } },
                 { "b", function() dap.step_back() end, { silent = false } },
                 { "R", function() dap.reverse_continue() end, { silent = false } },
+                { "W", function() dapui.elements.watches.add(vim.fn.expand("<cword>")) end, { silent = false } },
+                { "^", function ()
+                    local ok, _ = pcall(dapui.toggle, { layout = indexer.current })
+                    if not ok then
+                        vim.notify("no active session", vim.log.levels.INFO)
+                        return
+                    end
+                    dapui.open({ layout = indexer:prev() })
+                end },
+                { "$", function ()
+                    local ok, _ = pcall(dapui.toggle, { layout = indexer.current })
+                    if not ok then
+                        vim.notify("no active session", vim.log.levels.INFO)
+                        return
+                    end
+                    dapui.open({ layout = indexer:next() })
+                end },
                 { "u", function()
-                    local ok, _ = pcall(dapui.toggle)
+                    local ok, _ = pcall(dapui.toggle, { layout = 1 })
                     if not ok then
                         vim.notify("no active session", vim.log.levels.INFO)
                     end
                 end, { silent = false } },
                 { "C", function() dap.continue() end, { silent = false } },
-                { "K", function() require("dap.ui.widgets").hover() end, { silent = false } },
+                { "K", function()
+                    dapui.float_element(nil, {
+                        width = 100,
+                        height = 30,
+                        position = "center",
+                        enter = true
+                    })
+                end, { silent = false } },
                 { "J", function() dap.run_to_cursor() end, { silent = false } },
                 { "X", function() dap.disconnect({ terminateDebuggee = false }) end, { silent = false } },
                 { "<c-h>", "<c-w><c-h>", { silent = true } },
                 { "<c-j>", "<c-w><c-j>", { silent = true } },
                 { "<c-k>", "<c-w><c-k>", { silent = true } },
                 { "<c-l>", "<c-w><c-l>", { silent = true } },
-                { "<esc>", "<cmd>let g:debug_mode = v:false<cr>", { exit = true,  silent = true } },
+                { "<esc>", nil, { exit = true,  silent = true } },
             }
         })
 
-        local function map_hydra(key, bufnr)
-            bufnr = bufnr
-            vim.keymap.set("n", key, function()
-                termdebug_hydra:activate()
-            end, { buffer = bufnr })
-        end
-
-        local function unmap_hydra(key, bufnr)
-            vim.keymap.del("n", key, { buffer = bufnr })
-        end
-
-        local function set_autocmds_for_termdebug()
-            local hydra_bufnr
-            vim.api.nvim_create_autocmd("User", {
-                pattern = "TermdebugStartPre",
-                group = termdebug,
-                callback = function(ev)
-                    hydra_bufnr = ev.buf
-                    map_hydra("<F1>", hydra_bufnr)
-                    map_hydra("<F2>", hydra_bufnr)
-                    map_hydra("<F3>", hydra_bufnr)
-                    map_hydra("<F4>", hydra_bufnr)
-                end,
-            })
-            vim.api.nvim_create_autocmd("User", {
-                pattern = "TermdebugStartPost",
-                group = termdebug,
-                callback = function()
-                    vim.cmd("Var")
-                    vim.api.nvim_win_set_height(0, 5)
-                    vim.cmd("set winfixheight")
-                    vim.cmd("set winfixbuf")
-                    vim.schedule(function()
-                        vim.cmd("Source")
-                    end)
-                end,
-            })
-            vim.api.nvim_create_autocmd("User", {
-                pattern = "TermdebugStopPost",
-                group = termdebug,
-                callback = function()
-                    vim.g.debug_mode = false
-                    vim.schedule(function()
-                        -- termdebug_hydra:exit() -- <- this does not clean the pink keymaps AT ALL
-                        termdebug_hydra.layer:exit()
-                        unmap_hydra("<F1>", hydra_bufnr)
-                        unmap_hydra("<F2>", hydra_bufnr)
-                        unmap_hydra("<F3>", hydra_bufnr)
-                        unmap_hydra("<F4>", hydra_bufnr)
-                    end)
-                end,
-            })
-        end
-
         vim.keymap.set("n", "<leader>z", function()
-            vim.g.debug_mode = true
-            if require("zen-mode.view").is_open() then
+            local ok, zen = pcall(require, "zen-mode.view")
+            if ok and zen.is_open() then
                 require("zen-mode").close()
             end
-            if isGDBFiletype(vim.o.filetype) then
-                set_autocmds_for_termdebug()
-                if vim.b.termdebug_command then
-                    vim.cmd(vim.b.termdebug_command)
-                else
-                    vim.cmd("Termdebug")
-                end
-                termdebug_hydra:activate()
-            else
-                debug_hydra:activate()
-            end
+            debug_hydra:activate()
         end)
 
         vim.fn.sign_define("DapBreakpoint", { text="", texthl="Error", linehl="", numhl="" })
