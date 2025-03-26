@@ -5,7 +5,7 @@ local statusline = {
 }
 
 return {
-    "cathyprime/hydra.nvim",
+    "nvimtools/hydra.nvim",
     config = function()
         local Hydra = require("hydra")
         Hydra({
