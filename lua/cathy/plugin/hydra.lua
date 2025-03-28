@@ -85,7 +85,6 @@ return {
   _s_ %{so} scrolloff
   _S_ %{spell} spell
   _f_ %{fc} fold column
-  _h_ %{hls} highlight search
   _w_ %{wrap} wrap
   _c_ %{cul} cursor line
   _n_ %{nu} number
@@ -102,13 +101,6 @@ return {
                         border = "rounded",
                     },
                     funcs = {
-                        ["hls"] = function()
-                            if vim.o.hls then
-                                return "[x]"
-                            else
-                                return "[ ]"
-                            end
-                        end,
                         ["so"] = function()
                             if vim.o.scrolloff == 0 then
                                 return "[ ]"
@@ -134,7 +126,6 @@ return {
                 { "i", boolean_switch("list"), { desc = "show invisible" } },
                 { "w", boolean_switch("wrap"), { desc = "wrap" } },
                 { "c", boolean_switch("cursorline"), { desc = "cursor line" } },
-                { "h", boolean_switch("hls"), { desc = "highlight search" } },
                 { "S", boolean_switch("spell"), { desc = "spell" } },
                 { "f", fold_column, { desc = "foldcolumn" }, },
                 { "v", virtual_edit, { desc = "virtualedit" } },
