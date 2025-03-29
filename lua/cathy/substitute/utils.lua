@@ -181,12 +181,20 @@ local case_of = function (str)
     return nil
 end
 
-local permutations = function (str)
+local split = function (str)
+    local _, n = str:gsub("%S+","")
+    if n == 1 then
+        return { str }
+    end
     local caseof = case_of(str)
     if caseof == nil then
         return nil
     end
-    local parts = case[caseof].from(str)
+    return case[caseof].from(str)
+end
+
+local permutations = function (str)
+    local parts = split(str)
 
     local result = {}
     for _, tbl in pairs(case) do
@@ -196,6 +204,7 @@ local permutations = function (str)
 end
 
 return {
+    space_split = case.space.from,
     caseof = case_of,
     permutations = permutations,
     str_to_parts = function (str)
@@ -206,11 +215,7 @@ return {
         return case[case_of(str)].to(str)
     end,
     convert = function (str, str_case)
-        local case_of_str = case_of(str)
-        if str_case == nil then
-            return nil
-        end
-        return case[str_case].to(case[case_of_str].from(str))
+        return case[str_case].to(split(str))
     end,
     parts_to_str = function (parts, str_case)
         return case[str_case].from(parts)
