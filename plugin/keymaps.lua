@@ -127,19 +127,12 @@ end, { silent = false, expr = true })
 map("v", "<leader>d", [[:s#\(\S\)\s\+#\1 #g<cr>:noh<cr>]])
 
 -- search
-vim.api.nvim_create_autocmd("CursorHold", { command = "set nohlsearch" })
 local search_map = function (tbl)
     vim.keymap.set("n", tbl[1], tbl[2], { expr = true })
 end
-local wrap = function (str)
-    return function()
-        vim.opt.hlsearch = true
-        return str
-    end
-end
 local stable_search = function (forward)
     return function ()
-        vim.opt.hlsearch = true
+        -- vim.opt.hlsearch = true
         if forward then
             return vim.v.searchforward == 1 and "n" or "N"
         end
@@ -147,12 +140,6 @@ local stable_search = function (forward)
     end
 end
 
-search_map { "/",  wrap "/"  }
-search_map { "?",  wrap "?"  }
-search_map { "*",  wrap "*"  }
-search_map { "g*", wrap "g*" }
-search_map { "#",  wrap "#"  }
-search_map { "g#", wrap "g#" }
 search_map { "n",  stable_search(true)  }
 search_map { "N",  stable_search(false) }
 
