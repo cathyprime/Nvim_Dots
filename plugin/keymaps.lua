@@ -162,3 +162,7 @@ if vim.g.neovide then
     resize("<c-ScrollWheelDown>", 1/1.15)
     resize("<C-=>", 1.0)
 end
+
+require("cathy.substitute")
+vim.keymap.set({ "n", "x" }, "gs", "<Plug>(substitute)")
+vim.keymap.set("n", "gss", "<Plug>(substitute-linewise)")
