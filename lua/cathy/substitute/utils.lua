@@ -54,7 +54,7 @@ end
 
 local simple_split_gen = function (sep)
     return function (str)
-        return vim.split(str, sep, { plain = true, trimempty = true })
+        return vim.split(str, sep, { plain = true, trimempty = false })
     end
 end
 
@@ -182,12 +182,12 @@ local case_of = function (str)
 end
 
 local split = function (str)
-    local _, n = str:gsub("%S+","")
-    if n == 1 then
-        return { str }
-    end
     local caseof = case_of(str)
     if caseof == nil then
+        local _, n = str:gsub("%S+","")
+        if n == 1 then
+            return { str }
+        end
         return nil
     end
     return case[caseof].from(str)

@@ -1,4 +1,3 @@
-local default_config = require "luasnip.default_config"
 local utils = setmetatable({}, {
     __index = function (_, key)
         return require("cathy.substitute.utils")[key]
@@ -60,6 +59,7 @@ local prelude = function (linewise)
 end
 
 local replace = function (from, to)
+    to = to or ""
     local from_case = utils.caseof(from)
     if not from_case then
         return to
@@ -67,22 +67,38 @@ local replace = function (from, to)
     return utils.convert(to, from_case)
 end
 
-local make_cb_chain = function (regex)
-    return function (inp)
-        cache.query = inp
+local wrap_cmd = function (cmd)
+    return vim.keycode("<cmd>" .. cmd .. "<cr>")
+end
+
+local make_cb_chain = function (cmd)
+    local wrapped = wrap_cmd(cmd)
+    return function ()
+
+        local replace = function (inp)
+            cache.replace = inp
+            esc()
+            keys(string.format(
+                wrapped,
+                utils.make_regex(cache.query),
+                sub_func
+            ))
+            vim.go.operatorfunc = replace_func
+        end
+
+        local query = function (inp)
+            cache.query = inp
+            input {
+                prompt = prompt.replace(),
+                default = cache.replace,
+                cb = replace
+            }
+        end
+
         input {
-            prompt = prompt.replace(),
-            default = cache.replace,
-            cb = function (inp)
-                cache.replace = inp
-                esc()
-                keys(string.format(
-                    vim.keycode(regex),
-                    utils.make_regex(cache.query),
-                    sub_func
-                ))
-                vim.go.operatorfunc = replace_func
-            end
+            prompt = prompt.query(),
+            default = cache.query,
+            cb = query
         }
     end
 end
@@ -92,10 +108,10 @@ local set = function (tbl)
         tbl.mode or "n",
         string.format("<Plug>(%s)", tbl.name),
         tbl.cb,
-        {
+        vim.tbl_deep_extend("force", {
             silent = false,
             expr = true
-        }
+        }, tbl.opts or {})
     )
 end
 
@@ -105,30 +121,25 @@ set {
 }
 
 set {
-    name = "substitute",
-    mode = "x",
-    cb = function ()
-        input {
-            prompt = prompt.query(),
-            default = cache.query,
-            cb = make_cb_chain([[<cmd>'<,'>s#%s#\=%s#gc<cr>]])
-        }
-    end,
-}
-
-set {
     name = "substitute-linewise",
     cb = prelude(true)
 }
 
+set {
+    name = "substitute",
+    mode = "x",
+    cb = make_cb_chain([['<,'>s#%s#\=%s#gc]]),
+    opts = { expr = false }
+}
+
+set {
+    name = "substitute-file",
+    cb = make_cb_chain([[%%s#%s#\=%s#gc]]),
+    opts = { expr = false }
+}
+
 return {
-    replace = function ()
-        input {
-            prompt = prompt.query(),
-            default = cache.query,
-            cb = make_cb_chain([[<cmd>'[,']s#%s#\=%s#gc<cr>]])
-        }
-    end,
+    replace = make_cb_chain([['[,']s#%s#\=%s#gc]]),
     sub = function ()
         local submatch = vim.fn.submatch(0)
         return replace(submatch, cache.replace)
