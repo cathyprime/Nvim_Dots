@@ -45,16 +45,10 @@ local prompt = {
     end
 }
 
-local prelude = function (linewise)
-    if linewise then
-        return function ()
-            vim.go.operatorfunc = replace_func
-            return "g@_"
-        end
-    end
+local prelude = function (cmd)
     return function ()
         vim.go.operatorfunc = replace_func
-        return "g@"
+        return cmd
     end
 end
 
@@ -117,12 +111,12 @@ end
 
 set {
     name = "substitute",
-    cb = prelude(false)
+    cb = prelude("g@")
 }
 
 set {
     name = "substitute-linewise",
-    cb = prelude(true)
+    cb = prelude("g@_")
 }
 
 set {
