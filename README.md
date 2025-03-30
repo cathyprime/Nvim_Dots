@@ -25,7 +25,6 @@ NVIM_APPNAME=cathyprime/nvim-dots/ nvim
 ## Plugins
 
 ### code-runner
-+ [Vigemus/iron.nvim](https://github.com/Vigemus/iron.nvim)
 + [tpope/vim-dispatch](https://github.com/tpope/vim-dispatch)
 
 ### colorscheme
@@ -36,12 +35,11 @@ NVIM_APPNAME=cathyprime/nvim-dots/ nvim
 + [echasnovski/mini.comment](https://github.com/echasnovski/mini.comment)
 
 ### completion
-+ [hrsh7th/nvim-cmp](https://github.com/hrsh7th/nvim-cmp)
++ [saghen/blink.cmp](https://github.com/saghen/blink.cmp)
 
 ### debugging
 + [mfussenegger/nvim-dap](https://github.com/mfussenegger/nvim-dap)
 + [rcarriga/nvim-dap-ui](https://github.com/rcarriga/nvim-dap-ui)
-+ termdebug
 
 ### diagnostics
 + [folke/trouble.nvim](https://github.com/folke/trouble.nvim)
@@ -49,44 +47,29 @@ NVIM_APPNAME=cathyprime/nvim-dots/ nvim
 ### editing-support
 + [monaqa/dial.nvim](https://github.com/monaqa/dial.nvim)
 + [kylechui/nvim-surround](https://github.com/kylechui/nvim-surround)
-+ [nvim-treesitter/nvim-treesitter-context](https://github.com/nvim-treesitter/nvim-treesitter-context)
-+ [folke/zen-mode.nvim](https://github.com/folke/zen-mode.nvim)
 
 ### file-explorer
 + [stevearc/oil.nvim](https://github.com/stevearc/oil.nvim)
 
 ### fuzzy-finder
-+ [nvim-telescope/telescope.nvim](https://github.com/nvim-telescope/telescope.nvim)
-
-### game
-+ [rktjmp/playtime.nvim](https://github.com/rktjmp/playtime.nvim)
-+ [Eandrju/cellular-automaton.nvim](https://github.com/Eandrju/cellular-automaton.nvim)
++ [folke/snacks.nvim](https://github.com/folke/snacks.nvim)
 
 ### git
 + [NeogitOrg/neogit](https://github.com/NeogitOrg/neogit)
 + [sindrets/diffview.nvim](https://github.com/sindrets/diffview.nvim)
-+ [FabijanZulj/blame.nvim](https://github.com/FabijanZulj/blame.nvim)
-
-### language plugins
-+ [ray-x/go.nvim](https://github.com/ray-x/go.nvim)
-+ [mrcjkb/rustaceanvim](https://github.com/mrcjkb/rustaceanvim)
-+ [scalameta/nvim-metals](https://github.com/scalameta/nvim-metals)
-+ [mfussenegger/nvim-jdtls](https://github.com/mfussenegger/nvim-jdtls)
 
 ### keybinding
 + [nvimtools/hydra.nvim](https://github.com/nvimtools/hydra.nvim)
 + [mawkler/demicolon.nvim](https://github.com/mawkler/demicolon.nvim)
 
 ### lsp
-+ [j-hui/fidget.nvim](https://github.com/j-hui/fidget.nvim)
 + [neovim/nvim-lspconfig](https://github.com/neovim/nvim-lspconfig)
 + [nvimtools/none-ls.nvim](https://github.com/nvimtools/none-ls.nvim)
 + [williamboman/mason.nvim](https://github.com/williamboman/mason.nvim)
 
 ### navigation
-+ [cbochs/grapple.nvim](https://github.com/cbochs/grapple.nvim)
-+ [cathyprime/project.nvim](https://github.com/Cathyprime/project.nvim)
-+ [nvim-telescope/telescope-file-browser.nvim](https://github.com/nvim-telescope/telescope-file-browser.nvim)
++ [folke/snacks.nvim](https://github.com/folke/snacks.nvim)
++ custom snacks find\_file
 
 ### nvim-dev
 + [folke/lazydev.nvim](https://github.com/folke/lazydev.nvim)
@@ -106,12 +89,6 @@ NVIM_APPNAME=cathyprime/nvim-dots/ nvim
 + [nvim-treesitter/nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter)
 + [nvim-treesitter/nvim-treesitter-textobjects](https://github.com/nvim-treesitter/nvim-treesitter-textobjects)
 
-### terminal-integration
-+ [willothy/flatten.nvim](https://github.com/willothy/flatten.nvim)
-
 ### utility
-+ [NStefan002/screenkey.nvim](https://github.com/NStefan002/screenkey.nvim)
 + [echasnovski/mini.nvim](https://github.com/echasnovski/mini.nvim)
-+ [kevinhwang91/nvim-fundo](https://github.com/kevinhwang91/nvim-fundo)
-+ [stevearc/dressing.nvim](https://github.com/stevearc/dressing.nvim)
-+ [mistricky/codesnap.nvim](https://github.com/mistricky/codesnap.nvim)
++ [folke/snacks.nvim](https://github.com/folke/snacks.nvim)
