@@ -1,36 +1,42 @@
-local data = vim.fn.stdpath("data") .. "/tasks/"
-
-vim.fn.mkdir(data, "p")
-
-local get_path = function ()
-    return tostring(vim.uv.cwd())
-end
+local tasks_dir = vim.fn.stdpath("data") .. "/tasks/"
 
 local encode_path = function (str)
     return str:gsub("/", [[%%]])
 end
 
-local tasks_file_name = function (str)
-    if not str then
-        return data .. encode_path(get_path()) .. ".lua"
+local task_dir = function (path)
+    return tasks_dir .. encode_path(path) .. "/"
+end
+
+local make_dir = function (path)
+    local dir = task_dir(path)
+    if not vim.uv.fs_stat(dir) then
+        vim.fn.mkdir(dir, "p")
     end
-    return data .. encode_path(str) .. ".lua"
 end
 
-local load_tasks_file = function ()
-    local f = assert(loadfile(tasks_file_name()))
-    return f()
+local get_tasks = function (path)
+    local dir_name = task_dir(path)
+    if not vim.uv.fs_stat(dir_name) and not vim.fn.isdirectory(dir_name) then
+        return nil
+    end
+
+    return vim.iter(vim.fs.dir(dir_name))
+        :map(function (k, v) return vim.fn.fnamemodify(k, ":r") end)
+        :totable()
 end
 
-local write_task = function (task)
-    vim.fn.writefile(task, tasks_file_name())
+local get_code = function (bufnr)
+    local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, true)
+    local str = table.concat(lines, "\n")
+    local tbl = assert(loadstring(str))
 end
 
-local task = {
-    [[return {]],
-    [[	cmd = "make",]],
-    [[	args = { "-C", "out" },]],
-    [[	compiler = "gcc",]],
-    [[	dir = "~/polygon/acorn-lsp/acorn-transpiler/"]],
-    [[}]]
-}
+-- {
+--     command -> string,
+--     args -> [string]?,
+--     type -> (Dispatch|Start|Make)?, -- Dispatch if nil
+--     compiler -> string?,
+--     cwd -> string?,
+--     env_vars -> [string, string]?
+-- }
