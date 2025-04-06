@@ -167,3 +167,5 @@ require("cathy.substitute")
 vim.keymap.set({ "n", "x" }, "gs", "<Plug>(substitute)")
 vim.keymap.set("n", "gss", "<Plug>(substitute-linewise)")
 vim.keymap.set("n", "gS", "<Plug>(substitute-file)")
+
+vim.keymap.set("n", "<leader>r", require("cathy.tasks"), { desc = "Tasks" })
