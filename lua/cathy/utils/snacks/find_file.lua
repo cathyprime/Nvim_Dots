@@ -74,7 +74,8 @@ return function (opts)
     end
 
     return function()
-        return Snacks.picker({
+        return Snacks.picker.pick({
+            source = "find_file",
             layout = {
                 preview = false
             },
