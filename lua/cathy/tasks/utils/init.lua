@@ -1,5 +1,6 @@
 local input = function (name, prompt)
     local cache = require("cathy.tasks.utils.internal").cache
+    local t = require("cathy.tasks.utils.internal").cache_types
     local co = coroutine.running()
     assert(co, "must be in coroutine")
 
@@ -7,10 +8,10 @@ local input = function (name, prompt)
 
     vim.ui.input({
         prompt = prompt,
-        default = cache.get("inputs", name)
+        default = cache.get(t.inputs, name)
     }, function (input)
         if input then
-            cache.set("inputs", name, input)
+            cache.set(t.inputs, name, input)
             result = input
         end
 
