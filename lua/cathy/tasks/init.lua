@@ -84,6 +84,7 @@ local pick = function ()
                     return
                 end
                 delete_task(item)
+                picker:find()
             end
         },
         win = {
@@ -130,4 +131,4 @@ local pick = function ()
     })
 end
 
-pick()
+return pick
