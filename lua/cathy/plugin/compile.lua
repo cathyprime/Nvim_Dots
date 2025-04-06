@@ -78,6 +78,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
                         vim.fn["dispatch#start_command"](0, opts.args, opts.count, opts.mods)
                     end,
                     [function (args) return args:find "sudo" end] = no_bang,
+                    [function (args) return args:find "paru" end] = no_bang,
                 }
 
                 local count = 0
