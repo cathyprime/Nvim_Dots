@@ -31,9 +31,7 @@ local picker_mappings = {
     grep_buffers = "<leader>fG",
     help         = "<leader>fh",
     grep_word    = "<leader>fw",
-    recent       = "<leader>fo",
-    buffers      = "<leader><leader>",
-    files        = "<c-p>",
+    smart        = "<leader><leader>",
     spelling     = "z=",
     projects     = "<leader>fp",
     explorer     = "<leader>fe"
@@ -52,9 +50,7 @@ local picker_opts = {
     grep_buffers = nopreview { prompt = " Grep Buffers :: ", desc = "grep current file" },
     help         = nopreview { prompt = " Help Tags :: ",    desc = "help" },
     grep_word    = nopreview { prompt = ">>= Grep :: ",      desc = "cursor grep" },
-    recent       = nopreview { prompt = " Oldfiles :: ",     desc = "oldfiles", format = f },
-    buffers      = nopreview { prompt = " Buffers :: ",      desc = "switch buffers", format = f, nofile = true },
-    files        = nopreview { prompt = " Files :: ",        desc = "files" },
+    smart        = nopreview { prompt = " Files :: ",        desc = "files" },
     projects     = nopreview {
         prompt   = " Projects :: ",
         dev      = { "~/polygon", "~/langs", "~/Repositories/" },
