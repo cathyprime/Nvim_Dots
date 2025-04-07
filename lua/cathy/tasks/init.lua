@@ -36,7 +36,8 @@ local edit_task = function (item)
     i.prepare_buffer {
         bufnr = bufnr,
         name = item.task_name,
-        kind = item.kind
+        kind = item.kind,
+        cwd = dir,
     }
     vim.api.nvim_buf_set_lines(bufnr, 0, -1, true, lines)
     i.open_task_window(bufnr, item.task_name)
@@ -100,12 +101,13 @@ local pick = function ()
             local cwd = vim.uv.cwd()
             local format = function (label)
                 local kind = label == "global" and t.global or t.tasks
+                local task_dir = kind == t.global and "global" or cwd
                 label = "[" .. label .. "] "
                 return function (task_name)
                     return {
                         task_name = task_name,
                         text = label .. task_name,
-                        task_dir = cwd,
+                        task_dir = task_dir,
                         kind = kind
                     }
                 end
