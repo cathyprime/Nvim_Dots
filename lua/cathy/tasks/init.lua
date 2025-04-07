@@ -12,7 +12,7 @@ local new_task = function (name)
         return
     end
 
-    local result = vim.fn.confirm("create global task?", "&Yes\n&No\n&Cancel")
+    local result = vim.fn.confirm("Create global task?", "&Yes\n&No\n&Cancel")
     if result == 3 then
         return
     end
