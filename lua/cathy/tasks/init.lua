@@ -128,7 +128,9 @@ local pick = function ()
                 return
             end
             local cmd = cache.run(item.kind, item.task_name)
-            vim.cmd(assert(cmd, "no command?"))
+            if cmd then
+                vim.cmd(cmd)
+            end
         end,
     })
 end
