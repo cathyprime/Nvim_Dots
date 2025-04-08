@@ -118,7 +118,10 @@ local pick = function ()
             local global_items = vim.iter(fs.get_tasks("global"))
                 :map(format("global"))
                 :totable()
-            return vim.tbl_deep_extend("keep", local_items, global_items)
+            for _, value in pairs(global_items) do
+                table.insert(local_items, value)
+            end
+            return local_items
         end,
         confirm = function (picker, item)
             local prompt = get_prompt(picker)
