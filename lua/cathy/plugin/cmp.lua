@@ -33,7 +33,7 @@ return {
     {
         "saghen/blink.cmp",
         lazy = false,
-        version = "v0.*",
+        version = "1.*",
         opts = {
             fuzzy = {
                 implementation = "rust"
