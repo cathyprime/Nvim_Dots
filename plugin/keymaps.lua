@@ -16,31 +16,6 @@ local find_if_modified = function()
     end)
 end
 
--- macro
-vim.keymap.set("x", "@", function()
-    local char = vim.fn.nr2char(vim.fn.getchar())
-    vim.api.nvim_feedkeys(vim.keycode"<ESC>", 'x', false)
-    local start = vim.fn.getpos("'<")[2]
-    local stop = vim.fn.getpos("'>")[2]
-    local ns = vim.api.nvim_create_namespace("macro_lines")
-    for x = start,stop do
-        vim.api.nvim_buf_set_extmark(0, ns, x, 0, {
-            id = x + 1
-        })
-    end
-    local consume_marks = function(marks)
-        if #marks == 0 then return end
-        local cur = marks[1]
-        vim.api.nvim_buf_del_extmark(0, ns, cur[1])
-        vim.schedule_wrap(vim.cmd)(cur[2] .. "norm @" .. char)
-        vim.schedule_wrap(consume_marks)(vim.api.nvim_buf_get_extmarks(0, ns, 0, -1, {}))
-    end
-    local x = vim.api.nvim_buf_get_extmarks(0, ns, 0, -1, {})
-    consume_marks(x)
-end)
-
-map("n", "gQ", "qqqqq") -- clear q register and start recording (useful for recursive macros)
-
 -- matchit plugin descriptions
 vim.api.nvim_create_autocmd("VimEnter", {
     once = true,
@@ -54,12 +29,6 @@ vim.api.nvim_create_autocmd("VimEnter", {
 if vim.g.loaded_dispatch ~= 1 then
     map("n", "<leader>q", "<cwd>cope<cr>")
 end
--- if not package.loaded["demicolon"] then
---     map("n", "]c", "<Plug>(qf_qf_next)", { desc = "Next quickfix item" })
---     map("n", "[c", "<Plug>(qf_qf_previous)", { desc = "Prev quickfix item" })
---     map("n", "]C", "<Plug>(qf_qf_previous)", { desc = "Prev quickfix item" })
---     map("n", "[C", "<Plug>(qf_qf_next)", { desc = "Next quickfix item" })
--- end
 
 -- scrolling
 map("n", "<c-b>", "<Nop>")
@@ -115,15 +84,6 @@ map("c", "<c-k>", function()
     vim.fn.setcmdline(line:sub(0, pos - 1))
 end, { silent = false })
 
-vim.keymap.set("ca", "G", "Git")
-map("c", "<c-space>", function()
-    local cmdtype = vim.fn.getcmdtype()
-    if cmdtype == "/" or cmdtype == "?" then
-        return ".\\{-}"
-    end
-    return " "
-end, { silent = false, expr = true })
-
 map("v", "<leader>d", [[:s#\(\S\)\s\+#\1 #g<cr>:noh<cr>]])
 
 -- search
@@ -132,7 +92,6 @@ local search_map = function (tbl)
 end
 local stable_search = function (forward)
     return function ()
-        -- vim.opt.hlsearch = true
         if forward then
             return vim.v.searchforward == 1 and "n" or "N"
         end
