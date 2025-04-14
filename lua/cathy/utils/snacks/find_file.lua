@@ -240,6 +240,9 @@ return function (opts)
                     result = item.text
                 end
                 picker:close()
+                if not result or result == "" then
+                    return
+                end
                 if opts.cb then
                     opts.cb(result)
                     return
