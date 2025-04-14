@@ -240,6 +240,10 @@ return function (opts)
                     result = item.text
                 end
                 picker:close()
+                if opts.cb then
+                    opts.cb(result)
+                    return
+                end
                 local cd_chars = {
                     ["/"] = true,
                     ["."] = true,
