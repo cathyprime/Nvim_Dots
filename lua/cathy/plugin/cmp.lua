@@ -120,11 +120,7 @@ return {
                                 text = function(ctx) return string.rep(" ", ctx.self.gap or 1) end,
                             },
                             kind_icon = {
-                                ellipsis = false,
                                 text = function(ctx) return " " .. ctx.kind_icon .. " " .. ctx.icon_gap end,
-                                highlight = function(ctx)
-                                    return 'BlinkCmpKind' .. ctx.kind
-                                end,
                             },
                         }
                     }
