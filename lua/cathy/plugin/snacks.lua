@@ -50,7 +50,7 @@ local picker_opts = {
     grep_buffers = nopreview { prompt = " Grep Buffers :: ", desc = "grep current file" },
     help         = nopreview { prompt = " Help Tags :: ",    desc = "help" },
     grep_word    = nopreview { prompt = ">>= Grep :: ",      desc = "cursor grep" },
-    smart        = nopreview { prompt = " Files :: ",        desc = "files" },
+    smart        = nopreview { prompt = " Files :: ",        desc = "files", multi = { "buffers", "files" } },
     projects     = nopreview {
         prompt   = " Projects :: ",
         dev      = { "~/polygon", "~/langs", "~/Repositories/" },
