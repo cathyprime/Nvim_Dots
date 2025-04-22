@@ -129,7 +129,14 @@ return {
                     ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
                     ["vim.lsp.util.stylize_markdown"] = true,
                 },
-                signature = { enabled = false },
+                signature = {
+                    enabled = true,
+                    auto_open = {
+                        enabled = false,
+                        trigger = false,
+                        luasnip = false
+                    }
+                },
                 progress = { enabled = true },
                 message = { enabled = true },
                 hover = { enabled = true },
