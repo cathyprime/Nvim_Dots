@@ -22,15 +22,6 @@ end
 
 return {
     {
-        "folke/lazydev.nvim",
-        ft = "lua",
-        opts = {
-            library = {
-                { path = "luvit-meta/library", words = { "vim%.uv" } },
-            },
-        },
-    },
-    {
         "saghen/blink.cmp",
         lazy = false,
         version = "1.*",
