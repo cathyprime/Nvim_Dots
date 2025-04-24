@@ -29,7 +29,7 @@ local function tab_term(command, opts)
 end
 
 local function clear_maps(bufnr, mode)
-    local maps = nvim_get_keymap(mode)
+    local maps = vim.api.nvim_get_keymap(mode)
     for _, map in ipairs(maps) do
         vim.keymap.set(mode, map.lhs, "<nop>", { buffer = bufnr })
     end
@@ -62,7 +62,7 @@ local function validate_sudo_timeout()
 end
 
 local function not_interactive_sudo(cmd)
-    local out = vim.system({ "sudo", "-n", "sh", "-c", cmd }, { stderr = true }):wait()
+    local out = vim.system({ "sudo", "-n", "sh", "-c", cmd }, {}):wait()
     if out.code ~= 0 then
         vim.notify(out.stderr, vim.log.levels.ERROR)
         return false
@@ -83,7 +83,7 @@ local function sudo_exec(cmd)
         return false
     end
 
-    local out = vim.system({ "sudo", "-S", "sh", "-c", cmd }, { stderr = true, stdin = password .. '\n' }):wait()
+    local out = vim.system({ "sudo", "-S", "sh", "-c", cmd }, { stdin = password .. '\n' }):wait()
     collectgarbage("collect")
 
     if out.code ~= 0 then

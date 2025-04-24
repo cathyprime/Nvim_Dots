@@ -132,10 +132,10 @@ function M.inject_name(NAME, find_first_paren_args)
 end
 
 ---@param replaced string
----@return fun(match: string): string
+---@return fun(match: string): string[]
 function M.simple_replace_callback(replaced)
     return function(match)
-        return utils.replace_all(match, replaced)
+        return M.replace_all(match, replaced)
     end
 end
 
@@ -145,7 +145,7 @@ end
 function M.tree_contains_type(cmp)
     local node = vim.treesitter.get_node()
     if not node then return false, nil end
-    while(node:parent() ~= nil) do
+    while(node and node:parent() ~= nil) do
         if cmp(node) then
             return true, node
         end

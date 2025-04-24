@@ -10,12 +10,6 @@ local jump = function(direction)
     return ret .. direction
 end
 
-local find_if_modified = function()
-    return vim.iter(vim.api.nvim_list_bufs()):any(function(buffer)
-        return vim.api.nvim_get_option_value("modified", { buf = buffer }) and vim.api.nvim_buf_is_loaded(buffer)
-    end)
-end
-
 -- matchit plugin descriptions
 vim.api.nvim_create_autocmd("VimEnter", {
     once = true,
@@ -103,9 +97,6 @@ search_map { "n",  stable_search(true)  }
 search_map { "N",  stable_search(false) }
 
 if vim.g.neovide then
-    local change_scale_factor = function()
-        vim.g.neovide_scale_factor = vim.g.neovide_scale_factor * delta
-    end
     local resize = function(lhs, delta)
         vim.keymap.set("n", lhs, function()
             if delta == 1.0 then

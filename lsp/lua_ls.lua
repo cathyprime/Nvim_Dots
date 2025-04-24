@@ -38,6 +38,10 @@ return {
         client:notify("workspace/didChangeConfiguration", { settings = client.config.settings })
     end,
     settings = {
-        Lua = {}
+        Lua = {
+            diagnostics = {
+                globals = { "Snacks", "MiniStatusline", "MiniIcons" }
+            }
+        }
     }
 }

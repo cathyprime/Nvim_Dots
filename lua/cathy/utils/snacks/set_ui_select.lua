@@ -2,7 +2,6 @@ vim.ui.select = function (items, opts, on_choice)
     assert(type(on_choice) == "function", "on_choice must be a function")
     opts = opts or {}
 
-    ---@type snacks.picker.finder.Item[]
     local finder_items = {}
     for idx, item in ipairs(items) do
         local text = (opts.format_item or tostring)(item)
@@ -18,7 +17,6 @@ vim.ui.select = function (items, opts, on_choice)
     title = title:gsub("^%s*", ""):gsub("[%s:]*$", "")
     local completed = false
 
-    ---@type snacks.picker.finder.Item[]
     return Snacks.picker.pick({
         source = "select",
         items = finder_items,

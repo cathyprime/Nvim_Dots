@@ -5,13 +5,13 @@ local modes = {
     cvr = true,
 }
 
-function show(cmp)
+local function show(cmp)
     if not modes[vim.fn.mode()] then
         cmp.show()
     end
 end
 
-function select_gen(way)
+local function select_gen(way)
     return function (cmp)
         if require("blink.cmp").is_visible() or not modes[vim.fn.mode()] then
             cmp["select_" .. way]()
@@ -53,7 +53,7 @@ return {
                 completion = {
                     ghost_text = { enabled = true },
                     menu = {
-                        auto_show = function(ctx)
+                        auto_show = function()
                             return #vim.fn.getcmdline() > 5 and true or false
                         end,
                         draw = {

@@ -5,7 +5,6 @@ local function truncpath(path)
 end
 
 local function filename(item, picker)
-    ---@type snacks.picker.Highlight[]
     local ret = {}
     if not item.file then
         return ret
@@ -78,7 +77,6 @@ local function filename(item, picker)
 end
 
 return function (item, picker)
-    ---@type snacks.picker.Highlight[]
     local ret = {}
 
     if item.label then

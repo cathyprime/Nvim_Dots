@@ -1,5 +1,3 @@
-local lspconfig = require("lspconfig")
-
 local references = function ()
     Snacks.picker.lsp_references({
         prompt = " References :: ",
