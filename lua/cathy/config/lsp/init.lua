@@ -7,9 +7,6 @@ vim.cmd([[sign define DiagnosticSignInfo text=]]  .. icons.Hint    .. [[ texthl=
 vim.cmd([[sign define DiagnosticSignHint text=]]  .. "🤓"          .. [[ texthl=DiagnosticSignHint linehl= numhl= ]])
 
 vim.diagnostic.config({
-    -- virtual_text = {
-    --     prefix = "⚫︎"
-    -- },
     virtual_text = false,
     signs = false,
     underline = false,
@@ -24,20 +21,13 @@ end
 
 vim.lsp.log.set_level(vim.log.levels.ERROR)
 
-require("mason").setup()
-require("mason-lspconfig").setup({
-    ensure_installed = {
-        "emmet_ls",
-        "gopls",
-        "jdtls",
-        "lua_ls",
-        "rust_analyzer",
-        "ts_ls",
-    },
-    handlers = {
-        lsp_funcs.default_setup,
-        lua_ls = lsp_funcs.lua_ls,
-    }
+vim.lsp.enable({
+    "lua_ls",
+    "emmet_language_server",
+    "gopls",
+    "jdtls",
+    "rust_analyzer",
+    "ts_ls",
 })
 
 vim.keymap.del("n", "gO")

@@ -1,9 +1,7 @@
 return {
-    "williamboman/mason-lspconfig.nvim",
+    "neovim/nvim-lspconfig",
     dependencies = {
         "saghen/blink.cmp",
-        "williamboman/mason.nvim",
-        "neovim/nvim-lspconfig",
     },
     config = function()
         require("cathy.config.lsp")
