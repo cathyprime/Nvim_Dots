@@ -111,14 +111,10 @@ return {
             local mc = require("multicursor-nvim")
             mc.setup()
 
-            vim.keymap.set("n", "<c-n>",      function () mc.addCursor("*")  end)
-            vim.keymap.set("x", "<c-n>",      function () mc.addCursor("*")  end)
-            vim.keymap.set("n", "<c-p>",      function () mc.addCursor("#")  end)
-            vim.keymap.set("x", "<c-p>",      function () mc.addCursor("#")  end)
-            vim.keymap.set("n", "<c-s><c-n>", function () mc.skipCursor("*") end)
-            vim.keymap.set("x", "<c-s><c-n>", function () mc.skipCursor("*") end)
-            vim.keymap.set("n", "<c-s><c-p>", function () mc.skipCursor("#") end)
-            vim.keymap.set("x", "<c-s><c-p>", function () mc.skipCursor("#") end)
+            vim.keymap.set({ "n", "x" }, "<c-n>",      function () mc.addCursor("*")  end)
+            vim.keymap.set({ "n", "x" }, "<c-p>",      function () mc.addCursor("#")  end)
+            vim.keymap.set({ "n", "x" }, "<c-s><c-n>", function () mc.skipCursor("*") end)
+            vim.keymap.set({ "n", "x" }, "<c-s><c-p>", function () mc.skipCursor("#") end)
             vim.keymap.set("n", "<leader>gv", mc.restoreCursors)
 
             vim.keymap.set("x", "<c-q>", mc.visualToCursors)
