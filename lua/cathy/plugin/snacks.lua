@@ -53,8 +53,7 @@ local picker_opts = {
         desc = "files",
         multi = { "buffers", "files" },
         actions = {
-            open_buffers = function (picker, item)
-                picker:close()
+            open_buffers = function (picker)
                 Snacks.picker.buffers(nopreview {
                     prompt = " Buffers :: "
                 })
