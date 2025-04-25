@@ -35,13 +35,7 @@ require("nvim-treesitter.configs").setup({
         disable = disable_func,
     },
     incremental_selection = {
-        enable = true,
-        disable = disable_func,
-        keymaps = {
-            node_incremental = "<c-w>",
-            node_decremental = "<c-e>",
-            scope_incremental = "<c-s>",
-        }
+        enable = false,
     },
     textobjects = {
         select = {
