@@ -50,7 +50,7 @@ return {
     dependencies = {
         "rcarriga/nvim-dap-ui",
         "nvim-neotest/nvim-nio",
-        "cathyprime/hydra.nvim",
+        "nvimtools/hydra.nvim",
     },
     keys = { { "<leader>z" } },
     config = function()
