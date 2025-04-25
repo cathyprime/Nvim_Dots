@@ -9,7 +9,7 @@ return {
             type = "executable",
             command = "netcoredbg",
             args = { "--interpreter=vscode" }
-        }
+        },
         codelldb = {
             type = "server",
             port = "${port}",
