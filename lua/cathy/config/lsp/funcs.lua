@@ -71,16 +71,6 @@ local attach = function(client, bufnr, alt_keys)
     end
 end
 
-vim.api.nvim_create_autocmd("LspAttach", {
-    callback = function(ev)
-        if vim.b["alt_lsp_maps"] then
-            attach(vim.lsp.get_client_by_id(ev.data.client_id), ev.buf, vim.b["alt_lsp_maps"])
-        else
-            attach(vim.lsp.get_client_by_id(ev.data.client_id), ev.buf)
-        end
-    end,
-})
-
 return {
     on_attach = attach,
 }

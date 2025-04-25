@@ -18,4 +18,15 @@ vim.lsp.enable({
     "ts_ls",
 })
 
+vim.api.nvim_create_autocmd("LspAttach", {
+    callback = function(ev)
+        local funcs = require("cathy.config.lsp.funcs")
+        funcs.on_attach(
+            vim.lsp.get_client_by_id(ev.data.client_id),
+            ev.buf,
+            vim.b["alt_lsp_maps"]
+        )
+    end,
+})
+
 vim.keymap.del("n", "gO")

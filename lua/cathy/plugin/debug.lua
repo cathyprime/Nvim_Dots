@@ -1,8 +1,3 @@
-local cache = {
-    netcoredbg_dll_path = "",
-    netcoredbg_args = "",
-}
-
 local make_simple_layout = function (opts)
     return {
         elements = {
@@ -59,52 +54,10 @@ return {
     },
     keys = { { "<leader>z" } },
     config = function()
-        local dap = require("dap")
+        local dap   = require("dap")
         local dapui = require("dapui")
-        -- require("mason-nvim-dap").setup({
-        --     handlers = {
-        --         function(config)
-        --             require("mason-nvim-dap").default_setup(config)
-        --         end,
-        --         coreclr = function(config)
-        --             config.adapters = {
-        --                 type = 'executable',
-        --                 command = require("mason-core.path").package_prefix("netcoredbg") .. "/netcoredbg",
-        --                 args = {'--interpreter=vscode'}
-        --             }
-        --             config.configurations = {
-        --                 {
-        --                     type = "coreclr",
-        --                     name = "launch - netcoredbg",
-        --                     request = "launch",
-        --                     program = function()
-        --                         if cache.netcoredbg_dll_path then
-        --                             local input = vim.fn.input("Path to dll ", cache.netcoredbg_dll_path, "file")
-        --                             cache.netcoredbg_dll_path = input
-        --                             return input
-        --                         else
-        --                             local input = vim.fn.input("Path to dll ", vim.fn.getcwd() .. "/bin/Debug/", "file")
-        --                             cache.netcoredbg_dll_path = input
-        --                             return input
-        --                         end
-        --                     end,
-        --                     args = function()
-        --                         if cache.netcoredbg_args then
-        --                             local args_string = vim.fn.input("Arguments: ", cache.netcoredbg_args)
-        --                             cache.netcoredbg_args = args_string
-        --                             return vim.split(args_string, " +")
-        --                         else
-        --                             local args_string = vim.fn.input("Arguments: ")
-        --                             cache.netcoredbg_args = args_string
-        --                             return vim.split(args_string, " +")
-        --                         end
-        --                     end
-        --                 },
-        --             }
-        --             require("mason-nvim-dap").default_setup(config)
-        --         end
-        --     },
-        -- })
+        dap.configurations = require("cathy.config.dap").configurations
+        dap.adapaters      = require("cathy.config.dap").adapaters
 
         ---@diagnostic disable-next-line
         dapui.setup({
