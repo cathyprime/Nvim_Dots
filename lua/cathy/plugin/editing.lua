@@ -108,21 +108,22 @@ return {
         "jake-stewart/multicursor.nvim",
         branch = "1.0",
         config = function ()
+            local nx = { "n", "x" }
             local mc = require("multicursor-nvim")
             mc.setup()
 
-            vim.keymap.set({ "n", "x" }, "<c-n>",      function () mc.addCursor("*")  end)
-            vim.keymap.set({ "n", "x" }, "<c-p>",      function () mc.addCursor("#")  end)
-            vim.keymap.set({ "n", "x" }, "<c-s><c-n>", function () mc.skipCursor("*") end)
-            vim.keymap.set({ "n", "x" }, "<c-s><c-p>", function () mc.skipCursor("#") end)
+            vim.keymap.set(nx, "<c-n>",      function () mc.addCursor("*")  end)
+            vim.keymap.set(nx, "<c-p>",      function () mc.addCursor("#")  end)
+            vim.keymap.set(nx, "<c-s><c-n>", function () mc.skipCursor("*") end)
+            vim.keymap.set(nx, "<c-s><c-p>", function () mc.skipCursor("#") end)
 
             vim.keymap.set("n", "<leader>gv", mc.restoreCursors)
             vim.keymap.set("x", "<c-q>",      mc.visualToCursors)
             vim.keymap.set("x", "m",          mc.matchCursors)
             vim.keymap.set("x", "M",          mc.splitCursors)
 
-            vim.keymap.set({ "n", "x" }, "<c-i>", mc.jumpForward)
-            vim.keymap.set({ "n", "x" }, "<c-o>", mc.jumpBackward)
+            vim.keymap.set(nx, "<c-i>", mc.jumpForward)
+            vim.keymap.set(nx, "<c-o>", mc.jumpBackward)
 
             vim.keymap.set("x", "ga", mc.operator)
             vim.keymap.set("n", "ga", function ()
