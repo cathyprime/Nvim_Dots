@@ -7,7 +7,7 @@ Plugin list in the readme might not be up to date every time :3
 
 ## Install Instructions
 
- > Install requires Neovim 0.9+. Always review the code before installing a configuration.
+ > Install requires Neovim 0.11+. Always review the code before installing a configuration.
 
 Clone the repository and install the plugins:
 
@@ -64,15 +64,12 @@ NVIM_APPNAME=cathyprime/nvim-dots/ nvim
 
 ### lsp
 + [neovim/nvim-lspconfig](https://github.com/neovim/nvim-lspconfig)
-+ [nvimtools/none-ls.nvim](https://github.com/nvimtools/none-ls.nvim)
-+ [williamboman/mason.nvim](https://github.com/williamboman/mason.nvim)
 
 ### navigation
 + [folke/snacks.nvim](https://github.com/folke/snacks.nvim)
 + custom snacks find\_file
 
 ### nvim-dev
-+ [folke/lazydev.nvim](https://github.com/folke/lazydev.nvim)
 + [milisims/nvim-luaref](https://github.com/milisims/nvim-luaref)
 + [nvim-lua/plenary.nvim](https://github.com/nvim-lua/plenary.nvim)
 
