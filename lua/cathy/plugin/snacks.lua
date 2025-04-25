@@ -90,12 +90,9 @@ local picks = setmetatable({
     find_file = require("cathy.utils.snacks.find_file"),
     spelling = function (opts)
         return function ()
-            vim.notify("Hello from func", vim.log.levels.INFO)
             if vim.v.count ~= 0 then
-                vim.notify("feedkeys", vim.log.levels.INFO)
                 return vim.fn.feedkeys(vim.v.count .. "z=", 'n')
             end
-            vim.notify("picker", vim.log.levels.INFO)
             Snacks.picker.spelling(opts)
         end
     end
