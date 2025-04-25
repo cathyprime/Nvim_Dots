@@ -23,11 +23,6 @@ return {
                 diagnostic_motions = false,
                 repeat_motions = false,
             },
-            integrations = {
-                gitsigns = {
-                    enabled = false,
-                },
-            },
         },
         config = function(_, opts)
             require("demicolon").setup(opts)
