@@ -25,7 +25,6 @@ local picker_mappings = {
     find_file    = "<leader>ff",
     jumps        = "<leader>fj",
     resume       = "<leader>fF",
-    nvim_files   = "<leader>fn",
     lazy         = "<leader>fl",
     grep         = "<leader>fg",
     grep_buffers = "<leader>fG",
@@ -44,19 +43,37 @@ local picker_opts = {
     jumps        = { prompt = " Jumps :: ",                  desc = "jumps" },
     spelling     = { prompt = " Spelling :: ",               desc = "spell suggestion", layout = { preset = "ivy_noprev" } },
     undo         = mainprevw { prompt = " Undo :: ",         desc = "undo" },
-    nvim_files   = nopreview { prompt = " Neovim Files :: ", desc = "config files", cwd = "~/.config/nvim/" },
     lazy         = nopreview { prompt = " Lazy :: ",         desc = "lazy declarations" },
     grep         = nopreview { prompt = " Grep :: ",         desc = "grep" },
     grep_buffers = nopreview { prompt = " Grep Buffers :: ", desc = "grep current file" },
     help         = nopreview { prompt = " Help Tags :: ",    desc = "help" },
     grep_word    = nopreview { prompt = ">>= Grep :: ",      desc = "cursor grep" },
-    smart        = nopreview { prompt = " Files :: ",        desc = "files", multi = { "buffers", "files" } },
-    projects     = nopreview {
-        prompt   = " Projects :: ",
-        dev      = { "~/polygon", "~/langs", "~/Repositories/" },
-        format   = f,
-        desc     = "projects",
-        actions  = {
+    smart        = nopreview {
+        prompt = " Files :: ",
+        desc = "files",
+        multi = { "buffers", "files" },
+        actions = {
+            open_buffers = function (picker, item)
+                picker:close()
+                Snacks.picker.buffers(nopreview {
+                    prompt = " Buffers :: "
+                })
+            end
+        },
+        win = {
+            input = {
+                keys = {
+                    ["<c-space>"] = { "open_buffers", mode = { "n", "i" }, desc = "Open buffers" }
+                }
+            }
+        }
+    },
+    projects = nopreview {
+        prompt = " Projects :: ",
+        dev = { "~/polygon", "~/langs", "~/Repositories/" },
+        format = f,
+        desc = "projects",
+        actions = {
             ["picker_grep"]   = cb_maker("grep",   nopreview { prompt = " Grep :: " }),
             ["picker_files"]  = cb_maker("files",  nopreview { prompt = " Find Files :: " }),
             ["picker_recent"] = cb_maker("recent", nopreview { prompt = " Oldfiles :: ", format = f }),
@@ -72,7 +89,6 @@ local picker_opts = {
 
 local picks = setmetatable({
     find_file = require("cathy.utils.snacks.find_file"),
-    nvim_files = from_snacks.picker.files,
     spelling = function (opts)
         return function ()
             vim.notify("Hello from func", vim.log.levels.INFO)
