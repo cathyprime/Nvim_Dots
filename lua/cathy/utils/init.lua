@@ -114,7 +114,6 @@ local function sudo_write()
 end
 
 return {
-    rooter = require("cathy.rooter"),
     tab_term = tab_term,
     clear_buf_maps = clear_maps,
     map_gen = map_gen,
