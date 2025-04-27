@@ -31,6 +31,29 @@ local function oil_args(args)
     return string.format("-dir=%s %s", dir, args)
 end
 
+local function to_remote(args)
+    if not vim.g.remote_connected_hostname then
+        return args
+    end
+
+    local remote_utils = require("cathy.remote.utils")
+    local mount_path = remote_utils.get_path(vim.g.remote_connected_hostname)
+
+    local cwd = vim.fn.getcwd()
+
+    if not vim.startswith(cwd, mount_path) then
+        return args
+    end
+
+    local rel_path = string.sub(cwd, #mount_path + 1)
+    if rel_path:sub(1, 1) == "/" then
+        rel_path = rel_path:sub(2)
+    end
+
+    local remote_cwd = vim.g.remote_path .. "/" .. rel_path
+    return string.format("ssh %s 'cd %s && %s'", vim.g.remote_connected_hostname, remote_cwd, args)
+end
+
 vim.api.nvim_create_autocmd("VimEnter", {
     once = true,
     callback = function()
@@ -39,7 +62,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
             "Dispatch",
             function(opts)
                 local count = 0
-                local args = oil_args(opts.args or "")
+                local args = to_remote(oil_args(opts.args or ""))
                 local mods = opts.mods or ""
                 local bang = opts.bang and 1 or 0
 
@@ -82,7 +105,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
                 }
 
                 local count = 0
-                local args = oil_args(opts.args or "")
+                local args = to_remote(oil_args(opts.args or ""))
                 local mods = opts.mods or ""
                 local bang = opts.bang and 0 or 1
 
@@ -124,7 +147,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
             "Make",
             function(opts)
                 local count = 0
-                local args = opts.args
+                local args = to_remote(opts.args)
                 local mods = opts.mods or ""
                 local bang = opts.bang and 1 or 0
 
