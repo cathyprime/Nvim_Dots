@@ -13,21 +13,19 @@ vim.ui.select = function (items, opts, on_choice)
         })
     end
 
-    local title = opts.prompt or "Select"
-    title = title:gsub("^%s*", ""):gsub("[%s:]*$", "")
+    local prompt = string.format(" %s :: ", opts.prompt or "Select")
     local completed = false
 
     return Snacks.picker.pick({
         source = "select",
         items = finder_items,
         format = Snacks.picker.format.ui_select(opts.kind, #items),
-        title = title,
-        prompt = " Select :: ",
+        prompt = prompt,
         layout = {
             preset = "ivy",
             preview = false,
             layout = {
-                height = math.min(#items, 13),
+                height = math.min(#items + 1, 13),
             },
         },
         win = {
