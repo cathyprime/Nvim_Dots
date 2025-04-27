@@ -56,7 +56,9 @@ return {
     config = function()
         local dap   = require("dap")
         local dapui = require("dapui")
+        ---@diagnostic disable-next-line: different-requires
         dap.configurations = require("cathy.config.dap").configurations
+        ---@diagnostic disable-next-line: different-requires
         dap.adapaters      = require("cathy.config.dap").adapaters
 
         ---@diagnostic disable-next-line
