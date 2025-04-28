@@ -43,6 +43,9 @@ end
 local mount_with_sshfs = function (hostname, cb)
     local cmd = {
         "sshfs",
+        "-o", "ControlMaster=auto",
+        "-o", "ControlPersist=60",
+        "-o", "ControlPath=~/.ssh/control:%h:%p:%r",
         hostname .. ":",
         get_sshfs_path_or_create(hostname)
     }
