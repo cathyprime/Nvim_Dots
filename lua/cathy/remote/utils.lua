@@ -18,7 +18,7 @@ local get_hosts = function ()
     local file = io.open(ssh_conf)
     local names = vim.iter(assert(file):lines())
         :filter(function (line)
-            return line:find "Host%s+"
+            return line:find "Host%s+" and not line:find "Host%s+%*"
         end)
         :map(function (line)
             return (line:gsub("Host%s+", ""))
