@@ -51,12 +51,9 @@ local function to_remote(args)
     end
 
     local remote_cwd = vim.g.remote_path .. "/" .. rel_path
-    return string.format(
-        "ssh %s -o ControlMaster=auto -o ControlPersist=60 -o ControlPath=~/.ssh/control:%h:%p:%r 'cd %s && %s'",
-        vim.g.remote_connected_hostname,
-        remote_cwd,
-        args
-    )
+    return assert(require("cathy.remote.utils").get_ssh_cmd(
+        string.format("cd %s && %s", remote_cwd, args)
+    ))
 end
 
 vim.api.nvim_create_autocmd("VimEnter", {
