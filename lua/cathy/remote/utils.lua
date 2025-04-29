@@ -1,4 +1,5 @@
 local home_dir = os.getenv("HOME")
+local remote_group = vim.api.nvim_create_augroup("Magda_Remote", { clear = true })
 vim.g.remote_path = nil
 
 local log = {
@@ -12,7 +13,7 @@ local log = {
 
 local create_if_not_exists = function (path)
     if not vim.uv.fs_stat(path) then
-        vim.fn.mkdir(path, { "p" })
+        vim.fn.mkdir(path, "p")
     end
     return path
 end
@@ -198,7 +199,71 @@ local in_term = function(hostname, cb)
     vim.cmd.startinsert()
 end
 
+local is_mounted = function (hostname)
+    local path = get_sshfs_path_or_create(hostname)
+    local mountpoint = vim.system({ "mountpoint", "-q", path }, {}):wait()
+    return mountpoint.code == 0 -- 0 = mountpoint, 32 = not a mountpoint
+end
+
+local disconnect = function (hostname, cb)
+    vim.api.nvim_clear_autocmds({ group = remote_group })
+    local cmd = {
+        "fusermount3",
+        "-u",
+        get_sshfs_path_or_create(hostname)
+    }
+    if vim.uv.cwd():find(home_dir .. "/.sshfs") then
+        vim.cmd("silent cd")
+    end
+    vim.system(cmd, { detach = true }, function (result)
+        if result.code == 0 then
+            log.info("Disconnected from host: " .. hostname)
+            if cb then cb() end
+            vim.g.remote_path = nil
+            vim.g.remote_connected_hostname = nil
+            return
+        end
+        log.err("Failed to disconnect from host " .. hostname)
+        log.err(result.stderr)
+    end)
+end
+
 local connect = function (hostname, cb)
+    vim.api.nvim_create_autocmd("VimLeavePre", {
+        group = remote_group,
+        pattern = "*",
+        callback = function ()
+            disconnect(hostname)
+        end
+    })
+    if is_mounted(hostname) then
+        vim.g.remote_connected_hostname = hostname
+        vim.system(
+            { "findmnt", "-no", "SOURCE", "-t", "fuse.sshfs" },
+            { detach = true },
+            function (obj)
+                local lines = vim.split(obj.stdout, "\n", { trimempty = true, plain = true })
+                local mounts = vim.iter(lines)
+                    :map(function (line)
+                        return vim.split(line, ":", { trimempty = true, plain = true })
+                    end)
+                    :filter(function (entry)
+                        return entry[1] == hostname
+                    end)
+                    :take(1)
+                local next = mounts:next()
+                if next then
+                    vim.g.remote_path = next[2]
+                    vim.schedule(function ()
+                        local path = get_sshfs_path_or_create(vim.g.remote_connected_hostname)
+                        vim.cmd("silent cd " .. path)
+                        vim.cmd.e(path)
+                    end)
+                end
+            end
+        )
+        return
+    end
     vim.system(cmd.ssh(hostname), {}, function (result)
         if result.code == 0 then
             mount {
@@ -225,32 +290,7 @@ local connect = function (hostname, cb)
     end)
 end
 
-local disconnect = function (hostname, cb)
-    local cmd = {
-        "fusermount3",
-        "-u",
-        get_sshfs_path_or_create(hostname)
-    }
-    vim.system(cmd, { detach = true }, function (result)
-        if result.code == 0 then
-            log.info("Disconnected from host: " .. hostname)
-            if cb then cb() end
-            vim.g.remote_path = nil
-            vim.g.remote_connected_hostname = nil
-            return
-        end
-        log.err("Failed to disconnect from host " .. hostname)
-        log.err(result.stderr)
-    end)
-end
-
-local is_mounted = function (hostname)
-    local path = get_sshfs_path_or_create(hostname)
-    local mountpoint = vim.system({ "mountpoint", "-q", path }, {}):wait()
-    return mountpoint.code == 0 -- 0 = mountpoint, 32 = not a mountpoint
-end
-
-local get_hosts = function (cb)
+local choose_host = function (cb)
     local ssh_conf = home_dir .. "/.ssh/config"
 
     if not vim.uv.fs_stat(ssh_conf) then
@@ -285,7 +325,7 @@ end
 
 return {
     get_path = get_sshfs_path_or_create,
-    get_hosts = get_hosts,
+    choose_host = choose_host,
     connect = connect,
     disconnect = disconnect,
     is_mounted = is_mounted,

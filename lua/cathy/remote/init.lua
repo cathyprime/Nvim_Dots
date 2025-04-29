@@ -16,18 +16,14 @@ vim.api.nvim_create_user_command("Remote",
                 vim.cmd("e " .. path)
             end
 
-            if utils.is_mounted(hostname) then
-                on_connect()
-            else
-                utils.connect(hostname, vim.schedule_wrap(on_connect))
-            end
+            utils.connect(hostname, vim.schedule_wrap(on_connect))
         end
         if opts.args ~= "" then
             connect(opts.args)
             return
         end
 
-        utils.get_hosts(connect)
+        utils.choose_host(connect)
     end,
     {
         force = true,

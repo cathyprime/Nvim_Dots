@@ -165,9 +165,9 @@ vim.api.nvim_create_autocmd({ "BufEnter" }, {
         end
         local git_root = Snacks.git.get_root()
         if git_root then
-            pcall(vim.cmd.cd, git_root)
+            pcall(vim.cmd, "silent cd " .. git_root)
         else
-            pcall(vim.cmd.cd, require("cathy.utils").cur_buffer_path())
+            pcall(vim.cmd, "silent cd " .. require("cathy.utils").cur_buffer_path())
         end
     end
 })
