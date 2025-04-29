@@ -150,13 +150,15 @@ local mount = function (tbl)
         end
     end
 
-    tbl.cmd = cmd.sshfs(tbl)
-    tbl.path = get_path(tbl.hostname)
+    if not tbl.path then
+        tbl.path = get_path(tbl.hostname)
+    end
 
     if not tbl.path then
         return
     end
 
+    tbl.cmd = cmd.sshfs(tbl)
     vim.system(tbl.cmd, tbl.opts, function (result)
         if result.code == 0 then
             log.info("Connected to host: " .. tbl.hostname)
@@ -239,7 +241,7 @@ local disconnect = function (hostname, cb)
     end)
 end
 
-local connect = function (hostname, cb)
+local connect = function (hostname, path, cb)
     vim.api.nvim_create_autocmd("VimLeavePre", {
         group = remote_group,
         pattern = "*",
@@ -266,7 +268,7 @@ local connect = function (hostname, cb)
                 if next then
                     vim.g.remote_path = next[2]
                     vim.schedule(function ()
-                        local path = get_sshfs_path_or_create(vim.g.remote_connected_hostname)
+                        local path = get_sshfs_path_or_create(hostname)
                         vim.cmd("silent cd " .. path)
                         vim.cmd.e(path)
                     end)
@@ -279,6 +281,7 @@ local connect = function (hostname, cb)
         if result.code == 0 then
             mount {
                 hostname = hostname,
+                path = path,
                 cb = cb,
             }
             return
@@ -289,6 +292,7 @@ local connect = function (hostname, cb)
                 mount {
                     hostname = hostname,
                     with_pass = true,
+                    path = path,
                     cb = cb,
                 }
             end)
@@ -301,7 +305,7 @@ local connect = function (hostname, cb)
     end)
 end
 
-local choose_host = function (cb)
+local get_hosts = function ()
     local ssh_conf = home_dir .. "/.ssh/config"
 
     if not vim.uv.fs_stat(ssh_conf) then
@@ -309,7 +313,7 @@ local choose_host = function (cb)
     end
 
     local file = assert(io.open(ssh_conf))
-    local names = vim.iter(file:lines())
+    return vim.iter(file:lines())
         :filter(function (line)
             return line:find "Host%s+" and not line:find "Host%s+%*"
         end)
@@ -317,6 +321,10 @@ local choose_host = function (cb)
             return (line:gsub("Host%s+", ""))
         end)
         :totable()
+end
+
+local choose_host = function (cb)
+    local names = get_hosts()
 
     table.insert(names, "Other...")
 
@@ -337,6 +345,7 @@ end
 return {
     get_path = get_sshfs_path_or_create,
     choose_host = choose_host,
+    get_hosts = get_hosts,
     connect = connect,
     disconnect = disconnect,
     is_mounted = is_mounted,
