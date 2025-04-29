@@ -5,10 +5,7 @@ vim.g.remote_path = nil
 vim.api.nvim_create_user_command("Remote",
     function (opts)
         if vim.g.remote_connected_hostname and utils.is_mounted(vim.g.remote_connected_hostname) then
-            utils.disconnect(vim.g.remote_connected_hostname, function ()
-                vim.g.remote_connected_hostname = nil
-                vim.g.remote_path = nil
-            end)
+            utils.disconnect(vim.g.remote_connected_hostname)
             return
         end
 
@@ -18,11 +15,9 @@ vim.api.nvim_create_user_command("Remote",
             end
 
             local on_connect = function ()
-                vim.g.remote_connected_hostname = hostname
-                vim.g.remote_path = "~/"
                 local path = utils.get_path(hostname)
                 vim.cmd.cd(path)
-                vim.cmd("Oil " .. path)
+                vim.cmd("e " .. path)
             end
 
             if utils.is_mounted(hostname) then
