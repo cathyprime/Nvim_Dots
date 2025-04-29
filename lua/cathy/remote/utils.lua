@@ -123,12 +123,19 @@ local save_default = function (hostname, path)
 end
 
 local get_path = function (hostname)
-    local path = vim.fn.input {
+    local ok, path = pcall(vim.fn.input, {
         prompt = hostname .. " path to mount",
-        default = get_default(hostname)
-    }
-    save_default(hostname, path)
-    return path
+        default = get_default(hostname),
+        cancelreturn = 10
+    })
+    if ok and path ~= 10 then
+        save_default(hostname, path)
+        return path
+    end
+    if path == 10 then
+        return
+    end
+    return ""
 end
 
 local mount = function (tbl)
@@ -143,8 +150,12 @@ local mount = function (tbl)
         end
     end
 
-    tbl.path = get_path(tbl.hostname)
     tbl.cmd = cmd.sshfs(tbl)
+    tbl.path = get_path(tbl.hostname)
+
+    if not tbl.path then
+        return
+    end
 
     vim.system(tbl.cmd, tbl.opts, function (result)
         if result.code == 0 then
