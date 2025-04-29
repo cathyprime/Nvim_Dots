@@ -4,14 +4,14 @@ vim.g.remote_path = nil
 
 vim.api.nvim_create_user_command("Remote",
     function (opts)
-        local connect = function (hostname)
+        local connect = function (hostname, path)
             local on_connect = function ()
                 local path = utils.get_path(hostname)
                 vim.cmd.cd(path)
                 vim.cmd("e " .. path)
             end
 
-            utils.connect(hostname, opts.fargs[3], vim.schedule_wrap(on_connect))
+            utils.connect(hostname, path, vim.schedule_wrap(on_connect))
         end
 
         if #opts.fargs >= 1 then
@@ -24,7 +24,7 @@ vim.api.nvim_create_user_command("Remote",
                         utils.choose_host(connect)
                         return
                     end
-                    connect(opts.fargs[2])
+                    connect(opts.fargs[2], opts.fargs[3])
                 end,
                 disconnect = function ()
                     if not vim.g.remote_connected_hostname then
@@ -32,6 +32,15 @@ vim.api.nvim_create_user_command("Remote",
                     end
                     utils.disconnect(vim.g.remote_connected_hostname)
                 end,
+                cd = function ()
+                    if not vim.g.remote_connected_hostname then
+                        return
+                    end
+                    local hostname = vim.g.remote_connected_hostname
+                    utils.disconnect(hostname, vim.schedule_wrap(function ()
+                        connect(hostname, opts.fargs[2])
+                    end))
+                end
             }
             local func = arg_funcs[opts.fargs[1]]
             if not func then
@@ -59,15 +68,16 @@ vim.api.nvim_create_user_command("Remote",
                 return {}
             end
 
+            if cmdline:match("connect%s+") then
+                return utils.get_hosts()
+            end
+
             local options = {}
             if vim.g.remote_connected_hostname then
                 table.insert(options, "disconnect")
+                table.insert(options, "cd")
             else
                 table.insert(options, "connect")
-            end
-
-            if cmdline:match("connect%s+") then
-                return utils.get_hosts()
             end
 
             if arg_lead and #arg_lead > 0 then

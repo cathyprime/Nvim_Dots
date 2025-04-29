@@ -242,6 +242,9 @@ local disconnect = function (hostname, cb)
 end
 
 local connect = function (hostname, path, cb)
+    if path then
+        save_default(hostname, path)
+    end
     vim.api.nvim_create_autocmd("VimLeavePre", {
         group = remote_group,
         pattern = "*",
