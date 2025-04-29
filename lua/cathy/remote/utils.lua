@@ -73,7 +73,11 @@ local get_default = function (hostname)
         end)
         :take(1)
 
-    return defaults:next()[2]
+    local next = defaults:next()
+    if not next then
+        return ""
+    end
+    return next[2]
 end
 
 local save_default = function (hostname, path)
@@ -93,6 +97,10 @@ local save_default = function (hostname, path)
             return tokens
         end)
         :totable()
+
+    if not vim.iter(defaults):any(function (default) return default[1] == hostname end) then
+        table.insert(defaults, { hostname, path })
+    end
 
     local lines = vim.iter(defaults)
         :map(function (default)
@@ -235,7 +243,7 @@ local is_mounted = function (hostname)
     return mountpoint.code == 0 -- 0 = mountpoint, 32 = not a mountpoint
 end
 
-local get_hosts = function ()
+local get_hosts = function (cb)
     local ssh_conf = home_dir .. "/.ssh/config"
 
     if not vim.uv.fs_stat(ssh_conf) then
@@ -252,7 +260,20 @@ local get_hosts = function ()
         end)
         :totable()
 
-    return names
+    table.insert(names, "Other...")
+
+    vim.ui.select(names, { prompt = "Connect to host" }, function (hostname)
+        if not hostname then
+            return
+        end
+        if hostname == "Other..." then
+            vim.ui.input({
+                prompt = "Hostname:"
+            }, cb)
+            return
+        end
+        cb(hostname)
+    end)
 end
 
 return {

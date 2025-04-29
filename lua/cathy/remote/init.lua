@@ -10,10 +10,6 @@ vim.api.nvim_create_user_command("Remote",
         end
 
         local connect = function (hostname)
-            if not hostname then
-                return
-            end
-
             local on_connect = function ()
                 local path = utils.get_path(hostname)
                 vim.cmd.cd(path)
@@ -30,7 +26,8 @@ vim.api.nvim_create_user_command("Remote",
             connect(opts.args)
             return
         end
-        vim.ui.select(utils.get_hosts(), { prompt = "Connect to host" }, connect)
+
+        utils.get_hosts(connect)
     end,
     {
         force = true,
