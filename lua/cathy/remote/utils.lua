@@ -21,6 +21,13 @@ local get_sshfs_path_or_create = function (hostname)
     return create_if_not_exists(home_dir .. "/.sshfs/" .. hostname)
 end
 
+local ControlPath = function (escape)
+    if escape then
+        return [[ControlPath=/tmp/ssh/control:\%h:\%p:\%r]]
+    end
+    return [[ControlPath=/tmp/ssh/control:%h:%p:%r]]
+end
+
 local cmd = {
     sshfs = function (tbl)
         tbl.path = tbl.path or ""
@@ -29,7 +36,7 @@ local cmd = {
             "sshfs",
             "-o", "ControlMaster=auto",
             "-o", "ControlPersist=60",
-            "-o", [[ControlPath=/tmp/ssh/control:%h:%p:%r]],
+            "-o", ControlPath(tbl.escape),
             tbl.hostname .. ":" .. tbl.path,
             get_sshfs_path_or_create(tbl.hostname)
         }
@@ -152,7 +159,7 @@ local mount = function (tbl)
 end
 
 local in_term = function(hostname, cb)
-    local cmd = table.concat(cmd.sshfs { hostname = hostname }, " ")
+    local cmd = table.concat(cmd.sshfs { hostname = hostname, escape = true }, " ")
     local bufnr = vim.api.nvim_create_buf(false, true)
     local size = 0.50
 
