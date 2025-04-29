@@ -64,7 +64,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
             "Dispatch",
             function(opts)
                 local count = 0
-                local args = to_remote(oil_args(opts.args or ""))
+                local args = oil_args(opts.args or "")
                 local mods = opts.mods or ""
                 local bang = opts.bang and 1 or 0
 
@@ -78,7 +78,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
                     args = vim.b.dispatch
                 end
                 vim.b["dispatch"] = args
-                vim.fn["dispatch#compile_command"](bang, args, count, mods)
+                vim.fn["dispatch#compile_command"](bang, to_remote(args), count, mods)
             end,
             {
                 bang = true,
@@ -107,7 +107,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
                 }
 
                 local count = 0
-                local args = to_remote(oil_args(opts.args or ""))
+                local args = oil_args(opts.args or "")
                 local mods = opts.mods or ""
                 local bang = opts.bang and 0 or 1
 
@@ -124,7 +124,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
 
                 local arguments = {
                     bang = bang,
-                    args = args,
+                    args = to_remote(args),
                     count = count,
                     mods = mods,
                 }
@@ -149,7 +149,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
             "Make",
             function(opts)
                 local count = 0
-                local args = to_remote(opts.args)
+                local args = opts.args
                 local mods = opts.mods or ""
                 local bang = opts.bang and 1 or 0
 
@@ -160,7 +160,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
                     args = vim.b.make or ""
                 end
                 vim.b["make"] = args
-                vim.fn["dispatch#compile_command"](bang, "-- " .. args, count, mods)
+                vim.fn["dispatch#compile_command"](bang, to_remote("make -- " .. args), count, mods)
             end,
             {
                 bang = true,
