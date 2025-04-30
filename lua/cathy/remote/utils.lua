@@ -13,7 +13,9 @@ local log = {
 
 local create_if_not_exists = function (path)
     if not vim.uv.fs_stat(path) then
-        vim.fn.mkdir(path, "p")
+        vim.schedule(function ()
+            vim.fn.mkdir(path, "p")
+        end)
     end
     return path
 end
