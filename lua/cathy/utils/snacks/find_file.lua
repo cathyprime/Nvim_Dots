@@ -1,6 +1,19 @@
-local from_snacks = require("cathy.utils.snacks.from_snacks")
+local picker_opts = require("cathy.utils.snacks.picker_opts")
 local ns = vim.api.nvim_create_namespace("Magda_Find_File")
 local home = os.getenv("HOME")
+
+local picker_gen = function (kind)
+    return function (picker, item)
+        if not item then
+            return
+        end
+        picker:close()
+        local path = item.text
+        local opts = picker_opts[kind]
+        opts.cwd = path
+        Snacks.picker[kind](opts)
+    end
+end
 
 local fd_exec = function ()
     return (vim.fn.executable("fd") == 1 and "fd")
@@ -82,6 +95,9 @@ return function (opts)
             prompt = opts.prompt,
             pattern = require("cathy.utils").cur_buffer_path(),
             on_show = function (picker)
+                if opts.cwd then
+                    set_prompt(picker, opts.cwd)
+                end
                 vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
                     buffer = picker.input.win.buf,
                     callback = function()
@@ -120,7 +136,7 @@ return function (opts)
                     picker:find()
                 end
             end,
-            finder = function (ctx)
+            finder = function ()
                 local picker = Snacks.picker.get({ tab = true })[1]
                 local cwd
                 if not picker then
@@ -158,6 +174,8 @@ return function (opts)
                         ["<c-w>"] = { "delete_word", mode = { "i" }, desc = "Delete word" },
                         ["<c-bs>"] = { "delete_word", mode = { "i" }, desc = "Delete word" },
                         ["<bs>"] = { "delete_char_or_path", mode = { "i" }, desc = "backspace" },
+                        ["<c-f>"] = { "open_find", mode = { "i", "n" }, desc = "Search Files" },
+                        ["<c-g>"] = { "open_grep", mode = { "i", "n" }, desc = "Search Grep" }
                     },
                     wo = {
                         conceallevel = 3,
@@ -166,6 +184,8 @@ return function (opts)
                 },
             },
             actions = {
+                open_find = picker_gen("smart"),
+                open_grep = picker_gen("grep"),
                 go_home = function (picker)
                     set_prompt(picker, os.getenv("HOME") .. "/")
                 end,
@@ -184,7 +204,6 @@ return function (opts)
                 delete_char_or_path = function (picker)
                     local prompt = get_prompt(picker)
                     local cursor = vim.api.nvim_win_get_cursor(picker.input.win.win)
-                    local last_slash = prompt:match(".*()/")
                     if prompt:sub(cursor[2], cursor[2]) == "/" then
                         local pos = string.match(string.sub(prompt, 1, cursor[2] - 1), ".*()/")
                         local new_prompt = string.sub(prompt, 1, pos)
@@ -203,7 +222,6 @@ return function (opts)
                         if #new_path ~= 1 then
                             new_path = new_path .. "/"
                         end
-                        local buf = picker.input.win.buf
                         set_prompt(picker, new_path)
                         return
                     end
@@ -211,7 +229,6 @@ return function (opts)
                         return
                     end
 
-                    local buf = picker.input.win.buf
                     set_prompt(picker, item.file:gsub("//", "/"))
                 end
             },

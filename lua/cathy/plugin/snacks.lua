@@ -1,24 +1,6 @@
 require("cathy.utils.snacks.set_ui_select")
 local from_snacks = require("cathy.utils.snacks.from_snacks")
-
-local f = require("cathy.utils.snacks.format")
-
-local cb_maker = function (picker_type, opts)
-    return function (picker, item)
-        picker:close()
-        opts = vim.tbl_deep_extend("force", opts or {}, { cwd = item.file })
-        Snacks.picker[picker_type](opts)
-    end
-end
-
-local with_layout = function (p)
-    return function (opts)
-        return vim.tbl_deep_extend("force", { layout = p }, opts or {})
-    end
-end
-
-local nopreview = with_layout { preview = false }
-local mainprevw = with_layout { preview = "main" }
+local picker_opts = require("cathy.utils.snacks.picker_opts")
 
 local picker_mappings = {
     undo         = "<leader>u",
@@ -34,56 +16,6 @@ local picker_mappings = {
     spelling     = "z=",
     projects     = "<leader>fp",
     explorer     = "<leader>fe"
-}
-
-local picker_opts = {
-    resume       = { desc = "resume" },
-    explorer     = { desc = "explorer" },
-    find_file    = { prompt = " Find file :: ",              desc = "find file" },
-    jumps        = { prompt = " Jumps :: ",                  desc = "jumps" },
-    spelling     = { prompt = " Spelling :: ",               desc = "spell suggestion", layout = { preset = "ivy_noprev" } },
-    undo         = mainprevw { prompt = " Undo :: ",         desc = "undo" },
-    lazy         = nopreview { prompt = " Lazy :: ",         desc = "lazy declarations" },
-    grep         = nopreview { prompt = " Grep :: ",         desc = "grep" },
-    grep_buffers = nopreview { prompt = " Grep Buffers :: ", desc = "grep current file" },
-    help         = nopreview { prompt = " Help Tags :: ",    desc = "help" },
-    grep_word    = nopreview { prompt = ">>= Grep :: ",      desc = "cursor grep" },
-    smart        = nopreview {
-        prompt = " Files :: ",
-        desc = "files",
-        multi = { "buffers", "files" },
-        actions = {
-            open_buffers = function (picker)
-                Snacks.picker.buffers(nopreview {
-                    prompt = " Buffers :: "
-                })
-            end
-        },
-        win = {
-            input = {
-                keys = {
-                    ["<c-space>"] = { "open_buffers", mode = { "n", "i" }, desc = "Open buffers" }
-                }
-            }
-        }
-    },
-    projects = nopreview {
-        prompt = " Projects :: ",
-        dev = { "~/polygon", "~/langs", "~/Repositories/" },
-        format = f,
-        desc = "projects",
-        actions = {
-            ["picker_grep"]   = cb_maker("grep",   nopreview { prompt = " Grep :: " }),
-            ["picker_files"]  = cb_maker("files",  nopreview { prompt = " Find Files :: " }),
-            ["picker_recent"] = cb_maker("recent", nopreview { prompt = " Oldfiles :: ", format = f }),
-        },
-        confirm = function (picker, item)
-            local result = item.text
-            picker:close()
-            vim.cmd.cd(result)
-            vim.cmd.edit(result)
-        end,
-    },
 }
 
 local picks = setmetatable({
