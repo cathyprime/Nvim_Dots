@@ -232,7 +232,15 @@ return function (opts)
 
                 return ret
             end,
-            confirm = function(picker, item)
+            confirm = function(picker, item, action)
+                local edit_cmd = {
+                    edit    = "buffer",
+                    split   = "sp",
+                    vsplit  = "vert sp",
+                    tab     = "tabnew",
+                    drop    = "drop",
+                    tabdrop = "tab drop",
+                }
                 local result
                 if not item or not item.match_topk then
                     result = get_prompt(picker)
@@ -253,6 +261,11 @@ return function (opts)
                 }
                 if cd_chars[string.sub(result, -1)] then
                     vim.cmd.cd(result)
+                end
+                local edit = edit_cmd[action.cmd]
+                if edit then
+                    vim.cmd(edit .. " | Oil" .. result)
+                    return
                 end
                 vim.cmd.edit(result)
             end,
