@@ -51,15 +51,13 @@ local picker_opts = {
         },
         actions = {
             open_find_file = function (picker)
-                local cwd = picker:cwd()
+                local cwd = picker:cwd() .. "/"
                 picker:close()
-                local find_file = require("cathy.utils.snacks.find_file")
-                vim.schedule(function ()
-                    find_file {
-                        prompt = " Find file :: ",
-                        cwd = cwd
-                    }
-                end)
+                local find_file = require("cathy.utils.snacks.find_file")({
+                    prompt = " Find file :: ",
+                    cwd = cwd
+                })
+                find_file()
             end
         }
     },
