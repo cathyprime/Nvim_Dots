@@ -75,67 +75,13 @@ return {
         },
     },
     {
-        "folke/noice.nvim",
+        "jake-stewart/auto-cmdheight.nvim",
         lazy = false,
-        keys = {
-            { "<leader>n", "<cmd>Noice<cr>" }
-        },
         opts = {
-            routes = {
-                {
-                    filter = {
-                        event = "msg_show",
-                        cmdline = ":grep"
-                    },
-                    opts = { skip = true }
-                }
-            },
-            views = {
-                confirm = {
-                    position = {
-                        row = math.floor(vim.opt.lines:get() * .80)
-                    }
-                },
-                cmdline_popup = {
-                    position = {
-                        row = math.floor(vim.opt.lines:get() * .90)
-                    }
-                },
-            },
-            presets = {
-                bottom_search = true,
-                lsp_doc_border = true,
-                long_message_to_split = true,
-            },
-            cmdline = {
-                view = "cmdline",
-                format = {
-                    search_down = { conceal = false },
-                    search_up = { conceal = false },
-                    cmdline = { conceal = false },
-                    filter = { conceal = false },
-                    input = { conceal = false },
-                    help = { conceal = false },
-                    lua = { conceal = false },
-                }
-            },
-            lsp = {
-                override = {
-                    ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
-                    ["vim.lsp.util.stylize_markdown"] = true,
-                },
-                signature = {
-                    enabled = true,
-                    auto_open = {
-                        enabled = false,
-                        trigger = false,
-                        luasnip = false
-                    }
-                },
-                progress = { enabled = true },
-                message = { enabled = true },
-                hover = { enabled = true },
-            },
+            max_lines = 5,
+            duration = 2,
+            remove_on_key = true,
+            clear_always = false,
         }
-    },
+    }
 }

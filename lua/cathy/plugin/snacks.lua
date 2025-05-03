@@ -45,17 +45,6 @@ local with_pickers = function (keys)
     return keys
 end
 
-local old_print = _G.print
-
-print = function (...)
-    local print_safe_args = {}
-    local _ = { ... }
-    for i = 1, #_ do
-        table.insert(print_safe_args, tostring(_[i]))
-    end
-    vim.notify(table.concat(print_safe_args, ' '), "info")
-end
-
 return {
     "folke/snacks.nvim",
     lazy = false,
