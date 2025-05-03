@@ -33,20 +33,22 @@ local function log(msg)
         out = out .. " " .. title
     end
 
-    if message ~= "" then
-        if title ~= "" and vim.startswith(message, title) then
-            message = string.sub(message, string.len(title) + 1)
-        end
+    if message == "" then
+        return
+    end
 
-        message = message:gsub("%s*%d+%%", '')
-        message = message:gsub("^%s*-", '')
-        message = vim.trim(message)
-        if message ~= "" then
-            if title ~= "" then
-                out = out .. " - " .. message
-            else
-                out = out .. " " .. message
-            end
+    if title ~= "" and vim.startswith(message, title) then
+        message = string.sub(message, string.len(title) + 1)
+    end
+
+    message = message:gsub("%s*%d+%%", '')
+    message = message:gsub("^%s*-", '')
+    message = vim.trim(message)
+    if message ~= "" then
+        if title ~= "" then
+            out = out .. " - " .. message
+        else
+            out = out .. " " .. message
         end
     end
 
@@ -64,40 +66,47 @@ local function lsp_progress(err, progress, ctx)
     local token = progress.token
     local value = progress.value
 
-    if value.kind == "begin" then
-        series[token] = {
-            client = client_name,
-            title = value.title or "",
-            message = value.message or "",
-            percentage = value.percentage or 0,
-        }
+    local action = {
+        ["begin"] = function ()
+            series[token] = {
+                client = client_name,
+                title = value.title or "",
+                message = value.message or "",
+                percentage = value.percentage or 0,
+            }
 
-        local cur = series[token]
-        log({
-            client = cur.client,
-            title = cur.title,
-            message = cur.message .. " - Starting",
-            percentage = cur.percentage,
-        })
-    elseif value.kind == "report" then
-        local cur = series[token]
-        log({
-            client = client_name or (cur and cur.client),
-            title = value.title or (cur and cur.title),
-            message = value.message or (cur and cur.message),
-            percentage = value.percentage or (cur and cur.percentage),
-        })
-    elseif value.kind == "end" then
-        local cur = series[token]
-        local msg = value.message or (cur and cur.message)
-        msg = msg and msg .. " - Done" or 'Done'
-        log({
-            client = client_name or (cur and cur.client),
-            title = value.title or (cur and cur.title),
-            message = msg,
-        })
-        series[token] = nil
-        clear()
+            local cur = series[token]
+            log({
+                client = cur.client,
+                title = cur.title,
+                message = cur.message .. " - Starting",
+                percentage = cur.percentage,
+            })
+        end,
+        ["report"] = function ()
+            local cur = series[token]
+            log({
+                client = client_name or (cur and cur.client),
+                title = value.title or (cur and cur.title),
+                message = value.message or (cur and cur.message),
+                percentage = value.percentage or (cur and cur.percentage),
+            })
+        end,
+        ["end"] = function ()
+            local cur = series[token]
+            local msg = value.message or (cur and cur.message)
+            msg = msg and msg .. " - Done" or 'Done'
+            log({
+                client = client_name or (cur and cur.client),
+                title = value.title or (cur and cur.title),
+                message = msg,
+            })
+            series[token] = nil
+        end,
+    }
+
+    if action[value.kind] then
+        action[value.kind]()
     end
 end
 

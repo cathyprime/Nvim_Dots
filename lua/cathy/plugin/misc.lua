@@ -79,7 +79,7 @@ return {
         lazy = false,
         opts = {
             max_lines = 5,
-            duration = 2,
+            duration = 3,
             remove_on_key = true,
             clear_always = false,
         }
