@@ -2,6 +2,21 @@ local function augroup(name)
     return vim.api.nvim_create_augroup(string.format("Magda_%s", name), { clear = true })
 end
 
+vim.api.nvim_create_autocmd({ "CmdlineEnter" }, {
+    callback = function()
+        local old_msgopt = vim.opt.messagesopt
+        vim.opt.messagesopt = "hit-enter,history:1000"
+        vim.api.nvim_create_autocmd({ "CursorHold", "CursorMoved" }, {
+            callback = function()
+                vim.opt.messagesopt = old_msgopt
+            end,
+            once = true,
+            group = augroup("Cmdline"),
+        })
+    end,
+    group = general,
+})
+
 local save_sudo = function (e)
     vim.api.nvim_create_autocmd("BufWriteCmd", {
         buffer = e.buf,

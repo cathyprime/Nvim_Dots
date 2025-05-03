@@ -32,6 +32,40 @@ local lsp_workspace_symbols = function ()
     Snacks.picker.lsp_workspace_symbols({ prompt = " Workspace Symbols :: " })
 end
 
+local hover = function ()
+    local original_win = vim.api.nvim_get_current_win()
+    local original_buf = vim.api.nvim_get_current_buf()
+    local hover_ns = vim.api.nvim_create_namespace("nvim.lsp.hover_range")
+
+    vim.api.nvim_create_autocmd("BufWinEnter", {
+        once = true,
+        callback = function (e)
+            local win_id = vim.api.nvim_get_current_win()
+            vim.api.nvim_create_autocmd("CursorMoved", {
+                once = true,
+                callback = function (e)
+                    if vim.api.nvim_get_current_win() == win_id then
+                        return true
+                    end
+
+                    vim.api.nvim_buf_clear_namespace(original_buf, hover_ns, 0, -1)
+                    if vim.api.nvim_win_is_valid(win_id) then
+                        local config = vim.api.nvim_win_get_config(win_id)
+                        if config.relative ~= "" then
+                            vim.api.nvim_buf_delete(vim.api.nvim_win_get_buf(win_id), {})
+                            vim.lsp.buf.clear_references()
+                        end
+                    end
+                end
+            })
+        end
+    })
+    vim.lsp.buf.hover {
+        border = "rounded",
+        close_events = {}
+    }
+end
+
 local attach = function(client, bufnr, alt_keys)
     local opts = { buffer = bufnr }
     local frop = vim.tbl_deep_extend("force", { desc = "references" }, opts)
@@ -43,7 +77,7 @@ local attach = function(client, bufnr, alt_keys)
     vim.keymap.set("n", "<leader>cc", alt_keys and alt_keys.rename                or vim.lsp.buf.rename,         opts)
     vim.keymap.set("n", "<c-]>",      alt_keys and alt_keys.definition            or vim.lsp.buf.definition,     opts)
     vim.keymap.set("i", "<c-h>",      alt_keys and alt_keys.signature_help        or vim.lsp.buf.signature_help, opts)
-    vim.keymap.set("n", "K",          alt_keys and alt_keys.hover                 or vim.lsp.buf.hover,          opts)
+    vim.keymap.set("n", "K",          alt_keys and alt_keys.hover                 or hover,                      opts)
     vim.keymap.set("n", "<leader>fs", alt_keys and alt_keys.lsp_document_symbols  or lsp_document_symbols,       fsop)
     vim.keymap.set("n", "<leader>fS", alt_keys and alt_keys.lsp_workspace_symbols or lsp_workspace_symbols,      fSop)
 
