@@ -67,7 +67,7 @@ return {
         },
         terminal = {},
         bigfile = {
-            notify = true,
+            notify = false,
             size = 1.5 * 1024 * 1024,
         },
         git = {},
