@@ -34,13 +34,6 @@ local picker_opts = {
         prompt = " Files :: ",
         desc = "files",
         multi = { "buffers", "files" },
-        actions = {
-            open_buffers = function (picker)
-                Snacks.picker.buffers(nopreview {
-                    prompt = " Buffers :: "
-                })
-            end
-        },
         win = {
             input = {
                 keys = {
@@ -50,6 +43,11 @@ local picker_opts = {
             }
         },
         actions = {
+            open_buffers = function (picker)
+                Snacks.picker.buffers(nopreview {
+                    prompt = " Buffers :: "
+                })
+            end,
             open_find_file = function (picker)
                 local cwd = picker:cwd() .. "/"
                 picker:close()

@@ -1,9 +1,9 @@
-local picker_opts = require("cathy.utils.snacks.picker_opts")
 local ns = vim.api.nvim_create_namespace("Magda_Find_File")
 local home = os.getenv("HOME")
 
 local picker_gen = function (kind)
     return function (picker, item)
+        local picker_opts = require("cathy.utils.snacks.picker_opts")
         if not item then
             return
         end
