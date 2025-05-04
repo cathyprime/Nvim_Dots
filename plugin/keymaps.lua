@@ -118,15 +118,4 @@ vim.keymap.set({ "n", "x" }, "gs", "<Plug>(substitute)")
 vim.keymap.set("n", "gss", "<Plug>(substitute-linewise)")
 vim.keymap.set("n", "gS", "<Plug>(substitute-file)")
 
-vim.keymap.set("n", ":", function ()
-    vim.api.nvim_create_autocmd("CmdlineLeave", {
-        pattern = "*",
-        callback = function ()
-            vim.opt.cmdheight = 0
-        end
-    })
-    vim.opt.cmdheight = 1
-    vim.fn.feedkeys(":", "n")
-end)
-
 vim.keymap.set("n", "<leader>r", require("cathy.tasks"), { desc = "Tasks" })
