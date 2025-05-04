@@ -16,7 +16,7 @@ local layouts = {
             { id = "console", size = 0.55 },
             { id = "breakpoints", size = 0.15 },
         },
-        size = 40,
+        size = 70,
         position = "left",
     },
     make_simple_layout {
@@ -59,7 +59,7 @@ return {
         ---@diagnostic disable-next-line: different-requires
         dap.configurations = require("cathy.config.dap").configurations
         ---@diagnostic disable-next-line: different-requires
-        dap.adapaters      = require("cathy.config.dap").adapaters
+        dap.adapters       = require("cathy.config.dap").adapters
 
         ---@diagnostic disable-next-line
         dapui.setup({
@@ -86,14 +86,14 @@ return {
         end
 
         local hint = [[
- _n_: step over   _J_: to cursor  _<cr>_: Breakpoint
- _i_: step into   _X_: Quit        _B_: Condition breakpoint ^
- _o_: step out    _K_: Float       _L_: Log breakpoint
- _b_: step back   _W_: Watch       _u_: Toggle additional UI
+ _o_: step over   _J_: to cursor  _<cr>_: Breakpoint
+ _m_: step into   _X_: Quit        _B_: Condition breakpoint ^
+ _q_: step out    _K_: Float       _L_: Log breakpoint
+         _W_: Watch            _u_: Toggle additional UI
          _\^_: Prev layout     _$_: Next layout
  ^ ^            ^                 ^  ^
- ^ ^ _C_: Continue/Start          ^  ^   Change window
- ^ ^ _R_: Reverse continue        ^  ^       _<c-k>_^
+ ^ ^ _c_: Continue/Start          ^  ^   Change window
+ ^ ^                              ^  ^       _<c-k>_^
  ^ ^            ^                 ^  _<c-h>_ ^     ^ _<c-l>_
  ^ ^     _<esc>_: exit            ^  ^       _<c-j>_^
  ^ ^            ^
@@ -103,6 +103,13 @@ return {
             hint = hint,
             config = {
                 color = "pink",
+                on_enter = function ()
+                    indexer.current = 2
+                    pcall(dapui.open, { layout = indexer.current })
+                end,
+                on_exit = function ()
+                    pcall(dapui.close)
+                end,
                 hint = {
                     position = "middle-right",
                     float_opts = {
@@ -111,7 +118,7 @@ return {
                 },
             },
             name = "dap",
-            mode = { "n", "x" },
+            mode = { "n" },
             heads = {
                 { "<cr>", function() dap.toggle_breakpoint() end, { silent = true } },
                 { "B", function() dap.set_breakpoint(vim.fn.input("Breakpoint condition: ")) end, { silent = true }},
@@ -120,26 +127,16 @@ return {
                         dap.set_breakpoint(nil, nil, input)
                     end)
                 end, { silent = false } },
-                { "i", function() dap.step_into() end, { silent = false } },
-                { "n", function() dap.step_over() end, { silent = false } },
-                { "o", function() dap.step_out() end, { silent = false } },
-                { "b", function() dap.step_back() end, { silent = false } },
-                { "R", function() dap.reverse_continue() end, { silent = false } },
-                { "W", function() dapui.elements.watches.add(vim.fn.expand("<cword>")) end, { silent = false } },
+                { "m", function() dap.step_into() end, { silent = true, nowait = true } },
+                { "o", function() dap.step_over() end, { silent = true } },
+                { "q", function() dap.step_out() end, { silent = true } },
+                { "W", function() dapui.elements.watches.add(vim.fn.expand("<cword>")) end, { silent = true } },
                 { "^", function ()
-                    local ok, _ = pcall(dapui.toggle, { layout = indexer.current })
-                    if not ok then
-                        vim.notify("no active session", vim.log.levels.INFO)
-                        return
-                    end
+                    pcall(dapui.close, { layout = indexer.current })
                     dapui.open({ layout = indexer:prev() })
                 end },
                 { "$", function ()
-                    local ok, _ = pcall(dapui.toggle, { layout = indexer.current })
-                    if not ok then
-                        vim.notify("no active session", vim.log.levels.INFO)
-                        return
-                    end
+                    pcall(dapui.close, { layout = indexer.current })
                     dapui.open({ layout = indexer:next() })
                 end },
                 { "u", function()
@@ -148,7 +145,7 @@ return {
                         vim.notify("no active session", vim.log.levels.INFO)
                     end
                 end, { silent = false } },
-                { "C", function() dap.continue() end, { silent = false } },
+                { "c", function() dap.continue() end, { silent = true } },
                 { "K", function()
                     dapui.float_element(nil, {
                         width = 100,
@@ -156,9 +153,9 @@ return {
                         position = "center",
                         enter = true
                     })
-                end, { silent = false } },
-                { "J", function() dap.run_to_cursor() end, { silent = false } },
-                { "X", function() dap.disconnect({ terminateDebuggee = false }) end, { silent = false } },
+                end, { silent = true } },
+                { "J", function() dap.run_to_cursor() end, { silent = true } },
+                { "X", function() dap.disconnect({ terminateDebuggee = false }) end, { silent = true } },
                 { "<c-h>", "<c-w><c-h>", { silent = true } },
                 { "<c-j>", "<c-w><c-j>", { silent = true } },
                 { "<c-k>", "<c-w><c-k>", { silent = true } },

@@ -4,7 +4,7 @@ local cache = {
 }
 
 return {
-    adapaters = {
+    adapters = {
         netcoredbg = {
             type = "executable",
             command = "netcoredbg",
