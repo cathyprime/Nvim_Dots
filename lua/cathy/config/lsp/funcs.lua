@@ -45,7 +45,7 @@ local hover = function ()
                 once = true,
                 callback = function (e)
                     if vim.api.nvim_get_current_win() == win_id then
-                        return true
+                        return
                     end
 
                     vim.api.nvim_buf_clear_namespace(original_buf, hover_ns, 0, -1)
@@ -53,7 +53,6 @@ local hover = function ()
                         local config = vim.api.nvim_win_get_config(win_id)
                         if config.relative ~= "" then
                             vim.api.nvim_buf_delete(vim.api.nvim_win_get_buf(win_id), {})
-                            vim.lsp.buf.clear_references()
                         end
                     end
                 end
