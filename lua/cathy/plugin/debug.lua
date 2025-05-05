@@ -10,31 +10,26 @@ local make_simple_layout = function (opts)
 end
 
 local layouts = {
-    {
-        elements = {
-            { id = "watches", size = 0.30},
-            { id = "console", size = 0.55 },
-            { id = "breakpoints", size = 0.15 },
-        },
-        size = 70,
-        position = "left",
-    },
     make_simple_layout {
         left = "watches",
-        right = "console"
+        right = "console",
+        position = "right",
+        height = 60
     },
     make_simple_layout {
         left = "scopes",
         right = "stacks",
+        position = "right",
+        height = 60
     },
 }
 
 local clamp = function (idx)
-    return ((idx - 2) % (#layouts - 1)) + 2
+    return ((idx - 1) % #layouts) + 1
 end
 
 local indexer = {
-    current = 2,
+    current = 1,
     next = function (self)
         self.current = clamp(self.current + 1)
         return self.current
@@ -89,11 +84,11 @@ return {
  _o_: step over   _J_: to cursor  _<cr>_: Breakpoint
  _m_: step into   _X_: Quit        _B_: Condition breakpoint ^
  _q_: step out    _K_: Float       _L_: Log breakpoint
-         _W_: Watch            _u_: Toggle additional UI
-         _\^_: Prev layout     _$_: Next layout
+ ^ ^              _W_: Watch
  ^ ^            ^                 ^  ^
+   _\^_: Prev layout                  _$_: Next layout
  ^ ^ _c_: Continue/Start          ^  ^   Change window
- ^ ^                              ^  ^       _<c-k>_^
+ ^ ^                              ^  ^     _<c-k>_^
  ^ ^            ^                 ^  _<c-h>_ ^     ^ _<c-l>_
  ^ ^     _<esc>_: exit            ^  ^       _<c-j>_^
  ^ ^            ^
@@ -104,14 +99,16 @@ return {
             config = {
                 color = "pink",
                 on_enter = function ()
+                    vim.g.debug_mode = true
                     indexer.current = 2
                     pcall(dapui.open, { layout = indexer.current })
                 end,
                 on_exit = function ()
+                    vim.g.debug_mode = nil
                     pcall(dapui.close)
                 end,
                 hint = {
-                    position = "middle-right",
+                    position = "bottom",
                     float_opts = {
                         border = "rounded",
                     }
