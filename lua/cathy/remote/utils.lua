@@ -3,12 +3,12 @@ local remote_group = vim.api.nvim_create_augroup("Magda_Remote", { clear = true 
 vim.g.remote_path = nil
 
 local log = {
-    info = function (msg)
+    info = vim.schedule_wrap(function (msg)
         vim.notify(msg, vim.log.levels.INFO)
-    end,
-    err = function (msg)
+    end),
+    err = vim.schedule_wrap(function (msg)
         vim.notify(msg, vim.log.levels.ERROR)
-    end
+    end)
 }
 
 local create_if_not_exists = function (path)
@@ -126,7 +126,7 @@ end
 
 local get_path = function (hostname)
     local ok, path = pcall(vim.fn.input, {
-        prompt = hostname .. " path to mount",
+        prompt = hostname .. " path to mount ",
         default = get_default(hostname),
         cancelreturn = 10
     })
