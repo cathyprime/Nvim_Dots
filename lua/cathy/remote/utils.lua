@@ -39,6 +39,7 @@ local cmd = {
             "sshfs",
             "-o", "ControlMaster=auto",
             "-o", "ControlPersist=60",
+            "-o", "dir_cache=yes",
             "-o", ControlPath(tbl.escape),
             tbl.hostname .. ":" .. tbl.path,
             get_sshfs_path_or_create(tbl.hostname)
@@ -67,7 +68,7 @@ local get_default = function (hostname)
     local state = create_if_not_exists(vim.fn.stdpath("state") .. "/remote")
     local file_name = state .. "/default_paths"
     if not vim.uv.fs_stat(file_name) then
-        return ""
+        return
     end
     local file = assert(io.open(file_name))
     local defaults = vim.iter(file:lines())
@@ -85,7 +86,7 @@ local get_default = function (hostname)
 
     local next = defaults:next()
     if not next then
-        return ""
+        return
     end
     return next[2]
 end
@@ -124,20 +125,22 @@ local save_default = function (hostname, path)
     vim.fn.writefile(lines, file_name)
 end
 
-local get_path = function (hostname)
-    local ok, path = pcall(vim.fn.input, {
-        prompt = hostname .. " path to mount ",
-        default = get_default(hostname),
-        cancelreturn = 10
-    })
-    if ok and path ~= 10 then
+local get_path = function (hostname, cb)
+    local f = function (path)
+        if not path then
+            log.err("error getting path")
+            return
+        end
         save_default(hostname, path)
-        return path
+        cb(path)
     end
-    if path == 10 then
-        return
-    end
-    return ""
+
+    vim.schedule(function ()
+        vim.ui.input({
+            prompt = hostname .. " path to mount ",
+            default = get_default(hostname),
+        }, f)
+    end)
 end
 
 local mount = function (tbl)
@@ -152,26 +155,29 @@ local mount = function (tbl)
         end
     end
 
-    if not tbl.path then
-        tbl.path = get_path(tbl.hostname)
-    end
-
-    if not tbl.path then
-        return
-    end
-
-    tbl.cmd = cmd.sshfs(tbl)
-    vim.system(tbl.cmd, tbl.opts, function (result)
-        if result.code == 0 then
-            log.info("Connected to host: " .. tbl.hostname)
-            if tbl.cb then tbl.cb() end
-            vim.g.remote_path = tbl.path ~= "" and tbl.path or "~/"
-            vim.g.remote_connected_hostname = tbl.hostname
-            return
-        end
-        log.err("Failed to connect to " .. tbl.hostname)
-        log.err(result.stderr)
+    local on_path = vim.schedule_wrap(function (path)
+        tbl.path = path
+        tbl.cmd = cmd.sshfs(tbl)
+        log.info("Trying to mount...")
+        local f = vim.schedule_wrap(function (result)
+            if result.code == 0 then
+                log.info("Mounted host: " .. tbl.hostname)
+                if tbl.cb then tbl.cb() end
+                vim.g.remote_path = tbl.path ~= "" and tbl.path or "~/"
+                vim.g.remote_connected_hostname = tbl.hostname
+                return
+            end
+            log.err("Failed mount " .. tbl.hostname)
+            log.err(result.stderr)
+        end)
+        vim.system(tbl.cmd, tbl.opts, f)
     end)
+
+    if not tbl.path then
+        get_path(tbl.hostname, on_path)
+    else
+        on_path(tbl.path)
+    end
 end
 
 local in_term = function(hostname, cb)
@@ -280,8 +286,10 @@ local connect = function (hostname, path, cb)
                 end
             end
         )
+        log.info("Connecting to mounted filesystem")
         return
     end
+    log.info("Connecting to: " .. hostname)
     vim.system(cmd.ssh(hostname), {}, function (result)
         if result.code == 0 then
             mount {

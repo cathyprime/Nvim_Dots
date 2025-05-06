@@ -18,6 +18,7 @@ vim.api.nvim_create_user_command("Remote",
             local arg_funcs = {
                 connect = function ()
                     if vim.g.remote_connected_hostname then
+                        vim.notify("Already connected, can't connect again", vim.log.levels.ERROR)
                         return
                     end
                     if not opts.fargs[2] then
@@ -28,12 +29,14 @@ vim.api.nvim_create_user_command("Remote",
                 end,
                 disconnect = function ()
                     if not vim.g.remote_connected_hostname then
+                        vim.notify("Not connected; can't disconnect", vim.log.levels.ERROR)
                         return
                     end
                     utils.disconnect(vim.g.remote_connected_hostname)
                 end,
                 cd = function ()
                     if not vim.g.remote_connected_hostname then
+                        vim.notify("Not connected; can't cd", vim.log.levels.ERROR)
                         return
                     end
                     local hostname = vim.g.remote_connected_hostname
