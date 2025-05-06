@@ -34,14 +34,14 @@ end
 
 local prompt = {
     query = function ()
-        return "Query replace in region"
+        return "Query replace in region :: "
     end,
     replace = function ()
-        local prmpt = "Query replacing "
+        local prmpt = "Query replace in region :: "
         if cache.query then
-            prmpt = prmpt .. [["]] .. cache.query .. [[" ]]
+            prmpt = prmpt .. cache.query
         end
-        return prmpt .. "with"
+        return prmpt .. " >>= "
     end
 }
 
