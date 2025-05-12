@@ -79,13 +79,14 @@ local highlights = {
             end
             local basepath = home .. "/.sshfs/"
             local hostname = captures[1]
+            local prompt_len = #(vim.api.nvim_buf_get_lines(picker.input.win.buf, 0, -1, false)[1])
             extmark_id = vim.api.nvim_buf_set_extmark(
                 picker.input.win.buf, ns, 0, 0, {
                     id = extmark_id,
-                    end_col = #captures[1] + #basepath,
+                    end_col = math.min(#captures[1] + #basepath, prompt_len),
                     hl_group = "Normal",
                     virt_text = {
-                        { "sshfs@" .. hostname .. ":" .. vim.g.remote_path, "Normal" }
+                        { "sshfs@" .. hostname .. ":" .. (vim.g.remote_path or "~"), "Normal" }
                     },
                     virt_text_pos = "inline",
                     conceal = "",
