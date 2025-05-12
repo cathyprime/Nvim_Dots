@@ -128,7 +128,6 @@ end
 local get_path = function (hostname, cb)
     local f = function (path)
         if not path then
-            log.err("error getting path")
             return
         end
         save_default(hostname, path)
@@ -137,7 +136,7 @@ local get_path = function (hostname, cb)
 
     vim.schedule(function ()
         vim.ui.input({
-            prompt = hostname .. " path to mount ",
+            prompt = hostname .. " path to mount :: ",
             default = get_default(hostname),
         }, f)
     end)
@@ -147,7 +146,7 @@ local mount = function (tbl)
     tbl.opts = { detach = true }
 
     if tbl.with_pass then
-        local password = vim.fn.inputsecret("Enter password for " .. tbl.hostname .. ": ")
+        local password = vim.fn.inputsecret("Enter password for " .. tbl.hostname .. " :: ")
         if password and password ~= "" then
             tbl.opts = { stdin = password }
         else
@@ -167,7 +166,7 @@ local mount = function (tbl)
                 vim.g.remote_connected_hostname = tbl.hostname
                 return
             end
-            log.err("Failed mount " .. tbl.hostname)
+            log.err("Failed mounting " .. tbl.hostname)
             log.err(result.stderr)
         end)
         vim.system(tbl.cmd, tbl.opts, f)
