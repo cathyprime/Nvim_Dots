@@ -162,7 +162,7 @@ local mount = function (tbl)
             if result.code == 0 then
                 log.info("Mounted host: " .. tbl.hostname)
                 if tbl.cb then tbl.cb() end
-                vim.g.remote_path = tbl.path ~= "" and tbl.path or "~/"
+                vim.g.remote_path = tbl.path ~= "" and tbl.path or "~"
                 vim.g.remote_connected_hostname = tbl.hostname
                 return
             end

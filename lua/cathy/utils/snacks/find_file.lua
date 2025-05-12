@@ -1,5 +1,6 @@
 local ns = vim.api.nvim_create_namespace("Magda_Find_File")
 local home = os.getenv("HOME")
+local extmark_id = nil
 
 local picker_gen = function (kind)
     return function (picker, item)
@@ -53,9 +54,66 @@ local find_cmds = {
     end
 }
 
+local home_conceal = function (captures, picker)
+    extmark_id = vim.api.nvim_buf_set_extmark(
+        picker.input.win.buf, ns, 0, 0, {
+            id = extmark_id,
+            end_col = #home,
+            hl_group = "Normal",
+            virt_text = {
+                { "~", "Normal" }
+            },
+            virt_text_pos = "inline",
+            conceal = "",
+        }
+    )
+end
+
+local highlights = {
+    {
+        pattern = home .. "/.sshfs/([^/]+)",
+        func = function (captures, picker)
+            if not vim.g.remote_connected_hostname then
+                home_conceal(captures, picker)
+                return
+            end
+            local basepath = home .. "/.sshfs/"
+            local hostname = captures[1]
+            extmark_id = vim.api.nvim_buf_set_extmark(
+                picker.input.win.buf, ns, 0, 0, {
+                    id = extmark_id,
+                    end_col = #captures[1] + #basepath,
+                    hl_group = "Normal",
+                    virt_text = {
+                        { "sshfs@" .. hostname .. ":" .. vim.g.remote_path, "Normal" }
+                    },
+                    virt_text_pos = "inline",
+                    conceal = "",
+                }
+            )
+        end,
+    },
+    {
+        pattern = home .. ".*",
+        func = home_conceal,
+    }
+}
+
+local match_path = function (path)
+    for _, entry in ipairs(highlights) do
+        local captures = { path:match(entry.pattern) }
+        if #captures > 0 then
+            return function (picker)
+                entry.func(captures, picker)
+            end
+        end
+    end
+
+    return nil
+end
+
 return function (opts)
     local prev_wd
-    local extmark_id = nil
 
     local function get_files(path)
         local stdout = find_cmds[fd_exec()](path)
@@ -66,19 +124,8 @@ return function (opts)
     local set_prompt = function (picker, new_prompt)
         picker:set_cwd(new_prompt)
         vim.api.nvim_buf_set_lines(picker.input.win.buf, 0, -1, false, { new_prompt })
-        if new_prompt:match(home .. ".*") then
-            extmark_id = vim.api.nvim_buf_set_extmark(
-                picker.input.win.buf, ns, 0, 0, {
-                    id = extmark_id,
-                    end_col = #home,
-                    virt_text = {
-                        { "~", "Normal" }
-                    },
-                    virt_text_pos = "inline",
-                    conceal = "",
-                }
-            )
-        end
+        local f = match_path(new_prompt)
+        if f then f(picker) end
         vim.api.nvim_win_set_cursor(picker.input.win.win, { 1, #new_prompt })
         picker:find()
     end
@@ -115,24 +162,12 @@ return function (opts)
                 if prompt == "" then
                     prompt = "/"
                 end
-                if prompt:match(home .. ".*") then
-                    extmark_id = vim.api.nvim_buf_set_extmark(
-                        picker.input.win.buf, ns, 0, 0, {
-                            id = extmark_id,
-                            end_col = #home,
-                            hl_group = "Normal",
-                            virt_text = {
-                                { "~", "Normal" }
-                            },
-                            virt_text_pos = "inline",
-                            conceal = "",
-                        }
-                    )
-                end
                 if picker:cwd() ~= prev_wd then
                     prev_wd = picker:cwd()
                     prompt = vim.fn.fnamemodify(prompt, ":h") .. "/"
                     picker:set_cwd(prompt)
+                    local f = match_path(prompt)
+                    if f then f(picker) end
                     picker:find()
                 end
             end,

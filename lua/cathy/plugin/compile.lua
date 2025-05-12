@@ -38,7 +38,6 @@ local function to_remote(args)
 
     local remote_utils = require("cathy.remote.utils")
     local mount_path = remote_utils.get_path(vim.g.remote_connected_hostname)
-
     local cwd = vim.fn.getcwd()
 
     if not vim.startswith(cwd, mount_path) then
@@ -52,7 +51,7 @@ local function to_remote(args)
 
     local remote_cwd = vim.g.remote_path .. "/" .. rel_path
     return assert(require("cathy.remote.utils").get_ssh_cmd(
-        string.format("cd %s && %s", remote_cwd, args)
+        args ~= "" and string.format("cd %s && %s", remote_cwd, args) or nil
     ))
 end
 
