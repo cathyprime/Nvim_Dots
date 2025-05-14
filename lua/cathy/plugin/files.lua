@@ -37,13 +37,12 @@ return {
                         vim.cmd.bdelete()
                     end
                 end, desc = "close buffer" },
-                ["<C-t>"] = "actions.open_terminal",
                 ["<C-q>"] = "actions.send_to_qflist",
                 ["gy"] = "actions.yank_entry",
-                ["<c-r><c-w>"] = { function()
+                ["!"] = { function()
                     local parsed_name = require("oil").get_cursor_entry().parsed_name
                     local ok, cmd = pcall(vim.fn.input, {
-                        prompt = string.format("execute on '%s': ", parsed_name),
+                        prompt = string.format("! on %s: ", parsed_name),
                         cancelreturn = nil,
                     })
                     if not ok or cmd == nil then return end
