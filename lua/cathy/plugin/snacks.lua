@@ -52,18 +52,14 @@ return {
     priority = 1000,
     opts = {
         styles = {
-            notification_history = {
+            input = {
+                backdrop = false,
+                position = "float",
                 border = "rounded",
-                zindex = 100,
-                width = 0.8,
-                height = 0.8,
-                minimal = false,
-                title = " Notification History ",
-                title_pos = "center",
-                ft = "markdown",
-                bo = { filetype = "snacks_notif_history", modifiable = false },
-                wo = { winhighlight = "Normal:SnacksNotifierHistory" },
-                keys = { q = "close" },
+                height = 1,
+                width = math.floor(vim.opt.columns:get() / 1.2),
+                relative = "editor",
+                row = vim.opt.lines:get() - 5,
             }
         },
         terminal = {},
@@ -81,6 +77,12 @@ return {
                     transparent = false
                 }
             }
+        },
+        input = {
+            icon = "",
+            icon_hl = "SnacksInputIcon",
+            icon_pos = "center",
+            prompt_pos = "left",
         },
         gitbrowse = {},
         picker = {
