@@ -103,7 +103,7 @@ local function get_cmd(opts, filter)
         vim.list_extend(dirs, Snacks.picker.util.rtp())
     end
     if #dirs > 0 then
-        dirs = vim.tbl_map(svim.fs.normalize, dirs) ---@type string[]
+        dirs = vim.tbl_map(vim.fs.normalize, dirs) ---@type string[]
         if is_fd and not pattern then
             args[#args + 1] = "."
         end
@@ -117,7 +117,7 @@ local function get_cmd(opts, filter)
         end
     end
 
-    return require("cathy.remote.utils").get_ssh_cmd(cmd), args
+    return require("cathy.remote.utils").get_ssh_cmd(cmd, opts.remote_cwd), args
 end
 
 
@@ -129,7 +129,7 @@ function M.files(opts, ctx)
     end
 
     local cwd = not (opts.rtp or (opts.dirs and #opts.dirs > 0))
-        and svim.fs.normalize(opts and opts.cwd or vim.uv.cwd() or ".")
+        and vim.fs.normalize(opts and opts.cwd or vim.uv.cwd() or ".")
         or nil
 
     for _, c in ipairs(to_check) do
@@ -144,10 +144,12 @@ function M.files(opts, ctx)
         return
     end
 
+    opts.remote_cwd = require("cathy.remote.utils").local_to_remote_path(cwd)
     local cmd, args = get_cmd(opts, ctx.filter)
     if not cmd then
         return function() end
     end
+
     if opts.debug.files then
         Snacks.notify(cmd .. " " .. table.concat(args or {}, " "))
     end

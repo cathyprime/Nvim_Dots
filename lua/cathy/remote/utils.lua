@@ -15,9 +15,9 @@ local get_ssh_cmd = function (remote_command, dir, hostname)
     if not remote_command and not dir then
         shell_expr = nil
     elseif remote_command then
-        shell_expr = (dir and ("cd '" .. dir .. "' && " .. remote_command)) or "$@"
+        shell_expr = (dir and ("cd " .. dir .. " && $@")) or "$@"
     else
-        shell_expr = (dir and ("cd '" .. dir .. "' && exec \\$SHELL -l")) or "exec \\$SHELL -l"
+        shell_expr = (dir and ("cd " .. dir .. " && exec \\$SHELL -l")) or "exec \\$SHELL -l"
     end
 
     if shell_expr then
