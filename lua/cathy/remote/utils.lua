@@ -2,6 +2,21 @@ local home_dir = os.getenv("HOME")
 local remote_group = vim.api.nvim_create_augroup("Magda_Remote", { clear = true })
 vim.g.remote_path = nil
 
+local autocmds = {
+    connected = vim.schedule_wrap(function (data)
+        vim.api.nvim_exec_autocmds("User", {
+            pattern = "RemoteConnected",
+            data = data
+        })
+    end),
+    disconnected = vim.schedule_wrap(function (data)
+        vim.api.nvim_exec_autocmds("User", {
+            pattern = "RemoteDisconnected",
+            data = data
+        })
+    end)
+}
+
 local get_ssh_cmd = function (remote_command, dir, hostname)
     if not vim.g.remote_connected_hostname and not hostname then
         return nil
@@ -214,9 +229,12 @@ local mount = function (tbl)
         local f = vim.schedule_wrap(function (result)
             if result.code == 0 then
                 log.info("Mounted host: " .. tbl.hostname)
-                if tbl.cb then tbl.cb() end
                 vim.g.remote_path = tbl.path ~= "" and tbl.path or get_remote_home(tbl.hostname)
                 vim.g.remote_connected_hostname = tbl.hostname
+                autocmds.connected {
+                    hostname = tbl.hostname,
+                    path = get_sshfs_path_or_create(tbl.hostname)
+                }
                 return
             end
             log.err("Failed mounting " .. tbl.hostname)
@@ -232,7 +250,7 @@ local mount = function (tbl)
     end
 end
 
-local in_term = function(hostname, cb)
+local in_term = function(hostname)
     local cmd = table.concat(cmd.sshfs { hostname = hostname, escape = true }, " ")
     local bufnr = vim.api.nvim_create_buf(false, true)
     local size = 0.50
@@ -262,7 +280,10 @@ local in_term = function(hostname, cb)
             if vim.v.event.status == 0 then
                 log.info("Connected to host: " .. hostname)
                 vim.cmd("bd!")
-                if cb then cb() end
+                autocmds.connected {
+                    hostname = hostname,
+                    path = get_sshfs_path_or_create(hostname)
+                }
                 return
             end
             vim.cmd("bd!")
@@ -278,7 +299,7 @@ local is_mounted = function (hostname)
     return mountpoint.code == 0 -- 0 = mountpoint, 32 = not a mountpoint
 end
 
-local disconnect = function (hostname, cb)
+local disconnect = function (hostname)
     vim.api.nvim_clear_autocmds({ group = remote_group })
     local cmd = {
         "fusermount3",
@@ -291,7 +312,9 @@ local disconnect = function (hostname, cb)
     vim.system(cmd, { detach = true }, function (result)
         if result.code == 0 then
             log.info("Disconnected from host: " .. hostname)
-            if cb then cb() end
+            autocmds.disconnected {
+                hostname = hostname
+            }
             vim.g.remote_path = nil
             vim.g.remote_connected_hostname = nil
             return
@@ -301,7 +324,7 @@ local disconnect = function (hostname, cb)
     end)
 end
 
-local connect = function (hostname, path, cb)
+local connect = function (hostname, path)
     if path then
         save_default(hostname, path)
     end
@@ -347,7 +370,6 @@ local connect = function (hostname, path, cb)
             mount {
                 hostname = hostname,
                 path = path,
-                cb = cb,
             }
             return
         end
@@ -358,14 +380,13 @@ local connect = function (hostname, path, cb)
                     hostname = hostname,
                     with_pass = true,
                     path = path,
-                    cb = cb,
                 }
             end)
             return
         end
 
         vim.schedule(function ()
-            in_term(hostname, cb)
+            in_term(hostname)
         end)
     end)
 end
