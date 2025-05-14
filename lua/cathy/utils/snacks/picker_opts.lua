@@ -1,4 +1,3 @@
-local from_snacks = require("cathy.utils.snacks.from_snacks")
 local f = require("cathy.utils.snacks.format")
 
 local cb_maker = function (picker_type, opts)

@@ -1,6 +1,7 @@
 require("cathy.utils.snacks.set_ui_select")
 local from_snacks = require("cathy.utils.snacks.from_snacks")
 local picker_opts = require("cathy.utils.snacks.picker_opts")
+local f = require("cathy.utils.snacks.format")
 
 local picker_mappings = {
     undo         = "<leader>u",
@@ -83,7 +84,12 @@ return {
         },
         gitbrowse = {},
         picker = {
-            sources = { explorer = { format = "file" } },
+            sources = {
+                explorer = { format = "file" },
+                files = {
+                    finder = require("cathy.utils.snacks.remote_files").files
+                }
+            },
             ui_select = false,
             icons = {
                 ui = {
