@@ -13,10 +13,11 @@ local remote_available = function (prog)
 end
 
 local function get_cmd(opts, filter)
-    local cmd, args = require("snacks.picker.source.files").get_cmd(opts.cmd_short)
+    local cmd, args = require("snacks.picker.source.files").get_cmd(opts.cmd)
     if not cmd or not args then
         return
     end
+    cmd = opts.cmd
     local is_fd, is_fd_rg, is_find, is_rg = cmd == "fd" or cmd == "fdfind", cmd ~= "find", cmd == "find", cmd == "rg"
 
 
@@ -116,8 +117,7 @@ local function get_cmd(opts, filter)
         end
     end
 
-
-    return cmd, args
+    return require("cathy.remote.utils").get_ssh_cmd(cmd), args
 end
 
 
@@ -134,12 +134,12 @@ function M.files(opts, ctx)
 
     for _, c in ipairs(to_check) do
         if remote_available(c) then
-            opts.cmd_short = c
+            opts.cmd = c
             break
         end
     end
 
-    if not opts.cmd_short then
+    if not opts.cmd then
         vim.notify("No supported finder found", vim.log.levels.ERROR)
         return
     end
@@ -151,11 +151,15 @@ function M.files(opts, ctx)
     if opts.debug.files then
         Snacks.notify(cmd .. " " .. table.concat(args or {}, " "))
     end
+    table.insert(args, 1, cmd)
     return require("snacks.picker.source.proc").proc({
         opts,
         {
-            cmd = cmd,
-            args = args,
+            cmd = "bash",
+            args = {
+                "-c",
+                table.concat(args, " ")
+            },
             notify = not opts.live,
             ---@param item snacks.picker.finder.Item
             transform = function(item)
