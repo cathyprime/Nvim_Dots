@@ -189,7 +189,7 @@ local get_path = function (hostname, cb)
 
     vim.schedule(function ()
         vim.ui.input({
-            prompt = hostname .. " path to mount :: ",
+            prompt = "remote path to mount :: ",
             default = get_default(hostname),
         }, f)
     end)
