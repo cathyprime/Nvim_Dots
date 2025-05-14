@@ -25,15 +25,18 @@ end
 
 local function oil_args(args)
     local dir = require("oil").get_current_dir(vim.api.nvim_get_current_buf())
-    if not dir then
-        return args
-    end
-    return string.format("-dir=%s %s", dir, args)
+    return args, dir
 end
 
-local function to_remote(args)
+local function to_remote(args, dir)
+    local format_with_dir = function (args, dir)
+        if not dir then
+            return args
+        end
+        return string.format("-dir=%s %s", dir, args)
+    end
     if not vim.g.remote_connected_hostname then
-        return args
+        return format_with_dir(args, dir)
     end
 
     local remote_utils = require("cathy.remote.utils")
@@ -41,7 +44,7 @@ local function to_remote(args)
     local cwd = vim.fn.getcwd()
 
     if not vim.startswith(cwd, mount_path) then
-        return args
+        return format_with_dir(args, dir)
     end
 
     local rel_path = string.sub(cwd, #mount_path + 1)
@@ -51,7 +54,8 @@ local function to_remote(args)
 
     local remote_cwd = vim.g.remote_path .. "/" .. rel_path
     return assert(require("cathy.remote.utils").get_ssh_cmd(
-        args ~= "" and string.format("cd %s && %s", remote_cwd, args) or nil
+        args ~= "" and args or nil,
+        remote_cwd ~= "~/" and remote_cwd
     ))
 end
 
@@ -63,7 +67,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
             "Dispatch",
             function(opts)
                 local count = 0
-                local args = oil_args(opts.args or "")
+                local args, dir = oil_args(opts.args or "")
                 local mods = opts.mods or ""
                 local bang = opts.bang and 1 or 0
 
@@ -77,7 +81,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
                     args = vim.b.dispatch
                 end
                 vim.b["dispatch"] = args
-                vim.fn["dispatch#compile_command"](bang, to_remote(args), count, mods)
+                vim.fn["dispatch#compile_command"](bang, to_remote(args, dir), count, mods)
             end,
             {
                 bang = true,
@@ -106,7 +110,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
                 }
 
                 local count = 0
-                local args = oil_args(opts.args or "")
+                local args, dir = oil_args(opts.args or "")
                 local mods = opts.mods or ""
                 local bang = opts.bang and 0 or 1
 
@@ -123,7 +127,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
 
                 local arguments = {
                     bang = bang,
-                    args = to_remote(args),
+                    args = to_remote(args, dir),
                     count = count,
                     mods = mods,
                 }
