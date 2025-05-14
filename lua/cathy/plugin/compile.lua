@@ -35,12 +35,12 @@ local function to_remote(args, dir)
         end
         return string.format("-dir=%s %s", dir, args)
     end
-    if not vim.g.remote_connected_hostname then
+    if not vim.g.remote then
         return format_with_dir(args, dir)
     end
 
     local remote_utils = require("cathy.remote.utils")
-    local mount_path = remote_utils.get_path(vim.g.remote_connected_hostname)
+    local mount_path = remote_utils.get_path(vim.g.remote.hostname)
     local cwd = vim.fn.getcwd()
 
     if not vim.startswith(cwd, mount_path) then

@@ -1,11 +1,9 @@
 local utils = require("cathy.remote.utils")
-vim.g.remote_connected_hostname = nil
-vim.g.remote_path = nil
 
 vim.api.nvim_create_autocmd("User", {
     pattern = "RemoteConnected",
-    callback = vim.schedule_wrap(function (ev)
-        local path = utils.get_path(ev.data.hostname)
+    callback = vim.schedule_wrap(function ()
+        local path = utils.get_path(vim.g.remote.hostname)
         vim.cmd.cd(path)
         vim.cmd("e " .. path)
     end),
@@ -16,7 +14,7 @@ vim.api.nvim_create_user_command("Remote",
         if #opts.fargs >= 1 then
             local arg_funcs = {
                 connect = function ()
-                    if vim.g.remote_connected_hostname then
+                    if vim.g.remote then
                         vim.notify("Already connected, can't connect again", vim.log.levels.ERROR)
                         return
                     end
@@ -27,18 +25,18 @@ vim.api.nvim_create_user_command("Remote",
                     utils.connect(opts.fargs[2], opts.fargs[3])
                 end,
                 disconnect = function ()
-                    if not vim.g.remote_connected_hostname then
+                    if not vim.g.remote then
                         vim.notify("Not connected; can't disconnect", vim.log.levels.ERROR)
                         return
                     end
-                    utils.disconnect(vim.g.remote_connected_hostname)
+                    utils.disconnect(vim.g.remote.hostname)
                 end,
                 cd = function ()
-                    if not vim.g.remote_connected_hostname then
+                    if not vim.g.remote then
                         vim.notify("Not connected; can't cd", vim.log.levels.ERROR)
                         return
                     end
-                    local hostname = vim.g.remote_connected_hostname
+                    local hostname = vim.g.remote.hostname
                     vim.api.nvim_create_autocmd("User", {
                         pattern = "RemoteDisconnected",
                         once = true,
@@ -58,8 +56,8 @@ vim.api.nvim_create_user_command("Remote",
             return
         end
 
-        if vim.g.remote_connected_hostname and utils.is_mounted(vim.g.remote_connected_hostname) then
-            utils.disconnect(vim.g.remote_connected_hostname)
+        if vim.g.remote and utils.is_mounted(vim.g.remote.hostname) then
+            utils.disconnect(vim.g.remote.hostname)
             return
         end
 
@@ -80,7 +78,7 @@ vim.api.nvim_create_user_command("Remote",
             end
 
             local options = {}
-            if vim.g.remote_connected_hostname then
+            if vim.g.remote then
                 table.insert(options, "disconnect")
                 table.insert(options, "cd")
             else

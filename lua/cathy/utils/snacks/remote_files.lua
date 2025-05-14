@@ -124,7 +124,7 @@ end
 ---@param opts snacks.picker.files.Config
 ---@type snacks.picker.finder
 function M.files(opts, ctx)
-    if not vim.g.remote_connected_hostname then
+    if not vim.g.remote then
         return require("snacks.picker.source.files").files(opts, ctx)
     end
 

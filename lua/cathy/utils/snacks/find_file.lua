@@ -73,7 +73,7 @@ local highlights = {
     {
         pattern = home .. "/.sshfs/([^/]+)",
         func = function (captures, picker)
-            if not vim.g.remote_connected_hostname then
+            if not vim.g.remote then
                 home_conceal(captures, picker)
                 return
             end
@@ -86,7 +86,7 @@ local highlights = {
                     end_col = math.min(#captures[1] + #basepath, prompt_len),
                     hl_group = "Normal",
                     virt_text = {
-                        { "sshfs@" .. hostname .. ":" .. (vim.g.remote_path or "~"), "Normal" }
+                        { "sshfs@" .. hostname .. ":" .. (vim.g.remote.path or "~"), "Normal" }
                     },
                     virt_text_pos = "inline",
                     conceal = "",

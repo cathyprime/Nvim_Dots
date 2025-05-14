@@ -1,24 +1,68 @@
 local home_dir = os.getenv("HOME")
 local remote_group = vim.api.nvim_create_augroup("Magda_Remote", { clear = true })
-vim.g.remote_path = nil
+local reset_globals = function ()
+    vim.g.remote = nil
+end
+
+local g_path = function (path)
+    if path then
+        if not vim.g.remote then
+            vim.g.remote = {
+                path = path
+            }
+        else
+            local _remote = vim.g.remote
+            _remote["path"] = path
+            vim.g.remote = _remote
+        end
+        return
+    end
+    if vim.g.remote and vim.g.remote.path then
+        return vim.g.remote.path
+    end
+end
+
+local g_hostname = function (hostname)
+    if hostname then
+        if not vim.g.remote then
+            vim.g.remote = {
+                hostname = hostname
+            }
+        else
+            local _remote = vim.g.remote
+            _remote["hostname"] = hostname
+            vim.g.remote = _remote
+        end
+        return
+    end
+    if vim.g.remote and vim.g.remote.hostname then
+        return vim.g.remote.hostname
+    end
+end
 
 local autocmds = {
-    connected = vim.schedule_wrap(function (data)
+    connected = vim.schedule_wrap(function ()
         vim.api.nvim_exec_autocmds("User", {
             pattern = "RemoteConnected",
-            data = data
+            data = {
+                hostname = g_hostname(),
+                path = g_path()
+            }
         })
     end),
-    disconnected = vim.schedule_wrap(function (data)
+    disconnected = vim.schedule_wrap(function ()
         vim.api.nvim_exec_autocmds("User", {
             pattern = "RemoteDisconnected",
-            data = data
+            data = {
+                hostname = g_hostname(),
+                path = g_path()
+            }
         })
     end)
 }
 
 local get_ssh_cmd = function (remote_command, dir, hostname)
-    if not vim.g.remote_connected_hostname and not hostname then
+    if not hostname and not g_hostname() then
         return nil
     end
     local opt = function (option)
@@ -51,7 +95,7 @@ local get_ssh_cmd = function (remote_command, dir, hostname)
         table.insert(ssh, "-t")
     end
 
-    table.insert(ssh, vim.g.remote_connected_hostname or hostname)
+    table.insert(ssh, g_hostname() or hostname)
     if shell_expr then
         table.insert(ssh, shell_expr)
     end
@@ -229,12 +273,9 @@ local mount = function (tbl)
         local f = vim.schedule_wrap(function (result)
             if result.code == 0 then
                 log.info("Mounted host: " .. tbl.hostname)
-                vim.g.remote_path = tbl.path ~= "" and tbl.path or get_remote_home(tbl.hostname)
-                vim.g.remote_connected_hostname = tbl.hostname
-                autocmds.connected {
-                    hostname = tbl.hostname,
-                    path = get_sshfs_path_or_create(tbl.hostname)
-                }
+                g_hostname(tbl.hostname)
+                g_path(tbl.path ~= "" and tbl.path or get_remote_home(tbl.hostname))
+                autocmds.connected()
                 return
             end
             log.err("Failed mounting " .. tbl.hostname)
@@ -250,7 +291,7 @@ local mount = function (tbl)
     end
 end
 
-local in_term = function(hostname)
+local in_term = function(hostname, path)
     local cmd = table.concat(cmd.sshfs { hostname = hostname, escape = true }, " ")
     local bufnr = vim.api.nvim_create_buf(false, true)
     local size = 0.50
@@ -280,10 +321,9 @@ local in_term = function(hostname)
             if vim.v.event.status == 0 then
                 log.info("Connected to host: " .. hostname)
                 vim.cmd("bd!")
-                autocmds.connected {
-                    hostname = hostname,
-                    path = get_sshfs_path_or_create(hostname)
-                }
+                g_hostname(hostname)
+                g_path(path)
+                autocmds.connected()
                 return
             end
             vim.cmd("bd!")
@@ -312,11 +352,8 @@ local disconnect = function (hostname)
     vim.system(cmd, { detach = true }, function (result)
         if result.code == 0 then
             log.info("Disconnected from host: " .. hostname)
-            autocmds.disconnected {
-                hostname = hostname
-            }
-            vim.g.remote_path = nil
-            vim.g.remote_connected_hostname = nil
+            autocmds.disconnected()
+            reset_globals()
             return
         end
         log.err("Failed to disconnect from host " .. hostname)
@@ -336,7 +373,7 @@ local connect = function (hostname, path)
         end
     })
     if is_mounted(hostname) then
-        vim.g.remote_connected_hostname = hostname
+        g_hostname(hostname)
         vim.system(
             { "findmnt", "-no", "SOURCE", "-t", "fuse.sshfs" },
             { detach = true },
@@ -352,7 +389,7 @@ local connect = function (hostname, path)
                     :take(1)
                 local next = mounts:next()
                 if next then
-                    vim.g.remote_path = next[2]
+                    g_path(next[2])
                     vim.schedule(function ()
                         local path = get_sshfs_path_or_create(hostname)
                         vim.cmd("silent cd " .. path)
@@ -386,7 +423,7 @@ local connect = function (hostname, path)
         end
 
         vim.schedule(function ()
-            in_term(hostname)
+            in_term(hostname, path)
         end)
     end)
 end
@@ -437,11 +474,11 @@ return {
     is_mounted = is_mounted,
     get_ssh_cmd = get_ssh_cmd,
     local_to_remote_path = function (path)
-        if not vim.g.remote_connected_hostname then
+        if not g_hostname() then
             return path
         end
 
-        local mount_path = get_sshfs_path_or_create(vim.g.remote_connected_hostname)
+        local mount_path = get_sshfs_path_or_create(g_hostname())
         if not vim.startswith(path, mount_path) then
             return path
         end
@@ -451,6 +488,6 @@ return {
             rel_path = rel_path:sub(2)
         end
 
-        return vim.g.remote_path .. "/" .. rel_path
+        return g_path() .. "/" .. rel_path
     end
 }
