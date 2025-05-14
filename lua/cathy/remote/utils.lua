@@ -2,6 +2,59 @@ local home_dir = os.getenv("HOME")
 local remote_group = vim.api.nvim_create_augroup("Magda_Remote", { clear = true })
 vim.g.remote_path = nil
 
+local get_ssh_cmd = function (remote_command, dir, hostname)
+    if not vim.g.remote_connected_hostname and not hostname then
+        return nil
+    end
+    local opt = function (option)
+        return { "-o", option }
+    end
+    local func_name = "remote"
+    local shell_expr
+
+    if not remote_command and not dir then
+        shell_expr = nil
+    elseif remote_command then
+        shell_expr = (dir and ("cd '" .. dir .. "' && " .. remote_command)) or "$@"
+    else
+        shell_expr = (dir and ("cd '" .. dir .. "' && exec \\$SHELL -l")) or "exec \\$SHELL -l"
+    end
+
+    if shell_expr then
+        shell_expr = [["]] .. shell_expr .. [[";]]
+    end
+
+    local ssh = {
+        "()", "{",
+        "ssh",
+        opt "BatchMode=yes",
+        opt "ControlMaster=auto",
+        opt "ControlPersist=60",
+        opt [[ControlPath=/tmp/ssh/control:\%h:\%p:\%r]],
+    }
+    if shell_expr and shell_expr:find("SHELL") then
+        table.insert(ssh, "-t")
+    end
+
+    table.insert(ssh, vim.g.remote_connected_hostname or hostname)
+    if shell_expr then
+        table.insert(ssh, shell_expr)
+    end
+    table.insert(ssh, "};")
+    table.insert(ssh, func_name)
+
+    table.insert(ssh, remote_command)
+    return vim.iter(ssh):flatten():fold(func_name, function (acc, p)
+        return acc .. " " .. p
+    end)
+end
+
+local get_remote_home = function (hostname)
+    local ssh = get_ssh_cmd("echo $HOME", nil, hostname)
+    local stdout = vim.system({ "bash", "-c", ssh }, { stdout = true }):wait().stdout
+    return (stdout:gsub("\n", ""))
+end
+
 local log = {
     info = vim.schedule_wrap(function (msg)
         vim.notify(msg, vim.log.levels.INFO)
@@ -162,7 +215,7 @@ local mount = function (tbl)
             if result.code == 0 then
                 log.info("Mounted host: " .. tbl.hostname)
                 if tbl.cb then tbl.cb() end
-                vim.g.remote_path = tbl.path ~= "" and tbl.path or "~"
+                vim.g.remote_path = tbl.path ~= "" and tbl.path or get_remote_home(tbl.hostname)
                 vim.g.remote_connected_hostname = tbl.hostname
                 return
             end
@@ -361,49 +414,22 @@ return {
     connect = connect,
     disconnect = disconnect,
     is_mounted = is_mounted,
-    get_ssh_cmd = function (remote_command, dir)
+    get_ssh_cmd = get_ssh_cmd,
+    local_to_remote_path = function (path)
         if not vim.g.remote_connected_hostname then
-            return nil
-        end
-        local opt = function (option)
-            return { "-o", option }
-        end
-        local func_name = "remote"
-        local shell_expr
-
-        if not remote_command and not dir then
-            shell_expr = nil
-        elseif remote_command then
-            shell_expr = (dir and ("cd '" .. dir .. "' && " .. remote_command)) or "$@"
-        else
-            shell_expr = (dir and ("cd '" .. dir .. "' && exec $SHELL -l")) or "exec \\$SHELL -l"
+            return path
         end
 
-        if shell_expr then
-            shell_expr = [["]] .. shell_expr .. [[";]]
+        local mount_path = get_sshfs_path_or_create(vim.g.remote_connected_hostname)
+        if not vim.startswith(path, mount_path) then
+            return path
         end
 
-        local ssh = {
-            "()", "{",
-            "ssh",
-            opt "BatchMode=yes",
-            opt "ControlMaster=auto",
-            opt "ControlPersist=60",
-            opt [[ControlPath=/tmp/ssh/control:\%h:\%p:\%r]],
-        }
-        if shell_expr and shell_expr:find("SHELL") then
-            table.insert(ssh, "-t")
+        local rel_path = string.sub(path, #mount_path + 1)
+        if rel_path:sub(1, 1) == "/" then
+            rel_path = rel_path:sub(2)
         end
 
-        table.insert(ssh, vim.g.remote_connected_hostname)
-        if shell_expr then
-            table.insert(ssh, shell_expr)
-        end
-        vim.list_extend(ssh, { "};", func_name })
-
-        table.insert(ssh, remote_command)
-        return vim.iter(ssh):flatten():fold(func_name, function (acc, p)
-            return acc .. " " .. p
-        end)
+        return vim.g.remote_path .. "/" .. rel_path
     end
 }

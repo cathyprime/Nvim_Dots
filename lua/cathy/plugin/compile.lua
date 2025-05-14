@@ -47,15 +47,10 @@ local function to_remote(args, dir)
         return format_with_dir(args, dir)
     end
 
-    local rel_path = string.sub(cwd, #mount_path + 1)
-    if rel_path:sub(1, 1) == "/" then
-        rel_path = rel_path:sub(2)
-    end
-
-    local remote_cwd = vim.g.remote_path .. "/" .. rel_path
-    return assert(require("cathy.remote.utils").get_ssh_cmd(
+    local remote_cwd = remote_utils.local_to_remote_path(cwd)
+    return assert(remote_utils.get_ssh_cmd(
         args ~= "" and args or nil,
-        remote_cwd ~= "~/" and remote_cwd
+        remote_cwd
     ))
 end
 
