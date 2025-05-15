@@ -109,7 +109,7 @@ local get_ssh_cmd = function (remote_command, dir, hostname)
 end
 
 local get_remote_home = function (hostname)
-    local ssh = get_ssh_cmd("echo $HOME", nil, hostname)
+    local ssh = get_ssh_cmd("echo \\$HOME", nil, hostname)
     local stdout = vim.system({ "bash", "-c", ssh }, { stdout = true }):wait().stdout
     return (stdout:gsub("\n", ""))
 end
