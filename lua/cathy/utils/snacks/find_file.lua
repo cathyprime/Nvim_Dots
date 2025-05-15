@@ -86,7 +86,7 @@ local highlights = {
                     end_col = math.min(#captures[1] + #basepath, prompt_len),
                     hl_group = "Normal",
                     virt_text = {
-                        { "sshfs@" .. hostname .. ":" .. (vim.g.remote.path or "~"), "Normal" }
+                        { "sshfs@" .. hostname .. ":", "Normal" }
                     },
                     virt_text_pos = "inline",
                     conceal = "",
