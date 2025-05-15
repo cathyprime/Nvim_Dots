@@ -152,6 +152,7 @@ local cmd = {
             "-o", "ControlMaster=auto",
             "-o", "ControlPersist=60",
             "-o", "dir_cache=yes",
+            "-o", "reconnect",
             "-o", ControlPath(tbl.escape),
             tbl.hostname .. ":" .. tbl.path,
             get_sshfs_path_or_create(tbl.hostname)
