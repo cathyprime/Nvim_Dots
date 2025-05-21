@@ -65,6 +65,11 @@ return {
             end }
         },
         config = true,
+        opts = {
+            integrations = {
+                snacks = false
+            }
+        },
         init =  function()
             vim.api.nvim_create_autocmd("Filetype", {
                 group = vim.api.nvim_create_augroup("cathy_neogit", { clear = true }),

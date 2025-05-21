@@ -13,6 +13,15 @@ vim.ui.select = function (items, opts, on_choice)
         })
     end
 
+    do
+        local lpeg = require("lpeg")
+        local space = lpeg.S': \t\n\v\f\r'
+        local nospace = 1 - space
+        local ptrim = space^0 * lpeg.C((space^0 * nospace^1)^0)
+        local match = lpeg.match
+        opts.prompt = (match(ptrim, opts.prompt):gsub("^%l", string.upper))
+    end
+
     local prompt = string.format(" %s :: ", opts.prompt or "Select")
     local completed = false
 
