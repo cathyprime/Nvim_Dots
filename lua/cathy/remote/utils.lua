@@ -320,11 +320,10 @@ local in_term = function(hostname, path)
         buffer = vim.api.nvim_get_current_buf(),
         callback = function ()
             if vim.v.event.status == 0 then
-                log.info("Connected to host: " .. hostname)
-                vim.cmd("bd!")
-                g_hostname(hostname)
-                g_path(path)
-                autocmds.connected()
+                mount {
+                    hostname = hostname,
+                    path = path
+                }
                 return
             end
             vim.cmd("bd!")
