@@ -160,7 +160,7 @@ local cmd = {
         if tbl.with_pass then
             table.insert(sshfs, 2, "password_stdin")
             table.insert(sshfs, 2, "-o")
-        else
+        elseif not tbl.interactive then
             table.insert(sshfs, 2, "BatchMode=yes")
             table.insert(sshfs, 2, "-o")
         end
@@ -293,7 +293,7 @@ local mount = function (tbl)
 end
 
 local in_term = function(hostname, path)
-    local cmd = table.concat(cmd.sshfs { hostname = hostname, escape = true }, " ")
+    local cmd = table.concat(cmd.sshfs { hostname = hostname, escape = true, interactive = true }, " ")
     local bufnr = vim.api.nvim_create_buf(false, true)
     local size = 0.50
 
@@ -320,10 +320,12 @@ local in_term = function(hostname, path)
         buffer = vim.api.nvim_get_current_buf(),
         callback = function ()
             if vim.v.event.status == 0 then
-                mount {
-                    hostname = hostname,
-                    path = path
-                }
+                vim.cmd("bd!")
+                log.info("Connected to host: " .. hostname)
+                vim.cmd("bd!")
+                g_hostname(hostname)
+                g_path(path or get_remote_home(hostname))
+                autocmds.connected()
                 return
             end
             vim.cmd("bd!")
