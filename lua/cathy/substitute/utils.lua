@@ -196,11 +196,19 @@ end
 local permutations = function (str)
     local parts = split(str)
 
-    local result = {}
-    for _, tbl in pairs(case) do
-        table.insert(result, tbl.to(parts))
+    local make_pattern = function (_, tbl)
+        return tbl.to(parts)
     end
-    return result
+
+    local uniq = function (acc, it)
+        local is_in = vim.tbl_contains(acc, it)
+        if not is_in then
+            table.insert(acc, it)
+        end
+        return acc
+    end
+
+    return vim.iter(pairs(case)):map(make_pattern):fold({}, uniq)
 end
 
 return {
@@ -221,6 +229,6 @@ return {
         return case[str_case].from(parts)
     end,
     make_regex = function (str)
-        return string.format([[\v\C(%s)]], table.concat(permutations(str), "|"))
+        return string.format([[\C\(%s\)]], table.concat(permutations(str), [[\|]]))
     end
 }
