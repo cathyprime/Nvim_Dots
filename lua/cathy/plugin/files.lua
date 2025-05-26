@@ -63,7 +63,30 @@ return {
                 end,
             },
         })
-        vim.keymap.set("n", "<leader>d", "<cmd>sp | Oil<cr>")
+        local locpick_oil = function ()
+            require("cathy.utils.snacks.locpick") {
+                pwd = require("cathy.utils").cur_buffer_path(),
+                prompt = " Open directory :: ",
+                cb = function (opts)
+                    put(opts)
+                    local edit_cmd = {
+                        edit    = "buffer",
+                        split   = "sp",
+                        vsplit  = "vert sp",
+                        tab     = "tabnew",
+                        drop    = "drop",
+                        tabdrop = "tab drop",
+                    }
+                    local edit = edit_cmd[opts.action.cmd]
+                    if edit then
+                        vim.cmd(edit .. " | Oil " .. opts.result)
+                        return
+                    end
+                    vim.cmd("sp | Oil " .. opts.result)
+                end
+            }()
+        end
+        vim.keymap.set("n", "<leader>d", locpick_oil)
         vim.keymap.set("n", "-", "<cmd>Oil<cr>")
     end,
 }

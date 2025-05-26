@@ -37,7 +37,7 @@ local picker_opts = {
             input = {
                 keys = {
                     ["<c-space>"] = { "open_buffers", mode = { "n", "i" }, desc = "Open buffers" },
-                    ["<c-f>"] = { "open_find_file", mode = { "n", "i" }, desc = "Open Find File" }
+                    ["<c-f>"] = { "open_loc_pick", mode = { "n", "i" }, desc = "Find File" }
                 }
             }
         },
@@ -47,14 +47,14 @@ local picker_opts = {
                     prompt = " Buffers :: "
                 })
             end,
-            open_find_file = function (picker)
+            open_loc_pick = function (picker)
                 local cwd = picker:cwd() .. "/"
                 picker:close()
-                local find_file = require("cathy.utils.snacks.find_file")({
+                local locpick = require("cathy.utils.snacks.locpick")({
                     prompt = " Find file :: ",
                     cwd = cwd
                 })
-                find_file()
+                locpick()
             end
         }
     },

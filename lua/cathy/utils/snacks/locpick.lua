@@ -1,4 +1,4 @@
-local ns = vim.api.nvim_create_namespace("Magda_Find_File")
+local ns = vim.api.nvim_create_namespace("Magda_Loc_Pick")
 local home = os.getenv("HOME")
 local extmark_id = nil
 
@@ -136,7 +136,7 @@ return function (opts)
 
     return function()
         return Snacks.picker.pick({
-            source = "find_file",
+            source = "locpick",
             layout = {
                 preview = false
             },
@@ -286,6 +286,11 @@ return function (opts)
                 return ret
             end,
             confirm = function(picker, item, action)
+                -- action: {
+                --   action = <function 1>,
+                --   cmd = <modifier>,
+                --   name = <name_of_action>
+                -- } calling action.action() will retrigger confirm with action
                 local edit_cmd = {
                     edit    = "buffer",
                     split   = "sp",
@@ -305,7 +310,10 @@ return function (opts)
                     return
                 end
                 if opts.cb then
-                    opts.cb(result)
+                    opts.cb({
+                        result = result,
+                        action = action
+                    })
                     return
                 end
                 local cd_chars = {

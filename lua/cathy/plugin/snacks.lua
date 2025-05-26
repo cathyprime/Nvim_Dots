@@ -20,7 +20,7 @@ local picker_mappings = {
 }
 
 local picks = setmetatable({
-    find_file = require("cathy.utils.snacks.find_file"),
+    find_file = require("cathy.utils.snacks.locpick"),
     spelling = function (opts)
         return function ()
             if vim.v.count ~= 0 then
