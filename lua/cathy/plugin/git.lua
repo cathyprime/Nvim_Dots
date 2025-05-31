@@ -1,17 +1,18 @@
 ---@param options { forward: boolean, desc: string }
 ---@return { mode: string, lhs: string, rhs: function, opts: table }
 local function jump_diff(options)
+    local repeatable_move = require("nvim-treesitter.textobjects.repeatable_move")
     local actions = require("diffview.actions")
+
+    local repeatable_forward, repeatable_backward =
+        repeatable_move.make_repeatable_move_pair(
+            actions.next_conflict,
+            actions.prev_conflict
+        )
     local key = options.forward and "]x" or "[x"
-    return {"n", key, function()
-        require("demicolon.jump").repeatably_do(function(opts)
-            if opts.forward then
-                actions.next_conflict()
-            else
-                actions.prev_conflict()
-            end
-        end, { forward = options.forward })
-    end, { desc = options.desc }}
+    local rhs = options.forward and repeatable_forward or repeatable_backward
+
+    return { "n", key, rhs, { desc = options.desc } }
 end
 
 return {
@@ -21,7 +22,7 @@ return {
             { "<leader>gd", "<cmd>DiffviewOpen<cr>" },
             { "<leader>gc", "<cmd>DiffviewClose<cr>" }
         },
-        dependencies = "mawkler/demicolon.nvim",
+        dependencies = "nvim-treesitter/nvim-treesitter-textobjects",
         config = function()
             require("diffview").setup({
                 keymaps = {
