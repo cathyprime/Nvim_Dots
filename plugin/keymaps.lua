@@ -128,3 +128,9 @@ vim.keymap.set(nxo, "f", ts_repeat_move.builtin_f_expr, { expr = true })
 vim.keymap.set(nxo, "F", ts_repeat_move.builtin_F_expr, { expr = true })
 vim.keymap.set(nxo, "t", ts_repeat_move.builtin_t_expr, { expr = true })
 vim.keymap.set(nxo, "T", ts_repeat_move.builtin_T_expr, { expr = true })
+
+require("cathy.utils.repeatable_jump").set_pair {
+    mode = "n",
+    lhs = { "[s", "]s" },
+    desc = { "Previous spelling mistake", "Next spelling mistake" }
+}

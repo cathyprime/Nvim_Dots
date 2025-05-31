@@ -68,7 +68,6 @@ return {
                 pwd = require("cathy.utils").cur_buffer_path(),
                 prompt = " Open directory :: ",
                 cb = function (opts)
-                    put(opts)
                     local edit_cmd = {
                         edit    = "buffer",
                         split   = "sp",
