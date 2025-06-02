@@ -124,22 +124,15 @@ return {
 
             vim.keymap.set(nx, "<c-i>", mc.jumpForward)
             vim.keymap.set(nx, "<c-o>", mc.jumpBackward)
+            vim.keymap.set(nx, "ga", mc.operator)
 
-            vim.keymap.set("x", "ga", mc.operator)
-            vim.keymap.set("n", "ga", function ()
-                local on_cursor = {
-                    [true] = mc.alignCursors,
-                    [false] = mc.operator
-                }
-                on_cursor[mc.hasCursors()]()
-            end)
-
-            vim.keymap.set("n", "<esc>", function ()
-                if mc.hasCursors() then
-                    mc.clearCursors()
-                else
-                    vim.api.nvim_feedkeys(vim.keycode"<esc>", "n", false)
-                end
+            mc.addKeymapLayer(function (layer_set)
+                layer_set("n", "ga",    mc.alignCursors)
+                layer_set("n", "<esc>", mc.clearCursors)
+                layer_set("n", "<c-j>", mc.nextCursor)
+                layer_set("n", "<c-k>", mc.prevCursor)
+                layer_set("n", "<c-a>", mc.sequenceIncrement)
+                layer_set("n", "<c-x>", mc.sequenceDecrement)
             end)
         end,
     },
