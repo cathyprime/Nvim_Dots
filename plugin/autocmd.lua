@@ -2,21 +2,6 @@ local function augroup(name)
     return vim.api.nvim_create_augroup(string.format("Magda_%s", name), { clear = true })
 end
 
-vim.api.nvim_create_autocmd({ "CmdlineEnter" }, {
-    callback = function()
-        local old_msgopt = vim.opt.messagesopt
-        vim.opt.messagesopt = "hit-enter,history:1000"
-        vim.api.nvim_create_autocmd({ "CursorHold", "CursorMoved" }, {
-            callback = function()
-                vim.opt.messagesopt = old_msgopt
-            end,
-            once = true,
-            group = augroup("Cmdline"),
-        })
-    end,
-    group = general,
-})
-
 local save_sudo = function (e)
     vim.api.nvim_create_autocmd("BufWriteCmd", {
         buffer = e.buf,
@@ -178,9 +163,21 @@ vim.api.nvim_create_autocmd({ "BufEnter" }, {
         if expand:match "^term" then
             return
         end
+        -- TODO make a proper monorepo plugin as this is nth time I have issues with them
+        if vim.b[env.buf].manual_cd then
+            pcall(vim.cmd, "silent cd " .. vim.b[env.buf].manual_cd)
+        end
+
         local git_root = Snacks.git.get_root()
+        local cwd = vim.loop.cwd()
         if git_root then
-            pcall(vim.cmd, "silent cd " .. git_root)
+            git_root = vim.fn.fnamemodify(git_root, ":p")
+            cwd = vim.fn.fnamemodify(cwd, ":p")
+            if cwd:sub(1, #git_root) ~= git_root then
+                pcall(vim.cmd, "silent cd " .. git_root)
+            else
+                vim.b[env.buf].manual_cd = cwd
+            end
         else
             pcall(vim.cmd, "silent cd " .. require("cathy.utils").cur_buffer_path())
         end
