@@ -136,6 +136,10 @@ return function (opts)
 
     return function()
         return Snacks.picker.pick({
+            matcher = {
+                smartcase = false,
+                ignorecase = true,
+            },
             source = "locpick",
             layout = {
                 preview = false
