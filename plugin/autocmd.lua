@@ -147,43 +147,6 @@ vim.api.nvim_create_autocmd({ "BufWritePre" }, {
     end,
 })
 
-local fts = {
-    man = true,
-    [""] = true
-}
-
-vim.api.nvim_create_autocmd({ "BufEnter" }, {
-    group = augroup("rooter"),
-    pattern = "*",
-    callback = function (env)
-        if fts[vim.bo[env.buf].filetype] then
-            return
-        end
-        local expand = vim.fn.expand("%:p:h")
-        if expand:match "^term" then
-            return
-        end
-        -- TODO make a proper monorepo plugin as this is nth time I have issues with them
-        if vim.b[env.buf].manual_cd then
-            pcall(vim.cmd, "silent cd " .. vim.b[env.buf].manual_cd)
-        end
-
-        local git_root = Snacks.git.get_root()
-        local cwd = vim.loop.cwd()
-        if git_root then
-            git_root = vim.fn.fnamemodify(git_root, ":p")
-            cwd = vim.fn.fnamemodify(cwd, ":p")
-            if cwd:sub(1, #git_root) ~= git_root then
-                pcall(vim.cmd, "silent cd " .. git_root)
-            else
-                vim.b[env.buf].manual_cd = cwd
-            end
-        else
-            pcall(vim.cmd, "silent cd " .. require("cathy.utils").cur_buffer_path())
-        end
-    end
-})
-
 -- set filetype c for header and .c files instead of c++
 vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {
     group = augroup("c_filetypes"),
