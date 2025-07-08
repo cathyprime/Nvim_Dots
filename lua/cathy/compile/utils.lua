@@ -71,7 +71,7 @@ local Compile_Opts = {}
 ---@return Compile_Opts
 function Compile_Opts.new(cmd)
     vim.validate("cmd.compiler", cmd.compiler, "string")
-    vim.validate("cmd.args", cmd.args, "table")
+    vim.validate("cmd.args", cmd.args, "table", true)
     vim.validate("cmd.process", cmd.process, "boolean", true)
     vim.validate("cmd.cwd", cmd.cwd, "string", true)
     vim.validate("cmd.vim_compiler", cmd.vim_compiler, "string", true)
@@ -95,6 +95,7 @@ function Compile_Opts.new(cmd)
     end
 
     local defaults = {
+        args = {},
         process = false,
         cwd = cwd,
         vim_compiler = compiler_exists(cmd.compiler) and cmd.compiler,
