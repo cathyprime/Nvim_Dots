@@ -73,11 +73,9 @@ return {
                         require("quicker").close({ loclist = true })
                         return
                     end
-                    if vim.g.dispatch_ready then
-                        vim.cmd("Copen")
-                    else
-                        require("quicker").toggle()
-                    end
+                    require("quicker").toggle({
+                        height = math.floor(vim.opt.lines:get() * 0.4)
+                    })
                 end },
                 {
                     "<leader>Q",

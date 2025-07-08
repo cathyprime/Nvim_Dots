@@ -75,17 +75,11 @@ function H.set_maps(bufnr, scope)
             vim.cmd.bdelete()
         end
     end
-    local set = function (opts)
-        vim.keymap.set("n", opts.lhs, opts.cb, {
-            buffer = bufnr,
-            silent = true,
-            noremap = true,
-            nowait = true
-        })
-    end
-    set({
-        lhs = "q",
-        cb = close_buf
+    vim.keymap.set("n", "q", close_buf, {
+        buffer = bufnr,
+        silent = true,
+        noremap = true,
+        nowait = true
     })
 end
 
