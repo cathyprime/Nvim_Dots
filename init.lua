@@ -1,6 +1,12 @@
 vim.g.mapleader = " "
 vim.g.localleader = [[\]]
 
+function _G.lazy_require(module)
+    return setmetatable({}, { __index = function (_, key)
+        return require(module)[key]
+    end})
+end
+
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.uv.fs_stat(lazypath) then
