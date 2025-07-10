@@ -54,21 +54,6 @@ local minis = {
         })
     end,
 
-    clue = function()
-        local module = require("mini.clue")
-        module.setup({
-            triggers = {
-                { mode = "n", keys = "<leader>f" },
-                { mode = "i", keys = "<c-x>" },
-                { mode = "n", keys = "<leader>go" },
-                { mode = "v", keys = "<leader>go" },
-            },
-            clues = {
-                module.gen_clues.builtin_completion(),
-            }
-        })
-    end,
-
     misc = function()
         require("mini.misc").setup()
     end,
