@@ -14,8 +14,17 @@ local H = {
     }
 }
 
-vim.api.nvim_set_hl(0, H.hl_group.ok, { fg = "#005f5f" })
-vim.api.nvim_set_hl(0, H.hl_group.err, { link = "DiffDelete" })
+local function hl_exists(name)
+    return vim.api.nvim_get_hl(0, { name = name, create = false }) ~= vim.empty_dict()
+end
+
+if not hl_exists(H.hl_group.ok) then
+    vim.api.nvim_set_hl(0, H.hl_group.ok, { link = "DiffAdd" })
+end
+
+if not hl_exists(H.hl_group.err) then
+    vim.api.nvim_set_hl(0, H.hl_group.err, { link = "DiffDelete" })
+end
 
 local color = function (len, group, start)
     return function (bufnr, linenr)
