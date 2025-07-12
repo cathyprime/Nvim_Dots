@@ -29,26 +29,6 @@ function QuickFix.new()
     )
 end
 
-function QuickFix:buf_call(func)
-    local bufnr = getqf(self.id).qfbufnr
-    local f = function ()
-        func(bufnr)
-    end
-    vim.api.nvim_buf_call(bufnr, f)
-end
-
-function QuickFix:win_call(func)
-    local winid = getqf(self.id).winid
-    local f = function ()
-        func(winid)
-    end
-    vim.api.nvim_create_autocmd("BufWinEnter", {
-        buffer = getqf(self.id).qfbufnr,
-        callback = f
-    })
-    vim.api.nvim_win_call(winid, f)
-end
-
 local function clear_namespaces(bufnr)
     local each = function (key, value)
         vim.api.nvim_buf_clear_namespace(bufnr, value, 0, -1)
@@ -56,10 +36,63 @@ local function clear_namespaces(bufnr)
     vim.iter(vim.api.nvim_get_namespaces()):each(each)
 end
 
+local function setup_buf_opts(bufnr)
+    vim.api.nvim_buf_call(bufnr, function ()
+        vim.b.minitrailspace_disable = true
+        vim.b.compile_mode = true
+        vim.opt_local.modifiable = false
+    end)
+    vim.api.nvim_create_autocmd("QuickFixCmdPost", {
+        pattern = "*",
+        once = true,
+        callback = function ()
+            if vim.api.nvim_buf_is_valid(bufnr) then
+                vim.api.nvim_buf_call(bufnr, function ()
+                    require("cathy.compile.signalis").clear_ns(bufnr)
+                    vim.b.minitrailspace_disable = nil
+                    vim.b.compile_mode = nil
+                    vim.opt_local.modifiable = true
+                end)
+            end
+        end
+    })
+end
+
+local function setup_win_opts(winid)
+    vim.api.nvim_win_call(winid, function ()
+        vim.wo.list = false
+        vim.wo.winfixbuf = true
+    end)
+    vim.api.nvim_create_autocmd("QuickFixCmdPost", {
+        pattern = "*",
+        callback = function ()
+            if vim.api.nvim_win_is_valid(winid) then
+                vim.api.nvim_win_call(winid, function ()
+                    require("quicker").refresh(winid)
+                    vim.wo.list = true
+                    vim.wo.winfixbuf = false
+                end)
+            end
+        end
+    })
+end
+
 function QuickFix:open()
+    local bufnr = getqf(self.id).qfbufnr
+    clear_namespaces(getqf(self.id).qfbufnr)
+
+    local winid = getqf(self.id).winid
     local height = math.floor(vim.opt.lines:get() * 0.4 )
     vim.cmd("copen " .. height)
-    clear_namespaces(getqf(self.id).qfbufnr)
+
+    setup_buf_opts(bufnr)
+    setup_win_opts(winid)
+
+    local items = getqf(self.id).items
+    vim.fn.setqflist(items, "r", {
+        id = self.id,
+        quickfixtextfunc = "v:lua.require'cathy.compile'.quickfixtextfunc"
+    })
 end
 
 function QuickFix:set_compiler(compiler)
@@ -67,9 +100,6 @@ function QuickFix:set_compiler(compiler)
         return
     end
     local bufnr = getqf(self.id).qfbufnr
-    if not bufnr then
-        return
-    end
     vim.api.nvim_buf_call(bufnr, function ()
         local ok, err = pcall(vim.cmd.compiler, compiler)
         pcall(vim.cmd.compiler, "make")
@@ -82,46 +112,6 @@ function QuickFix:apply_color(color_func)
     local bufnr = qf.qfbufnr
 
     color_func(bufnr, size)
-end
-
-function QuickFix:cleanup_buf_call(buf_fn)
-    local bufnr = getqf(self.id).qfbufnr
-
-    vim.api.nvim_create_autocmd("QuickFixCmdPost", {
-        pattern = "*",
-        callback = function ()
-            if vim.api.nvim_buf_is_valid(bufnr) then
-                vim.api.nvim_buf_call(bufnr, function ()
-                    require("cathy.compile.signalis").clear_ns(bufnr)
-                    buf_fn(bufnr)
-                end)
-            end
-        end
-    })
-end
-
-function QuickFix:cleanup_win_call(win_fn)
-    local winid = getqf(self.id).winid
-
-    vim.api.nvim_create_autocmd("QuickFixCmdPost", {
-        pattern = "*",
-        callback = function ()
-            if vim.api.nvim_win_is_valid(winid) then
-                vim.api.nvim_win_call(winid, function ()
-                    require("quicker").refresh(winid)
-                    win_fn(winid)
-                end)
-            end
-        end
-    })
-end
-
-function QuickFix:set_text_func(f)
-    local items = getqf(self.id).items
-    vim.fn.setqflist(items, "r", {
-        id = self.id,
-        quickfixtextfunc = f
-    })
 end
 
 function QuickFix:set_title(title)

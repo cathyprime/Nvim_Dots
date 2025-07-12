@@ -30,7 +30,7 @@ end
 
 local function what(msg)
     if type(msg) == "string" then
-        return function (duration, linenr)
+        return function (duration)
             return string.format(term_string, msg, os.date "%a %b %d %H:%M:%S", duration),
             color(#msg, H.hl_group.err, H.offsets.term_string)
         end
@@ -38,7 +38,7 @@ local function what(msg)
     local opt = msg
     if opt.abnormal then
         local code_str = tostring(opt[1])
-        return function (duration, linenr)
+        return function (duration)
             local col_code = color(#code_str, H.hl_group.err, H.offsets.term_string_abnormal)
             local col_msg = color(#"exited abnormally", H.hl_group.err, H.offsets.term_string)
             return string.format(term_string_abnormal, opt[1], os.date "%a %b %d %H:%M:%S", duration),
@@ -48,7 +48,7 @@ local function what(msg)
             end
         end
     end
-    return function (duration, linenr)
+    return function (duration)
         return string.format(term_string, opt[1], os.date "%a %b %d %H:%M:%S", duration),
         color(#opt[1], opt[2], H.offsets.term_string)
     end

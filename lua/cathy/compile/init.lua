@@ -65,33 +65,11 @@ function M.quickfixtextfunc(info)
     return l
 end
 
-function H.set_opts(qflist)
-    qflist:buf_call(function ()
-        vim.b.minitrailspace_disable = true
-        vim.b.compile_mode = true
-        vim.opt_local.modifiable = false
-    end)
-    qflist:cleanup_buf_call(function ()
-        vim.b.minitrailspace_disable = nil
-        vim.b.compile_mode = nil
-        vim.opt_local.modifiable = true
-    end)
-    qflist:win_call(function ()
-        vim.wo.list = false
-        vim.wo.winfixbuf = true
-    end)
-    qflist:cleanup_win_call(function ()
-        vim.wo.list = true
-        vim.wo.winfixbuf = false
-    end)
-end
-
 function H.start(cmd, executable)
     local qflist = utils.QuickFix.new()
 
     qflist:open()
     qflist:set_title(cmd:get_plain_cmd())
-    qflist:set_text_func("v:lua.require'cathy.compile'.quickfixtextfunc")
     qflist:append_lines({
         plain = true,
         string.format("-*- Compilation_Mode; Starting_Directory :: \"%s\" -*-", cmd.cwd),
@@ -100,14 +78,13 @@ function H.start(cmd, executable)
         cmd:get_plain_cmd()
     })
     qflist:set_compiler(cmd.vim_compiler)
-    H.set_opts(qflist)
 
     local start_time = vim.uv.hrtime()
     local on_exit = vim.schedule_wrap(function (proc)
         local duration = (vim.uv.hrtime() - start_time) / 1e9
         local code_func = require("cathy.compile.signalis").signals[proc.code]
 
-        local msg, color_func = code_func(duration, 69)
+        local msg, color_func = code_func(duration)
         qflist:append_lines({
             plain = true,
             "",
