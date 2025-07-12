@@ -74,7 +74,7 @@ function H.parse_compile_args(ev)
         cmd.args = ev.fargs
     end
 
-    return cmd
+    return require("cathy.compile.utils").Compile_Opts.new(cmd)
 end
 
 local last_compile = nil

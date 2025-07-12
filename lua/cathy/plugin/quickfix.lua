@@ -5,22 +5,40 @@ return {
         dependencies = "nvim-treesitter/nvim-treesitter-textobjects",
         config = function()
             require("quicker").setup({
+                opts = {
+                    number = true,
+                    relativenumber = true,
+                    signcolumn = "yes"
+                },
                 keys = {
                     {
                         "<c-l>",
-                        require("quicker").refresh,
+                        function ()
+                            if vim.b.compile_mode then
+                                return
+                            end
+                            require("quicker").refresh()
+                        end,
                         desc = "Refresh quickfix list",
                     },
                     {
                         "+",
                         function()
+                            if vim.b.compile_mode then
+                                return
+                            end
                             require("quicker").expand({ before = 2, after = 2, add_to_existing = true })
                         end,
                         desc = "Expand quickfix context"
                     },
                     {
                         "-",
-                        require("quicker").collapse,
+                        function ()
+                            if vim.b.compile_mode then
+                                return
+                            end
+                            require("quicker").collapse()
+                        end,
                         desc = "Collapse quickfix context"
                     }
                 },

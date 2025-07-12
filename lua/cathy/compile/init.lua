@@ -24,39 +24,104 @@ function H.make_stdout_handler(cmd, qflist)
     end
 end
 
+function M.quickfixtextfunc(info)
+    local items = vim.fn.getqflist({ id = info.id, items = 1 }).items
+    local l = {}
+
+    for idx = info.start_idx - 1, info.end_idx - 1 do
+        local item = items[idx + 1]
+
+        local filename = ""
+        if item.bufnr and item.bufnr > 0 then
+            filename = vim.fn.bufname(item.bufnr)
+        end
+
+        if (item.text or ""):match("^%s*$") and (filename == "" or not item.lnum or item.lnum == 0) then
+            table.insert(l, " ")
+        else
+            local parts = {}
+
+            if filename ~= "" then
+                table.insert(parts, filename)
+            end
+            if item.lnum and item.lnum > 0 then
+                table.insert(parts, tostring(item.lnum))
+            end
+            if item.col and item.col > 0 then
+                table.insert(parts, tostring(item.col))
+            end
+
+            local line
+            if #parts > 0 then
+                line = table.concat(parts, ":") .. ":" .. (item.text or "")
+            else
+                line = item.text or ""
+            end
+
+            table.insert(l, line)
+        end
+    end
+
+    return l
+end
+
+function H.set_opts(qflist)
+    qflist:buf_call(function ()
+        vim.b.minitrailspace_disable = true
+        vim.b.compile_mode = true
+        vim.opt_local.modifiable = false
+    end)
+    qflist:cleanup_buf_call(function ()
+        vim.b.minitrailspace_disable = nil
+        vim.b.compile_mode = nil
+        vim.opt_local.modifiable = true
+    end)
+    qflist:win_call(function ()
+        vim.wo.list = false
+        vim.wo.winfixbuf = true
+    end)
+    qflist:cleanup_win_call(function ()
+        vim.wo.list = true
+        vim.wo.winfixbuf = false
+    end)
+end
+
 function H.start(cmd, executable)
     local qflist = utils.QuickFix.new()
 
-    qflist:set_title(cmd:get_plain_cmd())
     qflist:open()
+    qflist:set_title(cmd:get_plain_cmd())
+    qflist:set_text_func("v:lua.require'cathy.compile'.quickfixtextfunc")
+    qflist:append_lines({
+        plain = true,
+        string.format("-*- Compilation_Mode; Starting_Directory :: \"%s\" -*-", cmd.cwd),
+        string.format("Compilation started at %s", os.date "%a %b %d %H:%M:%S"),
+        "",
+        cmd:get_plain_cmd()
+    })
+    qflist:set_compiler(cmd.vim_compiler)
+    H.set_opts(qflist)
 
-    if cmd.vim_compiler then
-        qflist:set_compiler(cmd.vim_compiler)
-    end
+    local start_time = vim.uv.hrtime()
+    local on_exit = vim.schedule_wrap(function (proc)
+        local duration = (vim.uv.hrtime() - start_time) / 1e9
+        local code_func = require("cathy.compile.signalis").signals[proc.code]
+
+        local msg, color_func = code_func(duration, 69)
+        qflist:append_lines({
+            plain = true,
+            "",
+            msg
+        })
+        qflist:apply_color(color_func)
+    end)
 
     return vim.system(executable, {
         stdout = H.make_stdout_handler(cmd, qflist),
         cwd = cmd.cwd,
         detach = true,
         text = true
-    })
-end
-
----@param cmd Compile_Opts
-function H.make_executable(cmd)
-    local executable
-    if cmd.process then
-        executable = { cmd.compiler, unpack(cmd.args) }
-    else
-        local script = { "{", cmd.compiler, unpack(cmd.args)}
-        vim.list_extend(script, { "}", "2>&1" })
-        executable = {
-            vim.opt.shell:get(),
-            vim.opt.shellcmdflag:get(),
-            table.concat(script, " ")
-        }
-    end
-    return executable
+    }, on_exit)
 end
 
 function H.open_term(cmd)
@@ -93,7 +158,7 @@ function M.exec(cmd)
         H.open_term(cmd)
         return
     end
-    local executable = H.make_executable(cmd)
+    local executable = cmd:make_executable()
     H.start(cmd, executable)
 end
 

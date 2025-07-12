@@ -15,36 +15,113 @@ local function compiler_exists(compiler)
     return vim.list_contains(compilers, compiler)
 end
 
-local function getqf(opts)
-    if type(opts) == "number" then
-        return vim.fn.getqflist({ id = opts, all = 1 })
-    end
-    return vim.fn.getqflist(opts)
+local function getqf(id)
+    return vim.fn.getqflist({ id = id, all = 1 })
 end
 
 ---@return QuickFix
 function QuickFix.new()
-    vim.fn.setqflist({}, " ")
+    local bufnr = vim.api.nvim_create_buf(false, false)
+    vim.fn.setqflist({}, " ", { bufnr = bufnr })
     return setmetatable(
-        { id = vim.fn.getqflist({ id = 0 }).id },
+        { id = getqf(0).id },
         { __index = QuickFix }
     )
+end
+
+function QuickFix:buf_call(func)
+    local bufnr = getqf(self.id).qfbufnr
+    local f = function ()
+        func(bufnr)
+    end
+    vim.api.nvim_buf_call(bufnr, f)
+end
+
+function QuickFix:win_call(func)
+    local winid = getqf(self.id).winid
+    local f = function ()
+        func(winid)
+    end
+    vim.api.nvim_create_autocmd("BufWinEnter", {
+        buffer = getqf(self.id).qfbufnr,
+        callback = f
+    })
+    vim.api.nvim_win_call(winid, f)
+end
+
+local function clear_namespaces(bufnr)
+    local each = function (key, value)
+        vim.api.nvim_buf_clear_namespace(bufnr, value, 0, -1)
+    end
+    vim.iter(vim.api.nvim_get_namespaces()):each(each)
 end
 
 function QuickFix:open()
     local height = math.floor(vim.opt.lines:get() * 0.4 )
     vim.cmd("copen " .. height)
+    clear_namespaces(getqf(self.id).qfbufnr)
 end
 
 function QuickFix:set_compiler(compiler)
+    if not compiler then
+        return
+    end
     local bufnr = getqf(self.id).qfbufnr
     if not bufnr then
         return
     end
     vim.api.nvim_buf_call(bufnr, function ()
-        local ok = pcall(vim.cmd.compiler, compiler)
-        assert(ok, "Compiler not found")
+        local ok, err = pcall(vim.cmd.compiler, compiler)
+        pcall(vim.cmd.compiler, "make")
     end)
+end
+
+function QuickFix:apply_color(color_func)
+    local qf = getqf(self.id)
+    local size = qf.size
+    local bufnr = qf.qfbufnr
+
+    color_func(bufnr, size)
+end
+
+function QuickFix:cleanup_buf_call(buf_fn)
+    local bufnr = getqf(self.id).qfbufnr
+
+    vim.api.nvim_create_autocmd("QuickFixCmdPost", {
+        pattern = "*",
+        callback = function ()
+            if vim.api.nvim_buf_is_valid(bufnr) then
+                vim.api.nvim_buf_call(bufnr, function ()
+                    require("cathy.compile.signalis").clear_ns(bufnr)
+                    buf_fn(bufnr)
+                end)
+            end
+        end
+    })
+end
+
+function QuickFix:cleanup_win_call(win_fn)
+    local winid = getqf(self.id).winid
+
+    vim.api.nvim_create_autocmd("QuickFixCmdPost", {
+        pattern = "*",
+        callback = function ()
+            if vim.api.nvim_win_is_valid(winid) then
+                vim.api.nvim_win_call(winid, function ()
+                    require("quicker").refresh(winid)
+                    win_fn(winid)
+                end)
+            end
+        end
+    })
+end
+
+function QuickFix:set_text_func(f)
+    local items = getqf(self.id).items
+    vim.fn.setqflist(items, "r", {
+        id = self.id,
+        quickfixtextfunc = f
+    })
 end
 
 function QuickFix:set_title(title)
@@ -56,6 +133,15 @@ function QuickFix:set_title(title)
 end
 
 function QuickFix:append_lines(lines)
+    if lines.plain then
+        lines.plain = nil
+        local qf_items = {}
+        for _, line in ipairs(lines) do
+            table.insert(qf_items, { text = line })
+        end
+        vim.fn.setqflist({}, 'a', { items = qf_items })
+        return
+    end
     vim.fn.setqflist({}, "a", { lines = lines, id = self.id })
 end
 
@@ -98,11 +184,15 @@ function Compile_Opts.new(cmd)
         args = {},
         process = false,
         cwd = cwd,
-        vim_compiler = compiler_exists(cmd.compiler) and cmd.compiler,
+        vim_compiler = cmd.compiler,
         interactive = false
     }
 
-    return setmetatable(vim.tbl_deep_extend("keep", cmd, defaults), { __index = Compile_Opts })
+    local obj = setmetatable(vim.tbl_deep_extend("keep", cmd, defaults), { __index = Compile_Opts })
+    if string.sub(obj.cwd, 1, 1) ~= "/" then
+        obj.cwd = vim.fs.normalize(vim.uv.cwd() .. "/" .. obj.cwd)
+    end
+    return obj
 end
 
 ---@return string[]
@@ -113,6 +203,22 @@ function Compile_Opts:get_plain_cmd()
     end
     cmd = cmd .. table.concat(self.args, " ")
     return cmd
+end
+
+function Compile_Opts:make_executable()
+    local executable
+    if self.process then
+        executable = { self.compiler, unpack(self.args) }
+    else
+        local script = { "{", self.compiler, unpack(self.args)}
+        vim.list_extend(script, { "}", "2>&1" })
+        executable = {
+            vim.opt.shell:get(),
+            vim.opt.shellcmdflag:get(),
+            table.concat(script, " ")
+        }
+    end
+    return executable
 end
 
 return {
