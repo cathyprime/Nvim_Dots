@@ -91,7 +91,7 @@ function QuickFix:open()
     local items = getqf(self.id).items
     vim.fn.setqflist(items, "r", {
         id = self.id,
-        quickfixtextfunc = "v:lua.require'cathy.compile'.quickfixtextfunc"
+        quickfixtextfunc = "v:lua.require'cathy.compile.display'.quickfixtextfunc"
     })
 end
 
