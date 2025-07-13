@@ -24,7 +24,7 @@ function H.make_stdout_handler(cmd, qflist)
     end
 end
 
-function H.start(cmd, executable)
+function H.start(cmd)
     local qflist = utils.QuickFix.new()
 
     qflist:open()
@@ -56,11 +56,11 @@ function H.start(cmd, executable)
         qflist:apply_color(color_func)
     end)
 
-    return vim.system(executable, {
+    return vim.system(cmd:make_executable(), {
         stdout = H.make_stdout_handler(cmd, qflist),
         cwd = cmd.cwd,
         detach = true,
-        text = true
+        text = true -- set to false to have ansi escapes
     }, on_exit)
 end
 
@@ -98,8 +98,7 @@ function M.exec(cmd)
         H.open_term(cmd)
         return
     end
-    local executable = cmd:make_executable()
-    H.start(cmd, executable)
+    H.start(cmd)
 end
 
 return M

@@ -209,6 +209,12 @@ function Compile_Opts:make_executable()
             vim.opt.shellcmdflag:get(),
             table.concat(script, " ")
         }
+        -- executable = {
+        --     "script", "-qc",
+        --     table.concat(script, " "),
+        --     "/dev/null"
+        -- }
+        -- use this to have ansi escape codes
     end
     return executable
 end
