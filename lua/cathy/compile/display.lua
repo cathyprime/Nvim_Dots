@@ -4,8 +4,28 @@ local M = {}
 local H = {
     hl_group = {
         ok =  "CompileModeOk",
-        err = "CompileModeErr"
+        err = "CompileModeErr",
+        file = "CompileModeFile"
     },
+}
+
+local from_hl = function (hl_group)
+    return function (opts)
+        vim.defer_fn(function ()
+            vim.hl.range(
+                opts.bufnr,
+                ns,
+                hl_group,
+                { opts.linenr, opts.start },
+                { opts.linenr, opts.stop },
+                { inclusive = false }
+            )
+        end, 50)
+    end
+end
+
+M.range = {
+    file = from_hl(H.hl_group.file)
 }
 
 if vim.fn.hlexists(H.hl_group.ok) == 0 then
@@ -14,6 +34,12 @@ end
 
 if vim.fn.hlexists(H.hl_group.err) == 0 then
     vim.api.nvim_set_hl(0, H.hl_group.err, { link = "DiffDelete" })
+end
+
+if vim.fn.hlexists(H.hl_group.file) == 0 then
+    local hl = vim.api.nvim_get_hl(0, { name = "DiagnosticError" })
+    hl.underline = true
+    vim.api.nvim_set_hl(0, H.hl_group.file, hl)
 end
 
 function M.color_ok(len, start)
@@ -33,7 +59,8 @@ function M.clear_ns(bufnr)
 end
 
 function M.quickfixtextfunc(info)
-    local items = vim.fn.getqflist({ id = info.id, items = 1 }).items
+    local qf = vim.fn.getqflist({ id = info.id, all = 1 })
+    local items = qf.items
     local l = {}
 
     for idx = info.start_idx - 1, info.end_idx - 1 do
@@ -59,9 +86,17 @@ function M.quickfixtextfunc(info)
                 table.insert(parts, tostring(item.col))
             end
 
+
             local line
             if #parts > 0 then
-                line = table.concat(parts, ":") .. ":" .. (item.text or "")
+                local parts_str = table.concat(parts, ":")
+                line = parts_str .. ":" .. (item.text or "")
+                M.range.file {
+                    bufnr = qf.qfbufnr,
+                    start = 0,
+                    stop = #parts_str,
+                    linenr = idx
+                }
             else
                 line = item.text or ""
             end
