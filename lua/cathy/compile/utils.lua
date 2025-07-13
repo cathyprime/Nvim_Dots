@@ -102,7 +102,9 @@ function QuickFix:set_compiler(compiler)
     local bufnr = getqf(self.id).qfbufnr
     vim.api.nvim_buf_call(bufnr, function ()
         local ok, err = pcall(vim.cmd.compiler, compiler)
-        pcall(vim.cmd.compiler, "make")
+        if not ok then
+            pcall(vim.cmd.compiler, "make")
+        end
     end)
 end
 
