@@ -4,6 +4,7 @@ local picker_opts = require("cathy.utils.snacks.picker_opts")
 local f = require("cathy.utils.snacks.format")
 
 local picker_mappings = {
+    man          = "<leader>fm",
     undo         = "<leader>u",
     find_file    = "<leader>ff",
     jumps        = "<leader>fj",

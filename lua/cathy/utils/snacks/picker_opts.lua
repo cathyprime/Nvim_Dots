@@ -24,6 +24,7 @@ local picker_opts = {
     jumps        = { prompt = " Jumps :: ",                  desc = "jumps" },
     spelling     = { prompt = " Spelling :: ",               desc = "spell suggestion", layout = { preset = "ivy_noprev" } },
     undo         = mainprevw { prompt = " Undo :: ",         desc = "undo" },
+    man          = nopreview { prompt = " Man :: ",          desc = "man" },
     lazy         = nopreview { prompt = " Lazy :: ",         desc = "lazy declarations" },
     grep         = nopreview { prompt = " Grep :: ",         desc = "grep" },
     grep_buffers = nopreview { prompt = " Grep Buffers :: ", desc = "grep current file" },
