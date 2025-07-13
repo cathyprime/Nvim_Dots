@@ -1,18 +1,22 @@
 local flags = {
     CWD = "--cwd::",
-    COMPILER = "--compiler::"
+    COMPILER = "--compiler::",
+    PROCESS = "--process"
 }
 
-local function flag_to_opt(flag)
-    return (flag:sub(3)):sub(1, -3)
+local function val(arg, flag)
+    return (arg:sub(#flag + 1))
 end
 
 local params = {
     [flags.CWD] = function (arg)
-        return flag_to_opt(flags.CWD), (arg:sub(#flags.CWD + 1))
+        return "cwd", val(arg, flags.CWD)
     end,
     [flags.COMPILER] = function (arg)
-        return "vim_" .. flag_to_opt(flags.COMPILER), (arg:sub(#flags.COMPILER + 1))
+        return "vim_compiler", val(arg, flags.COMPILER)
+    end,
+    [flags.PROCESS] = function (arg)
+        return "process", true
     end
 }
 
