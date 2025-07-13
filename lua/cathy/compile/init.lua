@@ -29,9 +29,13 @@ function H.start(cmd, executable)
 
     qflist:open()
     qflist:set_title(cmd:get_plain_cmd())
+    local cwd = cmd.cwd .. "/"
+    if cwd:find(os.getenv "HOME") then
+        cwd = (cwd:gsub(os.getenv "HOME", "~"))
+    end
     qflist:append_lines({
         plain = true,
-        string.format("-*- Compilation_Mode; Starting_Directory :: \"%s\" -*-", cmd.cwd),
+        string.format("-*- Compilation_Mode; Starting_Directory :: \"%s\" -*-", cwd),
         string.format("Compilation started at %s", os.date "%a %b %d %H:%M:%S"),
         "",
         cmd:get_plain_cmd()
