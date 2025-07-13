@@ -48,7 +48,7 @@ local function setup_buf_opts(bufnr)
         callback = function ()
             if vim.api.nvim_buf_is_valid(bufnr) then
                 vim.api.nvim_buf_call(bufnr, function ()
-                    require("cathy.compile.signalis").clear_ns(bufnr)
+                    require("cathy.compile.display").clear_ns(bufnr)
                     vim.b.minitrailspace_disable = nil
                     vim.b.compile_mode = nil
                     vim.opt_local.modifiable = true

@@ -1,57 +1,50 @@
 local term_string = "Compilation %s at %s, duration %.2f s"
 local term_string_abnormal = "Compilation exited abnormally with code %d at %s, duration %.2f s"
-local ns = vim.api.nvim_create_namespace("Magda_Compile_Mode")
+local display = lazy_require("cathy.compile.display")
 
 local M = {}
 local H = {
-    hl_group = {
-        ok =  "CompileModeOk",
-        err = "CompileModeErr"
-    },
     offsets = {
         term_string = 12,
         term_string_abnormal = 40
     }
 }
 
-if vim.fn.hlexists(H.hl_group.ok) == 0 then
-    vim.api.nvim_set_hl(0, H.hl_group.ok, { link = "DiffAdd" })
-end
-
-if vim.fn.hlexists(H.hl_group.err) == 0 then
-    vim.api.nvim_set_hl(0, H.hl_group.err, { link = "DiffDelete" })
-end
-
-local color = function (len, group, start)
-    return function (bufnr, linenr)
-        vim.hl.range(bufnr, ns, group, { linenr, start }, { linenr, start + len }, { inclusive = false })
+-- format_string, msg, offset
+local msg_func = function (opt)
+    return function (duration)
+        return string.format(opt.format_string, opt.msg, os.date "%a %b %d %H:%M:%S", duration),
+        opt.color_func
     end
 end
 
 local function what(msg)
     if type(msg) == "string" then
-        return function (duration)
-            return string.format(term_string, msg, os.date "%a %b %d %H:%M:%S", duration),
-            color(#msg, H.hl_group.err, H.offsets.term_string)
-        end
+        return msg_func {
+            format_string = term_string,
+            msg = msg,
+            color_func = display.color_err(#msg, H.offsets.term_string)
+        }
     end
     local opt = msg
     if opt.abnormal then
         local code_str = tostring(opt[1])
-        return function (duration)
-            local col_code = color(#code_str, H.hl_group.err, H.offsets.term_string_abnormal)
-            local col_msg = color(#"exited abnormally", H.hl_group.err, H.offsets.term_string)
-            return string.format(term_string_abnormal, opt[1], os.date "%a %b %d %H:%M:%S", duration),
-            function (bufnr, linenr)
+        local col_code = display.color_err(#code_str, H.offsets.term_string_abnormal)
+        local col_msg = display.color_err(#"exited abnormally", H.offsets.term_string)
+        return msg_func {
+            format_string = term_string_abnormal,
+            msg = opt[1],
+            color_func = function (bufnr, linenr)
                 col_code(bufnr, linenr)
                 col_msg(bufnr, linenr)
             end
-        end
+        }
     end
-    return function (duration)
-        return string.format(term_string, opt[1], os.date "%a %b %d %H:%M:%S", duration),
-        color(#opt[1], opt[2], H.offsets.term_string)
-    end
+    return msg_func {
+        format_string = term_string,
+        msg = opt[1],
+        color_func = opt[2](#opt[1], H.offsets.term_string)
+    }
 end
 
 local indexer = function (table, key)
@@ -59,15 +52,11 @@ local indexer = function (table, key)
     if code_func then
         return code_func
     end
-    return what{ key, H.hl_group.err, abnormal = true }
-end
-
-function M.clear_ns(bufnr)
-    vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
+    return what{ key, abnormal = true }
 end
 
 M.signals = setmetatable({
-    [0]                                = what { "finished", H.hl_group.ok },
+    [0]                                = what { "finished", display.color_ok },
     [128 + vim.uv.constants.SIGABRT]   = what "aborted (core dumped)",
     [128 + vim.uv.constants.SIGALRM]   = what "alarm clock",
     [128 + vim.uv.constants.SIGBUS]    = what "bus error (core dumped)",
