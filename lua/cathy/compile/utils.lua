@@ -190,10 +190,12 @@ end
 ---@return string[]
 function Compile_Opts:get_plain_cmd()
     local cmd = ""
-    if self.compiler ~= "" then
-        cmd = self.compiler .. " "
-    end
     cmd = cmd .. table.concat(self.args, " ")
+    if cmd ~= "" then
+        cmd = self.compiler .. " " .. cmd
+    else
+        cmd = self.compiler
+    end
     return cmd
 end
 

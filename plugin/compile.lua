@@ -83,21 +83,44 @@ end
 
 local last_compile = nil
 
-vim.keymap.set("n", "'<cr>", "<cmd>Compile<cr>", { silent = false })
-vim.keymap.set("n", "'<space>", ":Compile ", { silent = false })
+local compile = function (e)
+    if not e.bang then
+        last_compile = H.parse_compile_args(e)
+    end
+
+    if not last_compile then
+        vim.notify("No previous compile command!", vim.log.levels.WARN)
+        return
+    end
+
+    require("cathy.compile").exec(last_compile)
+end
+
+vim.keymap.set("n", "'<cr>", "<cmd>Compile!<cr>", { silent = false })
+vim.keymap.set("n", "'<space>", "<cmd>Compile<cr>", { silent = false })
 vim.api.nvim_create_user_command(
     "Compile",
     function (e)
-        if #e.fargs ~= 0 then
-            last_compile = H.parse_compile_args(e)
-        end
+        if #e.fargs == 0 and not e.bang then
+            vim.ui.input({
+                prompt = "Compile :: ",
+                default = last_compile and last_compile:get_plain_cmd()
+            }, function (input)
+                if not input then
+                    vim.notify("No command", vim.log.levels.WARN)
+                    return
+                end
 
-        if not last_compile then
+                e.fargs = vim.split(input, " ", { plain = true, trimempty = false })
+                compile(e)
+            end)
             return
         end
 
-        require("cathy.compile")
-            .exec(last_compile)
+        compile(e)
     end,
-    { nargs = "*" }
+    {
+        nargs = "*",
+        bang = true
+    }
 )
