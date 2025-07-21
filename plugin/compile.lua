@@ -111,6 +111,7 @@ vim.api.nvim_create_user_command(
                     return
                 end
 
+                e.args = input
                 e.fargs = vim.split(input, " ", { plain = true, trimempty = false })
                 compile(e)
             end)

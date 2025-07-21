@@ -60,7 +60,10 @@ function H.start(cmd)
         stdout = H.make_stdout_handler(cmd, qflist),
         cwd = cmd.cwd,
         detach = true,
-        text = true -- set to false to have ansi escapes
+        text = true, -- set to false to have ansi escapes
+        -- env = {
+        --     TERM = "xterm 256color" -- set to have ansi escape codes
+        -- }
     }, on_exit)
 end
 
@@ -71,10 +74,14 @@ function H.open_term(cmd)
     })
     vim.cmd.lcd(cmd.cwd)
     vim.cmd("noau term " .. cmd:get_plain_cmd())
+    local winnr = vim.api.nvim_get_current_win()
+    vim.wo[winnr].scrolloff = 0
+    vim.wo[winnr].spell = false
+    vim.b.minitrailspace_disable = true
 
     vim.keymap.set("n", "q", function ()
         vim.api.nvim_win_close(0, false)
-    end, { buffer = env.buf, silent = true, noremap = true, nowait = true })
+    end, { buffer = true, silent = true, noremap = true, nowait = true })
 
     vim.api.nvim_create_autocmd("BufHidden", {
         once = true,
