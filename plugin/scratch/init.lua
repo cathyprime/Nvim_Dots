@@ -1,73 +1,42 @@
+local function find_buffer_by_name(name)
+    local bufs = vim.api.nvim_list_bufs()
+    for _, buf in ipairs(bufs) do
+        if vim.fn.bufname(buf) == name then
+            return buf
+        end
+    end
+end
+
 local ft_settings = {
-    sh = function()
-        vim.keymap.set("n", "<cr>", "mm<cmd>.!sh<cr>`m", { buffer = true })
-        vim.keymap.set("n", "<m-cr>", [[<cmd>redir @" | exec '.w !sh' | redir END<cr>]], { buffer = true })
-        vim.keymap.set("n", "gl", [[<cmd>%s#git@github.com:#https://github.com/<cr>]], { buffer = true })
-        vim.keymap.set("n", "gj", "<cmd>.!jq<cr>", { buffer = true })
-        vim.keymap.set("v", "<cr>", [[<cr>!sh<cr>]], { buffer = true })
-        vim.keymap.set("v", "<m-cr>", [[<cr>w !sh<cr>]], { buffer = true })
+    sh = function(bufnr)
+        print("set_filetype_opts :: sh")
+        vim.keymap.set("n", "<cr>", "mm<cmd>.!sh<cr>`m", { buffer = bufnr })
+        vim.keymap.set("n", "<m-cr>", [[<cmd>redir @" | exec '.w !sh' | redir END<cr>]], { buffer = bufnr })
+        vim.keymap.set("n", "gl", [[<cmd>%s#git@github.com:#https://github.com/<cr>]], { buffer = bufnr })
+        vim.keymap.set("n", "gj", "<cmd>.!jq<cr>", { buffer = bufnr })
+        vim.keymap.set("v", "<cr>", [[<cr>!sh<cr>]], { buffer = bufnr })
+        vim.keymap.set("v", "<m-cr>", [[<cr>w !sh<cr>]], { buffer = bufnr })
     end,
     text = function()
-        vim.keymap.set("n", "<cr>", [[<cmd>.!toilet --width 120 --font smblock<cr>]], { silent = true, buffer = true })
+        vim.keymap.set("n", "<cr>", [[<cmd>.!toilet --width 120 --font smblock<cr>]], { silent = true, buffer = bufnr })
     end,
     all = function()
+        print("set_filetype_opts :: all")
         vim.keymap.set("n", "q", function()
             local ok = pcall(vim.api.nvim_win_close, vim.api.nvim_get_current_win(), false)
             if not ok then
                 vim.cmd[[b#]]
             end
-        end, { buffer = true })
+        end, { buffer = bufnr })
     end
 }
 
-local function set_filetype_opts(ft)
-    ft_settings.all()
+local function set_filetype_opts(ft, bufnr)
+    ft_settings.all(bufnr)
     if ft_settings[ft] ~= nil then
-        ft_settings[ft]()
+        ft_settings[ft](bufnr)
     end
 end
-
-vim.api.nvim_create_user_command(
-    "Afk",
-    function(opts)
-        local cur = vim.api.nvim_get_current_win()
-        vim.cmd[[4split]]
-        vim.cmd.enew()
-        vim.api.nvim_set_option_value("buftype", "nofile", { buf = 0 })
-        vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = 0 })
-        vim.api.nvim_set_option_value("swapfile", false, { buf = 0 })
-        vim.api.nvim_set_option_value("filetype", "AFK", { buf = 0 })
-        vim.api.nvim_buf_set_name(0, "AFK -> " .. opts.args)
-        vim.api.nvim_buf_set_lines(0, 0, -1, true, { opts.args })
-        vim.cmd("1!toilet --font smblock --width 120")
-        local lines = vim.api.nvim_buf_get_lines(0, 0, -1, true)
-        vim.opt_local.relativenumber = false
-        vim.opt_local.foldcolumn = "0"
-        vim.opt_local.signcolumn = "no"
-        vim.opt_local.cursorline = false
-        vim.opt_local.number = false
-        local offset = vim.iter(lines)
-            :map(function(line) return vim.fn.strdisplaywidth(line) end)
-            :fold(0, function(acc, el)
-                if acc > el then
-                    return acc
-                else
-                    return el
-                end
-            end)
-        offset = math.floor((vim.api.nvim_win_get_width(0) - offset) / 2) + 1
-        local padding = string.rep(" " ,offset)
-        lines = vim.iter(lines):map(function(line)
-            return padding .. line
-        end):totable()
-        vim.api.nvim_buf_set_lines(0, 0, -1, true, lines)
-        vim.api.nvim_set_current_win(cur)
-    end,
-    {
-        desc = "display afk message",
-        nargs = 1
-    }
-)
 
 vim.api.nvim_create_user_command(
     "Scratch",
@@ -85,26 +54,18 @@ vim.api.nvim_create_user_command(
             vim.cmd(opts.mods .. " split")
         end
 
-        local buf = vim.iter(vim.api.nvim_list_bufs())
-            :find(function(buf)
-                return vim.fn.bufname(buf) == "Scratch -> " .. ft
-            end)
-
-        if buf ~= nil then
-            vim.api.nvim_win_set_buf(0, buf)
-            return
+        local buf = find_buffer_by_name("Scratch :: " .. ft)
+        if buf == nil then
+            buf = vim.api.nvim_create_buf(false, true)
+            vim.api.nvim_buf_set_name(buf, "Scratch :: " .. ft)
+            vim.bo[buf].bufhidden = "hide"
+            vim.bo[buf].swapfile = false
+            vim.bo[buf].buftype = "nofile"
+            vim.bo[buf].filetype = ft
+            set_filetype_opts(ft, buf)
         end
 
-        vim.cmd"enew"
-        vim.api.nvim_set_option_value("buftype", "nofile", { buf = 0 })
-        vim.api.nvim_set_option_value("bufhidden", "hide", { buf = 0 })
-        vim.api.nvim_set_option_value("swapfile", false, { buf = 0 })
-        if ft == [[nil]] or ft == [[""]] then
-            return
-        end
-        vim.api.nvim_buf_set_name(0, "Scratch -> " .. ft)
-        vim.api.nvim_set_option_value("filetype", ft, { buf = 0 })
-        set_filetype_opts(ft)
+        vim.api.nvim_win_set_buf(0, buf)
     end,
     {
         bang = true,
@@ -114,6 +75,6 @@ vim.api.nvim_create_user_command(
     }
 )
 
-vim.keymap.set("n", "<leader>oS", "<cmd>Scratch<cr>", { desc = "open scratch buffer" })
-vim.keymap.set("n", "<leader>os", "<cmd>Scratch sh<cr>", { desc = "open scratch shell buffer" })
+vim.keymap.set("n", "<leader>os", "<cmd>Scratch<cr>", { desc = "open scratch buffer" })
+vim.keymap.set("n", "<leader>oS", "<cmd>Scratch sh<cr>", { desc = "open scratch shell buffer" })
 vim.keymap.set("n", "<leader>ot", "<cmd>Scratch markdown<cr>", { desc = "open scratch todo buffer" })
