@@ -1,7 +1,12 @@
 local opt = function (arr)
     return function (opts)
         for key, value in pairs(arr) do
+            if value == false then
+                opts[key] = nil
+                goto continue
+            end
             opts[key] = value
+            ::continue::
         end
     end
 end
@@ -105,6 +110,23 @@ local function ansi_cube (ansi16, code)
     return to_hex(level(red), level(green), level(blue))
 end
 
+local function calc_field(code)
+    local foreground_range = 30 <= code and code <= 37
+    local background_range = 40 <= code and code <= 47
+    local bright_foreground_range = 90 <= code and code <= 97
+    local bright_background_range = 100 <= code and code <= 107
+    local is_bright = bright_foreground_range or bright_background_range
+
+    if is_bright then
+        code = code - 60
+    end
+
+    if foreground_range or bright_foreground_range then
+        return "fg"
+    end
+    return "bg"
+end
+
 local function ansi_to_hex(ansi_code)
     local ansi16 = setmetatable({
         "#000000", "#cd0000", "#00cd00", "#cdcd00",
@@ -149,13 +171,17 @@ local function ansi_to_hex(ansi_code)
         end
     end
 
-    local value, field = ansi16[ansi_code[1]]
+    local value = ansi16[ansi_code[1]]
+    local field = calc_field(ansi_code[1])
     return function (opts)
         opts[field] = value
     end
 end
 
 local function fallback(self, ansi_code)
+    if type(ansi_code) ~= "table" and type(ansi_code) ~= "number" then
+        return
+    end
     assert(type(ansi_code) == "table" or type(ansi_code) == "number",
            "Index with table only!")
 

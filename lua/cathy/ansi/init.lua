@@ -48,14 +48,22 @@ function M.parse_line(line)
         end
     end
 
-    setmetatable(positions, nil)
+    local trans_pos = {}
+    local keys = vim.tbl_keys(positions)
+    table.sort(keys)
 
-    return line, positions
+    for _, key in ipairs(keys) do
+        table.insert(trans_pos, {
+            pos = key,
+            values = positions[key]
+        })
+    end
+
+    return line, trans_pos
 end
 
 local line, positions = M.parse_line(lines[1])
 vim.print(positions)
-print(line)
 
 -- [36m[1mbuild[39m[22m, [36m[1mb[39m[22m    Compile the current package
 -- [36m[1mcheck[39m[22m, [36m[1mc[39m[22m    Analyze the current package and report errors, but don't build object files
