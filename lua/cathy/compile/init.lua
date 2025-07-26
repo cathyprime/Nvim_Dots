@@ -5,7 +5,7 @@ local H = {}
 
 function H.prepare_data(data)
     if type(data) == "string" then
-        data = vim.split(data, "\n", { plain = true, trimempty = true })
+        data = vim.split(data, "[\n\r]+", { plain = false, trimempty = true })
     end
     assert(type(data) == "table")
     return data
@@ -15,7 +15,15 @@ end
 function H.make_stdout_handler(cmd, qflist)
     local setqflist = vim.schedule_wrap(function (data)
         data = H.prepare_data(data)
-        qflist:append_lines(data)
+        local ansi = require("cathy.ansi")
+        if ansi.has_ansi_code(data) then
+            local stripped_data, color_func = ansi.strip_lines(data)
+            local linenr = qflist:size()
+            qflist:append_lines(stripped_data)
+            qflist:apply_color(color_func, linenr)
+        else
+            qflist:append_lines(data)
+        end
     end)
     return function (_, data)
         if data then
@@ -29,7 +37,10 @@ function H.start(cmd)
 
     qflist:open()
     qflist:set_title(cmd:get_plain_cmd())
-    local cwd = cmd.cwd .. "/"
+    local cwd = cmd.cwd
+    if string.sub(cwd, -1) ~= "/" then
+        cwd = cmd.cwd .. "/"
+    end
     if cwd:find(os.getenv "HOME") then
         cwd = (cwd:gsub(os.getenv "HOME", "~"))
     end
@@ -60,10 +71,10 @@ function H.start(cmd)
         stdout = H.make_stdout_handler(cmd, qflist),
         cwd = cmd.cwd,
         detach = true,
-        text = true, -- set to false to have ansi escapes
-        -- env = {
-        --     TERM = "xterm 256color" -- set to have ansi escape codes
-        -- }
+        text = false,
+        env = {
+            TERM = "xterm 256color"
+        }
     }, on_exit)
 end
 

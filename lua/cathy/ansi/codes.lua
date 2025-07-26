@@ -13,10 +13,8 @@ end
 
 local function reset(opts)
     for key, _ in pairs(opts) do
-        opts.key = false
+        opts[key] = nil
     end
-    opts.fg = nil
-    opts.bg = nil
 end
 
 local function reset_color(key)

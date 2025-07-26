@@ -95,6 +95,10 @@ function QuickFix:open()
     })
 end
 
+function QuickFix:size()
+    return getqf(self.id).size
+end
+
 function QuickFix:set_compiler(compiler)
     if not compiler then
         return
@@ -108,12 +112,12 @@ function QuickFix:set_compiler(compiler)
     end)
 end
 
-function QuickFix:apply_color(color_func)
+function QuickFix:apply_color(color_func, start)
     local qf = getqf(self.id)
-    local size = qf.size
+    start = start or qf.size
     local bufnr = qf.qfbufnr
 
-    color_func(bufnr, size)
+    color_func(bufnr, start)
 end
 
 function QuickFix:set_title(title)
@@ -132,9 +136,11 @@ function QuickFix:append_lines(lines)
             table.insert(qf_items, { text = line })
         end
         vim.fn.setqflist({}, 'a', { items = qf_items })
+        vim.cmd.cbottom()
         return
     end
     vim.fn.setqflist({}, "a", { lines = lines, id = self.id })
+    vim.cmd.cbottom()
 end
 
 ---@class Compile_Opts
@@ -204,19 +210,18 @@ function Compile_Opts:make_executable()
     if self.process then
         executable = { self.compiler, unpack(self.args) }
     else
-        local script = { "{", self.compiler, unpack(self.args)}
-        vim.list_extend(script, { "}", "2>&1" })
+        local script = (([[pty-run() {
+    if [ $# -eq 0 ]; then
+        return 1;
+    fi;
+    local cmd=$(printf '%q ' "$@");
+    script -qc "$cmd" /dev/null 2>&1;
+}; pty-run ]]):gsub("\n", "")) .. table.concat({ self.compiler, unpack(self.args) }, " ")
         executable = {
             vim.opt.shell:get(),
             vim.opt.shellcmdflag:get(),
-            table.concat(script, " ")
+            script
         }
-        -- executable = {
-        --     "script", "-qc",
-        --     table.concat(script, " "),
-        --     "/dev/null"
-        -- }
-        -- use this to have ansi escape codes
     end
     return executable
 end

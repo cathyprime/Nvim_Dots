@@ -37,7 +37,7 @@ function H.parse_line(line)
         end
 
         ansi = H.patterns.ansi_parse:match(ansi)
-        if ansi.cmd == "m" then
+        if ansi and ansi.cmd == "m" then
             table.insert(positions[chop], ansi.values)
         end
     end

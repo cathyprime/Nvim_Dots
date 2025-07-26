@@ -17,7 +17,7 @@ M.ansi_parse = ansi_code / function (values, cmd)
     }
 end
 local ansi_value = (digit + semicolon) ^ 1
-local ansi_code  = esc_char * bracket * ansi_value * cmd
+local ansi_code  = esc_char * bracket * (ansi_value^0) * cmd
 local not_ansi   = (1 - ansi_code) ^ 0
 
 M.has_ansi = not_ansi * ansi_code * not_ansi
