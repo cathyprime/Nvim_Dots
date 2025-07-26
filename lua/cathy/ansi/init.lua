@@ -8,13 +8,7 @@ function H.chop_till(self, pos)
     return string.sub(self, 1, pos - 1), string.sub(self, pos, -1)
 end
 
-local bufnr = 0
-local ns = vim.api.nvim_create_namespace("Magda_Ansi_Codes")
-
-local start_line_nr = vim.api.nvim_buf_line_count(bufnr) - 2
-local lines = vim.api.nvim_buf_get_lines(bufnr, start_line_nr, start_line_nr + 2, false)
-
-function M.parse_line(line)
+function H.parse_line(line)
     local positions = setmetatable({}, {
         __index = function (tbl, key)
             local got = rawget(tbl, key)
@@ -62,8 +56,62 @@ function M.parse_line(line)
     return line, trans_pos
 end
 
-local line, positions = M.parse_line(lines[1])
-vim.print(positions)
+local ns = vim.api.nvim_create_namespace("Magda_Ansi_Codes")
+function M.colorize_line(bufnr, linenr)
+    linenr = linenr - 1
+    local line = vim.api.nvim_buf_get_lines(bufnr, linenr, linenr + 1, false)[1]
 
--- [36m[1mbuild[39m[22m, [36m[1mb[39m[22m    Compile the current package
--- [36m[1mcheck[39m[22m, [36m[1mc[39m[22m    Analyze the current package and report errors, but don't build object files
+    local line, positions = H.parse_line(line)
+    vim.api.nvim_buf_set_lines(bufnr, linenr, linenr + 1, false, { line })
+    require("cathy.ansi.utils")
+        .parse_codes(positions)
+        :apply(0, linenr)
+end
+
+function M.strip_line(line)
+    local stripped, positions = H.parse_line(line)
+    local ranges = require("cathy.ansi.utils")
+        .parse_codes(positions)
+    local color_func = function (bufnr, linenr)
+        ranges:apply(bufnr, linenr)
+    end
+    return stripped, color_func
+end
+
+function M.strip_lines(lines)
+    local stripped_lines = {}
+    local range_tbl = {}
+    for _, line in ipairs(lines) do
+        if M.has_ansi_code(line) then
+            local stripped_line, positions = H.parse_line(line)
+            local ranges = require("cathy.ansi.utils").parse_codes(positions)
+
+            table.insert(stripped_lines, stripped_line)
+            table.insert(range_tbl, ranges)
+        else
+            table.insert(stripped_lines, line)
+            table.insert(range_tbl, 0)
+        end
+    end
+    local coloring = function(bufnr, linenr)
+        for _, ranges in ipairs(range_tbl) do
+            if type(ranges) ~= "number" then
+                ranges:apply(bufnr, linenr)
+            end
+            linenr = linenr + 1
+        end
+    end
+    return stripped_lines, coloring
+end
+
+function M.has_ansi_code(line)
+    if type(line) == "string" then
+        return H.patterns.has_ansi:match(line) and true or false
+    end
+    local lines = line
+    return vim.iter(lines):any(function (line)
+        return H.patterns.has_ansi:match(line)
+    end)
+end
+
+return M
