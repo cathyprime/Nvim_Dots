@@ -9,7 +9,6 @@ end
 
 local ft_settings = {
     sh = function(bufnr)
-        print("set_filetype_opts :: sh")
         vim.keymap.set("n", "<cr>", "mm<cmd>.!sh<cr>`m", { buffer = bufnr })
         vim.keymap.set("n", "<m-cr>", [[<cmd>redir @" | exec '.w !sh' | redir END<cr>]], { buffer = bufnr })
         vim.keymap.set("n", "gl", [[<cmd>%s#git@github.com:#https://github.com/<cr>]], { buffer = bufnr })
@@ -21,7 +20,6 @@ local ft_settings = {
         vim.keymap.set("n", "<cr>", [[<cmd>.!toilet --width 120 --font smblock<cr>]], { silent = true, buffer = bufnr })
     end,
     all = function()
-        print("set_filetype_opts :: all")
         vim.keymap.set("n", "q", function()
             local ok = pcall(vim.api.nvim_win_close, vim.api.nvim_get_current_win(), false)
             if not ok then
