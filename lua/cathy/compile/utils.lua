@@ -30,10 +30,11 @@ function QuickFix.new()
 end
 
 local function clear_namespaces(bufnr)
-    local each = function (key, value)
-        vim.api.nvim_buf_clear_namespace(bufnr, value, 0, -1)
+    for name, id in pairs(vim.api.nvim_get_namespaces()) do
+        if name ~= "Oil" then
+            vim.api.nvim_buf_clear_namespace(bufnr, id, 0, -1)
+        end
     end
-    vim.iter(vim.api.nvim_get_namespaces()):each(each)
 end
 
 local function setup_buf_opts(bufnr)
