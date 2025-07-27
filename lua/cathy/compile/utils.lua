@@ -24,7 +24,7 @@ function QuickFix.new()
     local bufnr = vim.api.nvim_create_buf(false, false)
     vim.fn.setqflist({}, " ", { bufnr = bufnr })
     return setmetatable(
-        { id = getqf(0).id },
+        { id = vim.fn.getqflist({ id = 0, all = 1 }).id },
         { __index = QuickFix }
     )
 end
@@ -38,9 +38,15 @@ local function clear_namespaces(bufnr)
 end
 
 local function setup_buf_opts(bufnr)
+    vim.keymap.set("n", "<c-c>", function ()
+        local job = require("cathy.compile").running_job
+        if job then
+            vim.uv.kill(-job.pid, "sigint")
+        end
+    end, { buffer = bufnr })
     vim.api.nvim_buf_call(bufnr, function ()
-        vim.b.minitrailspace_disable = true
         vim.b.compile_mode = true
+        vim.b.minitrailspace_disable = true
         vim.opt_local.modifiable = false
     end)
     vim.api.nvim_create_autocmd("QuickFixCmdPost", {
@@ -79,32 +85,32 @@ local function setup_win_opts(winid)
 end
 
 function QuickFix:open()
-    local bufnr = getqf(self.id).qfbufnr
-    clear_namespaces(getqf(self.id).qfbufnr)
+    local bufnr = self:get().qfbufnr
+    clear_namespaces(self:get().qfbufnr)
 
-    local winid = getqf(self.id).winid
+    local winid = self:get().winid
     local height = math.floor(vim.opt.lines:get() * 0.4 )
     vim.cmd("copen " .. height)
 
     setup_buf_opts(bufnr)
     setup_win_opts(winid)
 
-    local items = getqf(self.id).items
+    local items = self:get().items
     vim.fn.setqflist(items, "r", {
         id = self.id,
         quickfixtextfunc = "v:lua.require'cathy.compile.display'.quickfixtextfunc"
     })
 end
 
-function QuickFix:size()
-    return getqf(self.id).size
+function QuickFix:get()
+    return vim.fn.getqflist({ id = self.id, all = 1 })
 end
 
 function QuickFix:set_compiler(compiler)
     if not compiler then
         return
     end
-    local bufnr = getqf(self.id).qfbufnr
+    local bufnr = self:get().qfbufnr
     vim.api.nvim_buf_call(bufnr, function ()
         local ok, err = pcall(vim.cmd.compiler, compiler)
         if not ok then
@@ -114,7 +120,7 @@ function QuickFix:set_compiler(compiler)
 end
 
 function QuickFix:apply_color(color_func, start)
-    local qf = getqf(self.id)
+    local qf = self:get()
     start = start or qf.size
     local bufnr = qf.qfbufnr
 
@@ -122,7 +128,7 @@ function QuickFix:apply_color(color_func, start)
 end
 
 function QuickFix:set_title(title)
-    local items = getqf(self.id).items
+    local items = self:get().items
     vim.fn.setqflist(items, "r", {
         id = self.id,
         title = title
@@ -216,9 +222,11 @@ function Compile_Opts:make_executable()
         return 1;
     fi;
     local cmd=$(printf '%q ' "$@");
+    trap 'code=$?; [ $code -eq 0 ] && code=130; exit $code' INT TERM HUP QUIT;
     script -qc "$cmd" /dev/null 2>&1;
 }; pty-run ]]):gsub("\n", "")) .. table.concat({ self.compiler, unpack(self.args) }, " ")
         executable = {
+            "setsid",
             vim.opt.shell:get(),
             vim.opt.shellcmdflag:get(),
             script

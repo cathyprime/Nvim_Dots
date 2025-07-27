@@ -18,7 +18,7 @@ function H.make_stdout_handler(cmd, qflist)
         local ansi = require("cathy.ansi")
         if ansi.has_ansi_code(data) then
             local stripped_data, color_func = ansi.strip_lines(data)
-            local linenr = qflist:size()
+            local linenr = qflist:get().size
             qflist:append_lines(stripped_data)
             qflist:apply_color(color_func, linenr)
         else
@@ -65,17 +65,18 @@ function H.start(cmd)
             msg
         })
         qflist:apply_color(color_func)
+        M.running_job = nil
     end)
 
-    return vim.system(cmd:make_executable(), {
+    local proc = vim.system(cmd:make_executable(), {
         stdout = H.make_stdout_handler(cmd, qflist),
         cwd = cmd.cwd,
-        detach = true,
         text = false,
         env = {
             TERM = "xterm 256color"
         }
     }, on_exit)
+    M.running_job = proc
 end
 
 function H.open_term(cmd)
