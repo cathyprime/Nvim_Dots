@@ -2,7 +2,6 @@ local term_string = "Compilation %s at %s, duration %.2f s"
 local term_string_abnormal = "Compilation exited abnormally with code %d at %s, duration %.2f s"
 local display = lazy_require("cathy.compile.display")
 
-local M = {}
 local H = {
     offsets = {
         term_string = 12,
@@ -26,6 +25,7 @@ local function what(msg)
             color_func = display.color_err(#msg, H.offsets.term_string)
         }
     end
+    assert(type(msg) == "table")
     local opt = msg
     if opt.abnormal then
         local code_str = tostring(opt[1])
@@ -55,7 +55,7 @@ local indexer = function (table, key)
     return what{ key, abnormal = true }
 end
 
-M.signals = setmetatable({
+return setmetatable({
     [0]                                = what { "finished", display.color_ok },
     [128 + vim.uv.constants.SIGABRT]   = what "aborted (core dumped)",
     [128 + vim.uv.constants.SIGINT]    = what "interrupted",
@@ -77,5 +77,3 @@ M.signals = setmetatable({
     [128 + vim.uv.constants.SIGXCPU]   = what "cpu time limit exceeded (core dumped)",
     [128 + vim.uv.constants.SIGXFSZ]   = what "file size limit exceeded (core dumped)",
 }, { __index = indexer})
-
-return M

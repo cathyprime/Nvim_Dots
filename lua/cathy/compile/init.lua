@@ -56,7 +56,7 @@ function H.start(cmd)
     local start_time = vim.uv.hrtime()
     local on_exit = vim.schedule_wrap(function (proc)
         local duration = (vim.uv.hrtime() - start_time) / 1e9
-        local code_func = require("cathy.compile.signalis").signals[proc.code]
+        local code_func = require("cathy.compile.signalis")[proc.code]
 
         local msg, color_func = code_func(duration)
         qflist:append_lines({
