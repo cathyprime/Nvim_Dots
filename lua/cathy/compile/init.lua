@@ -44,6 +44,13 @@ function H.start(cmd)
     if cwd:find(os.getenv "HOME") then
         cwd = (cwd:gsub(os.getenv "HOME", "~"))
     end
+    if M.running_job then
+        vim.uv.kill(-M.running_job.pid, "sigint")
+        M.running_job:wait()
+        M.last_job_killed = true
+        M.running_job = nil
+        qflist:clear()
+    end
     qflist:append_lines({
         plain = true,
         string.format("-*- Compilation_Mode; Starting_Directory :: \"%s\" -*-", cwd),
@@ -55,6 +62,10 @@ function H.start(cmd)
 
     local start_time = vim.uv.hrtime()
     local on_exit = vim.schedule_wrap(function (proc)
+        if M.last_job_killed then
+            M.last_job_killed = nil
+            return
+        end
         local duration = (vim.uv.hrtime() - start_time) / 1e9
         local code_func = require("cathy.compile.signalis")[proc.code]
 

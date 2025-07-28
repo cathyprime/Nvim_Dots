@@ -135,6 +135,10 @@ function QuickFix:set_title(title)
     })
 end
 
+function QuickFix:clear()
+    vim.fn.setqflist({}, "r")
+end
+
 function QuickFix:append_lines(lines)
     if lines.plain then
         lines.plain = nil
