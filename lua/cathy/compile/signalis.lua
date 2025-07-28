@@ -58,6 +58,7 @@ end
 M.signals = setmetatable({
     [0]                                = what { "finished", display.color_ok },
     [128 + vim.uv.constants.SIGABRT]   = what "aborted (core dumped)",
+    [128 + vim.uv.constants.SIGINT]    = what "interrupted",
     [128 + vim.uv.constants.SIGALRM]   = what "alarm clock",
     [128 + vim.uv.constants.SIGBUS]    = what "bus error (core dumped)",
     [128 + vim.uv.constants.SIGFPE]    = what "floating point exception (core dumped)",
