@@ -3,6 +3,21 @@ local from_snacks = require("cathy.utils.snacks.from_snacks")
 local picker_opts = require("cathy.utils.snacks.picker_opts")
 local f = require("cathy.utils.snacks.format")
 
+local term = function ()
+    local term_func = from_snacks.terminal()
+    local cwd = require("oil").get_current_dir()
+    if not cwd then
+        cwd = vim.uv.cwd()
+    end
+    term_func(nil, {
+        cwd = cwd,
+        start_insert = true,
+        auto_insert = false,
+        auto_close = true,
+        interactive = false
+    })
+end
+
 local picker_mappings = {
     man          = "<leader>fm",
     undo         = "<leader>u",
@@ -154,7 +169,7 @@ return {
     keys = with_pickers {
         { "<leader>wz",   from_snacks.zen.zen() },
         { "<leader>wZ",   from_snacks.zen.zoom() },
-        { "<leader><cr>", from_snacks.terminal() },
+        { "<leader><cr>", term },
         { "<leader>gow",  from_snacks.gitbrowse.open({ what = "repo" }), mode = "n", desc = "repo" },
         { "<leader>gob",  from_snacks.gitbrowse.open({ what = "branch" }), mode = "n", desc = "branch" },
         { "<leader>gof",  from_snacks.gitbrowse.open({ what = "file" }), mode = { "n", "v" }, desc = "file" },
