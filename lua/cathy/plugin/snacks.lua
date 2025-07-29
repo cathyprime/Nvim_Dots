@@ -4,12 +4,11 @@ local picker_opts = require("cathy.utils.snacks.picker_opts")
 local f = require("cathy.utils.snacks.format")
 
 local term = function ()
-    local term_func = from_snacks.terminal()
     local cwd = require("oil").get_current_dir()
     if not cwd then
         cwd = vim.uv.cwd()
     end
-    term_func(nil, {
+    Snacks.terminal(nil, {
         cwd = cwd,
         start_insert = true,
         auto_insert = false,
