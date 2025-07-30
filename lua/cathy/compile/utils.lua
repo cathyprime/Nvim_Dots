@@ -41,7 +41,10 @@ local function setup_buf_opts(bufnr)
     vim.keymap.set("n", "<c-c>", function ()
         local job = require("cathy.compile").running_job
         if job then
-            vim.uv.kill(-job.pid, "sigint")
+            local pid = vim.fn.jobpid(job)
+            if pid then
+                vim.uv.kill(-pid, "sigint")
+            end
         end
     end, { buffer = bufnr })
     vim.api.nvim_buf_call(bufnr, function ()
@@ -219,18 +222,16 @@ end
 function Compile_Opts:make_executable()
     local executable
     if self.process then
-        executable = { self.compiler, unpack(self.args) }
+        executable = table.concat({ self.compiler, unpack(self.args) }, " ")
     else
-        local script = (([[pty-run() {
+        local script = (([[run() {
     if [ $# -eq 0 ]; then
         return 1;
     fi;
     local cmd=$(printf '%q ' "$@");
-    trap 'code=$?; [ $code -eq 0 ] && code=130; exit $code' INT TERM HUP QUIT;
-    script -qc "$cmd" /dev/null 2>&1;
-}; pty-run ]]):gsub("\n", "")) .. table.concat({ self.compiler, unpack(self.args) }, " ")
+    eval "$cmd" 2>&1;
+}; run ]]):gsub("\n", "")) .. table.concat({ self.compiler, unpack(self.args) }, " ")
         executable = {
-            "setsid",
             vim.opt.shell:get(),
             vim.opt.shellcmdflag:get(),
             script

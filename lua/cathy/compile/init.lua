@@ -6,8 +6,16 @@ local H = {}
 function H.prepare_data(data)
     if type(data) == "string" then
         data = vim.split(data, "[\n\r]+", { plain = false, trimempty = true })
+    elseif type(data) == "table" then
+        data = vim.iter(data)
+            :map(function (value)
+                return (value:gsub("\r$", ""))
+            end)
+            :filter(function (value)
+                return value ~= ""
+            end)
+            :totable()
     end
-    assert(type(data) == "table")
     return data
 end
 
@@ -26,7 +34,7 @@ function H.make_stdout_handler(cmd, qflist)
         end
     end)
     return function (_, data)
-        if data then
+        if data and #data > 0 then
             setqflist(data)
         end
     end
@@ -45,11 +53,14 @@ function H.start(cmd)
         cwd = (cwd:gsub(os.getenv "HOME", "~"))
     end
     if M.running_job then
-        vim.uv.kill(-M.running_job.pid, "sigint")
-        M.running_job:wait()
-        M.last_job_killed = true
-        M.running_job = nil
-        qflist:clear()
+        local pid = vim.fn.jobpid(M.running_job)
+        if pid then
+            vim.uv.kill(-pid, "sigint")
+            M.running_job:wait()
+            M.last_job_killed = true
+            M.running_job = nil
+            qflist:clear()
+        end
     end
     qflist:append_lines({
         plain = true,
@@ -61,13 +72,13 @@ function H.start(cmd)
     qflist:set_compiler(cmd.vim_compiler)
 
     local start_time = vim.uv.hrtime()
-    local on_exit = vim.schedule_wrap(function (proc)
+    local on_exit = vim.schedule_wrap(function (_, exit_code)
         if M.last_job_killed then
             M.last_job_killed = nil
             return
         end
         local duration = (vim.uv.hrtime() - start_time) / 1e9
-        local code_func = require("cathy.compile.signalis")[proc.code]
+        local code_func = require("cathy.compile.signalis")[exit_code]
 
         local msg, color_func = code_func(duration)
         qflist:append_lines({
@@ -79,15 +90,16 @@ function H.start(cmd)
         M.running_job = nil
     end)
 
-    local proc = vim.system(cmd:make_executable(), {
-        stdout = H.make_stdout_handler(cmd, qflist),
+    M.running_job = vim.fn.jobstart(cmd:make_executable(), {
+        on_stdout = H.make_stdout_handler(cmd, qflist),
+        pty = true,
         cwd = cmd.cwd,
-        text = false,
+        -- text = false,
+        on_exit = on_exit,
         env = {
             TERM = "xterm 256color"
         }
-    }, on_exit)
-    M.running_job = proc
+    })
 end
 
 function H.open_term(cmd)
