@@ -22,7 +22,7 @@ function M.task_file(cwd, name)
 end
 
 function M.load_task(name)
-    local file = M.task_file(vim.uv.cwd(), name)
+    local file = M.task_file(require("cathy.scopes").get_root(), name)
     if not vim.uv.fs_stat(file) then
         return
     end

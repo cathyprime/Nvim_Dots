@@ -21,7 +21,7 @@ local new_task = function (name)
     i.prepare_buffer {
         bufnr = bufnr,
         name = name,
-        cwd = result == 1 and "global" or vim.uv.cwd(),
+        cwd = result == 1 and "global" or require("cathy.scopes").get_root(),
         kind = result == 1 and t.global or t.tasks
     }
     i.open_task_window(bufnr, name)
@@ -55,7 +55,7 @@ local delete_task = function (item)
 end
 
 local pick = function ()
-    local cwd = vim.uv.cwd()
+    local cwd = require("cathy.scopes").get_root()
     Snacks.picker.pick({
         prompt = " Tasks :: ",
         matcher = {
@@ -98,7 +98,7 @@ local pick = function ()
             }
         },
         finder = function ()
-            local cwd = vim.uv.cwd()
+            local cwd = require("cathy.scopes").get_root()
             local format = function (label)
                 local kind = label == "global" and t.global or t.tasks
                 local task_dir = kind == t.global and "global" or cwd

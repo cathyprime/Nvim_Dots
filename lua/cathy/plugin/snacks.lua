@@ -6,7 +6,7 @@ local f = require("cathy.utils.snacks.format")
 local term = function ()
     local cwd = require("oil").get_current_dir()
     if not cwd then
-        cwd = vim.uv.cwd()
+        cwd = require("cathy.scopes").get_root()
     end
     Snacks.terminal(nil, {
         cwd = cwd,

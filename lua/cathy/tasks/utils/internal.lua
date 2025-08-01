@@ -49,7 +49,7 @@ function M.prepare_buffer(opts)
         once = true,
         callback = function ()
             local lines = vim.api.nvim_buf_get_lines(opts.bufnr, 0, -1, true)
-            fs.save_task(opts.name, opts.cwd or vim.uv.cwd(), lines)
+            fs.save_task(opts.name, opts.cwd or require("cathy.scopes").get_root(), lines)
             local str = table.concat(lines, "\n")
             local f = assert(loadstring(str), "failed to compile code")
             cache.set(opts.kind, opts.name, f)

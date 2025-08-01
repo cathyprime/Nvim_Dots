@@ -161,7 +161,7 @@ end
 ---@field compiler string
 ---@field args string[]
 ---@field process boolean Defaults to false
----@field cwd string Defaults to vim.uv.cwd()
+---@field cwd string Defaults to require("cathy.scopes").get_root()
 ---@field interactive boolean Defaults to false
 ---@field vim_compiler string? Defaults to self.compiler
 local Compile_Opts = {}
@@ -189,7 +189,7 @@ function Compile_Opts.new(cmd)
     end
 
     if not cwd then
-        cwd = vim.uv.cwd()
+        cwd = require("cathy.scopes").get_root()
     end
 
     local defaults = {
@@ -202,7 +202,7 @@ function Compile_Opts.new(cmd)
 
     local obj = setmetatable(vim.tbl_deep_extend("keep", cmd, defaults), { __index = Compile_Opts })
     if string.sub(obj.cwd, 1, 1) ~= "/" then
-        obj.cwd = vim.fs.normalize(vim.uv.cwd() .. "/" .. obj.cwd)
+        obj.cwd = vim.fs.normalize(require("cathy.scopes").get_root() .. "/" .. obj.cwd)
     end
     return obj
 end

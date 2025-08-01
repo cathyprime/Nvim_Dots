@@ -348,7 +348,7 @@ local disconnect = function (hostname)
         "-u",
         get_sshfs_path_or_create(hostname)
     }
-    if vim.uv.cwd():find(home_dir .. "/.sshfs") then
+    if require("cathy.scopes").get_root():find(home_dir .. "/.sshfs") then
         vim.cmd("silent cd")
     end
     vim.system(cmd, { detach = true }, function (result)
