@@ -3,17 +3,26 @@ local utils = lazy_require("cathy.compile.utils")
 local M = {}
 local H = {}
 
+vim.api.nvim_create_autocmd("VimLeave", {
+    group = vim.api.nvim_create_augroup("Magda_Compile_Mode", { clear = false }),
+    callback = function ()
+        local pid = vim.fn.jobpid(M.running_job)
+        if pid then
+            vim.uv.kill(-pid, "sigint")
+        end
+    end
+})
+
 function H.prepare_data(data)
+    local function split (d)
+        return vim.split(d, "[\n\r]+", { plain = false, trimempty = true })
+    end
     if type(data) == "string" then
-        data = vim.split(data, "[\n\r]+", { plain = false, trimempty = true })
+        data = split(data)
     elseif type(data) == "table" then
         data = vim.iter(data)
-            :map(function (value)
-                return (value:gsub("\r$", ""))
-            end)
-            :filter(function (value)
-                return value ~= ""
-            end)
+            :map(split)
+            :flatten()
             :totable()
     end
     return data
