@@ -19,11 +19,6 @@ vim.api.nvim_create_autocmd("VimEnter", {
     end,
 })
 
--- quickfix commands
-if vim.g.loaded_dispatch ~= 1 then
-    map("n", "<leader>q", "<cwd>cope<cr>")
-end
-
 -- scrolling
 map("n", "<c-b>", "<Nop>")
 

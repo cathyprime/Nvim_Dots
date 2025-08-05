@@ -7,6 +7,14 @@ function _G.lazy_require(module)
     end})
 end
 
+function _G.prot_require(module_name)
+    local ok, module = pcall(require, module_name)
+    if not ok then
+        vim.notify(module_name .. " not found!", vim.log.levels.WARN)
+    end
+    return ok, module
+end
+
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.uv.fs_stat(lazypath) then
@@ -17,7 +25,35 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
     spec = {
-        { import = "cathy.plugin" },
+        "cathyprime/kanagawa_remix",
+        "chrishrb/gx.nvim",
+        "echasnovski/mini.nvim",
+        "JoosepAlviste/nvim-ts-context-commentstring",
+        "kylechui/nvim-surround",
+        "L3MON4D3/LuaSnip",
+        "mfussenegger/nvim-dap",
+        "milisims/nvim-luaref",
+        "monaqa/dial.nvim",
+        "NeogitOrg/neogit",
+        "neovim/nvim-lspconfig",
+        "nvim-lua/plenary.nvim",
+        "nvim-neotest/nvim-nio",
+        "nvimtools/hydra.nvim",
+        "nvim-treesitter/nvim-treesitter-textobjects",
+        "rcarriga/nvim-dap-ui",
+        "rktjmp/lush.nvim",
+        "sindrets/diffview.nvim",
+        "stevearc/oil.nvim",
+        "stevearc/quicker.nvim",
+
+        { "saghen/blink.cmp", version = "1.*" },
+        { "jake-stewart/multicursor.nvim", branch = "1.0", },
+        { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate", },
+        {
+            "folke/snacks.nvim",
+            lazy = false,
+            priority = 1000,
+        }
     },
     install = { colorscheme = { "habamax" } },
     checker = { enabled = false },

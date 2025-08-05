@@ -1,3 +1,8 @@
+local ok, treesitter = prot_require "nvim-treesitter"
+if not ok then
+    return
+end
+
 local disable_func = function(lang, buf)
     local max_filesize = 100 * 1024 -- 100kb
     local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(buf))
@@ -76,3 +81,9 @@ require("nvim-treesitter.configs").setup({
     }
 })
 
+require("ts_context_commentstring").setup({
+    enable_autocmd = false,
+    languages = {
+        c = { __default = "// %s", __multiline = "/* %s */" }
+    }
+})

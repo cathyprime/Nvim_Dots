@@ -1,72 +1,21 @@
-local augend = require("dial.augend")
-
-local function words(elements, word, cyclic, case)
-    if word == nil then
-        word = true
-    end
-    if cyclic == nil then
-        cyclic = true
-    end
-    if case == nil then
-        case = true
-    end
-    return augend.constant.new({
-        elements = elements,
-        word = word,
-        cyclic = cyclic,
-        preserve_case = case
-    })
+local ok, dial = prot_require "dial.config"
+if not ok then
+    return
 end
 
-local function extend(t)
-    local defaults = {
-        augend.integer.alias.binary,
-        augend.integer.alias.decimal_int,
-        augend.integer.alias.hex,
-        augend.date.alias["%d/%m/%Y"],
-        words({ "&&", "||" }, false, true),
-        words({ "and", "or" }),
-        words({ "true", "false" }),
-        augend.decimal_fraction.new({
-            signed = true,
-            point_char = ".",
-        }),
-        augend.constant.alias.Alpha,
-    }
-    for _, v in ipairs(t or {}) do
-        table.insert(defaults, v)
-    end
-    return defaults
-end
+dial = require("cathy.config.dial.helper")
+require("dial.config").augends:register_group(dial.register_group)
+require("dial.config").augends:on_filetype(dial.on_filetype)
 
-return {
-    register_group = {
-        default = extend({
-            words({ "private", "protected", "public" }, nil, false),
-        }),
-        case = {
-            augend.case.new({
-                types = {
-                    "camelCase",
-                    "PascalCase",
-                    "kebab-case",
-                    "snake_case",
-                    "SCREAMING_SNAKE_CASE",
-                },
-                cyclic = true,
-            }),
-        },
-    },
-    on_filetype = {
-        rust = extend({
-            words({ "self", "super", "crate" }, nil, false),
-        }),
-        cs = extend({
-            words({"sealed", "private", "protected", "internal", "public"}, nil, false),
-            words({"abstract", "virtual"}),
-        }),
-        java = extend({
-            words({"default", "private", "protected", "public"}, nil, false),
-        }),
-    }
-}
+local mani = function (...)
+    pcall(require("dial.map").manipulate, ...)
+end
+vim.keymap.set("n", "<c-a>",  function () mani("increment", "normal")         end)
+vim.keymap.set("n", "<c-x>",  function () mani("decrement", "normal")         end)
+vim.keymap.set("n", "g<c-a>", function () mani("increment", "gnormal")        end)
+vim.keymap.set("n", "g<c-x>", function () mani("decrement", "gnormal")        end)
+vim.keymap.set("v", "<c-a>",  function () mani("increment", "visual")         end)
+vim.keymap.set("v", "<c-x>",  function () mani("decrement", "visual")         end)
+vim.keymap.set("v", "g<c-a>", function () mani("increment", "gvisual")        end)
+vim.keymap.set("v", "g<c-x>", function () mani("decrement", "gvisual")        end)
+vim.keymap.set("n", "<c-g>",  function () mani("increment", "normal", "case") end)

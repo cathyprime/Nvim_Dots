@@ -1,5 +1,4 @@
 local minis = {
-
     indentscope = function()
         require("mini.indentscope").setup({
             symbol = "",
@@ -218,12 +217,15 @@ local minis = {
         require("mini.icons").setup()
         MiniIcons.mock_nvim_web_devicons()
     end
-
 }
 
-return {
-    "echasnovski/mini.nvim",
-    config = function()
-        vim.iter(minis):each(function(_, fn) fn() end)
+local load_mini = function (name, setup)
+    local ok, mini = prot_require("mini." .. name)
+    if not ok then
+        return
     end
-}
+    setup()
+end
+
+vim.iter(minis)
+    :each(load_mini)

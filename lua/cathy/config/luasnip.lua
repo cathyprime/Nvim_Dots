@@ -1,5 +1,7 @@
----@diagnostic disable-next-line
-local ls = require "luasnip"
+local ok, ls = prot_require "luasnip"
+if not ok then
+    return
+end
 
 vim.keymap.set({ "i", "s" }, "<c-j>", function ()
     if vim.snippet.active() then

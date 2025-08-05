@@ -1,4 +1,4 @@
-require("cathy.config.lsp.progress")
+require "cathy.config.lsp.progress"
 
 vim.diagnostic.config({
     virtual_text = false,
