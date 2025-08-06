@@ -74,6 +74,9 @@ function H.parse_compile_args(ev)
     if H.is_interactive(ev.args) then
         cmd.interactive = true
         cmd.args = H.strip_interactive(ev.fargs)
+    elseif ev.bang then
+        cmd.interactive = true
+        cmd.args = ev.fargs
     else
         cmd.args = ev.fargs
     end
@@ -84,7 +87,7 @@ end
 local last_compile = nil
 
 local compile = function (e)
-    if not e.bang then
+    if type(e) ~= "boolean" then
         last_compile = H.parse_compile_args(e)
     end
 
@@ -96,12 +99,12 @@ local compile = function (e)
     require("cathy.compile").exec(last_compile)
 end
 
-vim.keymap.set("n", "'<cr>", "<cmd>Compile!<cr>", { silent = false })
-vim.keymap.set("n", "'<space>", "<cmd>Compile<cr>", { silent = false })
+vim.keymap.set("n", "'<cr>", "<cmd>Recompile<cr>", { silent = false })
+vim.keymap.set("n", "'<space>", ":Compile", { silent = false })
 vim.api.nvim_create_user_command(
     "Compile",
     function (e)
-        if #e.fargs == 0 and not e.bang then
+        if #e.fargs == 0 then
             vim.ui.input({
                 prompt = "Compile :: ",
                 default = last_compile and last_compile:get_plain_cmd()
@@ -122,6 +125,20 @@ vim.api.nvim_create_user_command(
     end,
     {
         nargs = "*",
+        bang = true
+    }
+)
+
+vim.api.nvim_create_user_command(
+    "Recompile",
+    function (e)
+        if e.bang then
+            last_compile.interactive = not last_compile.interactive
+        end
+        compile(true)
+    end,
+    {
+        nargs = 0,
         bang = true
     }
 )
