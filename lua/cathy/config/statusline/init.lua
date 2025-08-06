@@ -263,6 +263,13 @@ local diagnostic_is_disabled = function()
     return not vim.diagnostic.is_enabled({ bufnr = 0 })
 end
 
+local function filetype_component()
+    if vim.bo.filetype == "" then
+        return "[no ft]"
+    end
+    return "%y"
+end
+
 local diagnostic_levels = {
     { name = "INFO",  hl = "StatusDiagnosticSignInfo"  },
     { name = "WARN",  hl = "StatusDiagnosticSignWarn"  },
@@ -384,4 +391,5 @@ return {
     window = window_component,
     mode = mode_component,
     diff = diff_component,
+    filetype = filetype_component,
 }
