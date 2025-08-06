@@ -1,7 +1,22 @@
 ---@diagnostic disable: undefined-global
 
 return {
-    s("req", fmt([[local {varname} = require("{path}")]], {
+    s("req", fmt([[local {varname} = require "{path}"]], {
+        varname = f(function(import_name)
+            local parts = vim.split(import_name[1][1], "%.")
+            local str = parts[#parts] or ""
+            str = str:gsub("-", "_") or str
+            return str
+        end, {1}),
+        path = i(1)
+    })),
+
+    s("preq", fmt([[
+    local ok, {varname} = prot_require "{path}"
+    if not ok then
+        return
+    end
+    ]], {
         varname = f(function(import_name)
             local parts = vim.split(import_name[1][1], "%.")
             local str = parts[#parts] or ""
