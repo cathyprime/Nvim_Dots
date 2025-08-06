@@ -9,11 +9,13 @@ vim.api.nvim_create_autocmd("Filetype", {
     command = "setlocal foldcolumn=0"
 })
 
-neogit.setup({
-    integrations = {
-        snacks = false
-    }
-})
+local neogit_setup = function ()
+    neogit.setup({
+        integrations = {
+            snacks = false
+        }
+    })
+end
 
 local open_neogit = function()
     local cwd = require("oil") and require("oil").get_current_dir()
@@ -24,4 +26,9 @@ local open_neogit = function()
     end
 end
 
-vim.keymap.set("n", "ZG", open_neogit)
+require("cathy.utils").lazy_keymap {
+    mode = "n",
+    lhs = "ZG",
+    rhs = open_neogit,
+    setup = neogit_setup
+}

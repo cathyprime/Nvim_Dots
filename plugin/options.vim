@@ -3,63 +3,66 @@ if !exists(':Termdebug')
     packadd termdebug
 endif
 
-set confirm
-set nu rnu
-set cpo+=>
-set diffopt+=iwhite
-set diffopt+=algorithm:histogram
-set diffopt+=indent-heuristic
-set spell spl=en_us,en_gb,pl
-set tabstop=4
-set shiftwidth=4
-set nosmartindent noautoindent cindent
-set cinkeys=0{,0},0),0],:,0#,!^F,o,O,e,*<cr>
-set cinoptions=i0.5s,p1s,g0.5s,h0.5s,L0,t0,l1,(0
-set expandtab autoread exrc list
-set listchars+=trail:-
-set listchars+=tab:·\ \ 
-set listchars+=precedes:←
-set listchars+=extends:→
-set listchars+=leadmultispace:·
-set listchars+=nbsp:␣
-set fillchars+=foldclose:>
-set fillchars+=foldopen:v
-set fillchars+=foldsep:\ 
-set fillchars+=fold:\ 
-set linebreak
-set path=.,**
-set ignorecase smartcase incsearch
-set foldlevel=4 foldexpr=v:lua.vim.treesitter.foldexpr()
-set foldtext= foldmethod=expr foldcolumn=0 foldnestmax=4
-set formatoptions-=l
-set hls cursorline cursorlineopt=number guicursor=n-v-i-ci-ve:block-Cursor showcmdloc=statusline
-set cmdwinheight=2 cmdheight=1 showtabline=1
-set scrolloff=8
-set smoothscroll
-set termguicolors
-set signcolumn=yes
-set inccommand=nosplit
-set splitright
-set splitbelow
-set splitkeep=screen
-set notimeout
-set updatetime=500
-set noswapfile
-set nowritebackup
-set shortmess+=c
-set showmode
-set laststatus=2
-set undofile
-set nowildmenu wildmode=full wildignorecase wildoptions-=pum
-set winminwidth=5
-set pumheight=4
-set wrap
-set spellfile=~/.config/nvim/spell/en.utf-8.add,~/.config/nvim/spell/pl.utf-8.add
-set messagesopt=wait:0,history:800
-let g:markdown_recommended_style=0
-if executable("rg")
-    set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case
-endif
+function! s:Options()
+    set confirm
+    set nu rnu
+    set cpo+=>
+    set diffopt+=iwhite
+    set diffopt+=algorithm:histogram
+    set diffopt+=indent-heuristic
+    set spell spl=en_us,en_gb,pl
+    set tabstop=4
+    set shiftwidth=4
+    set nosmartindent noautoindent cindent
+    set cinkeys=0{,0},0),0],:,0#,!^F,o,O,e,*<cr>
+    set cinoptions=i0.5s,p1s,g0.5s,h0.5s,L0,t0,l1,(0
+    set expandtab autoread exrc list
+    set listchars+=trail:-
+    set listchars+=tab:·\ \ 
+    set listchars+=precedes:←
+    set listchars+=extends:→
+    set listchars+=leadmultispace:·
+    set listchars+=nbsp:␣
+    set fillchars+=foldclose:>
+    set fillchars+=foldopen:v
+    set fillchars+=foldsep:\ 
+    set fillchars+=fold:\ 
+    set linebreak
+    set path=.,**
+    set ignorecase smartcase incsearch
+    set foldlevel=4 foldexpr=v:lua.vim.treesitter.foldexpr()
+    set foldtext= foldmethod=expr foldcolumn=0 foldnestmax=4
+    set formatoptions-=l
+    set hls cursorline cursorlineopt=number guicursor=n-v-i-ci-ve:block-Cursor showcmdloc=statusline
+    set cmdwinheight=2 cmdheight=1 showtabline=1
+    set scrolloff=8
+    set smoothscroll
+    set termguicolors
+    set signcolumn=yes
+    set inccommand=nosplit
+    set splitright
+    set splitbelow
+    set splitkeep=screen
+    set notimeout
+    set updatetime=500
+    set noswapfile
+    set nowritebackup
+    set shortmess+=c
+    set showmode
+    set laststatus=2
+    set undofile
+    set nowildmenu wildmode=full wildignorecase wildoptions-=pum
+    set winminwidth=5
+    set pumheight=4
+    set wrap
+    set spellfile=~/.config/nvim/spell/en.utf-8.add,~/.config/nvim/spell/pl.utf-8.add
+    set messagesopt=wait:0,history:800
+    let g:markdown_recommended_style=0
+    if executable("rg")
+        set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case
+    endif
+endfunction
+au VimEnter * ++once call <SID>Options()
 
 if exists("g:neovide")
     let g:neovide_scale_factor=1.0

@@ -219,13 +219,20 @@ local minis = {
     end
 }
 
-local load_mini = function (name, setup)
-    local ok, mini = prot_require("mini." .. name)
-    if not ok then
-        return
+local setup_mini = function ()
+    local load_mini = function (name, setup)
+        local ok, mini = prot_require("mini." .. name)
+        if not ok then
+            return
+        end
+        setup()
     end
-    setup()
+
+    vim.iter(minis)
+        :each(load_mini)
 end
 
-vim.iter(minis)
-    :each(load_mini)
+vim.api.nvim_create_autocmd("VimEnter", {
+    once = true,
+    callback = setup_mini
+})

@@ -1,3 +1,5 @@
+local M = {}
+
 local function term(mods, command, opts)
     vim.cmd(string.format("exec 'noa %s term %s' | startinsert", mods, command))
     if opts.title then
@@ -18,7 +20,7 @@ local function term(mods, command, opts)
     end
 end
 
-local function tab_term(command, opts)
+function M.tab_term(command, opts)
     if type(command) == "table" then
         command = table.concat(command, " ")
     end
@@ -28,14 +30,14 @@ local function tab_term(command, opts)
     term("tab", command, opts)
 end
 
-local function clear_maps(bufnr, mode)
+function M.clear_maps(bufnr, mode)
     local maps = vim.api.nvim_get_keymap(mode)
     for _, map in ipairs(maps) do
         vim.keymap.set(mode, map.lhs, "<nop>", { buffer = bufnr })
     end
 end
 
-local function map_gen(default_opts)
+function M.map_gen(default_opts)
     return function(modes, lhs, rhs, opts)
         opts = opts or {}
         local options = vim.tbl_deep_extend("keep", opts, default_opts)
@@ -43,7 +45,7 @@ local function map_gen(default_opts)
     end
 end
 
-local function cur_buffer_path()
+function M.cur_buffer_path()
     local oil = require("oil").get_current_dir()
     if oil then
         return oil
@@ -70,7 +72,7 @@ local function not_interactive_sudo(cmd)
     return true
 end
 
-local function sudo_exec(cmd)
+function M.sudo_exec(cmd)
     if validate_sudo_timeout() then
         return not_interactive_sudo(cmd)
     end
@@ -93,7 +95,7 @@ local function sudo_exec(cmd)
     return true
 end
 
-local function sudo_write()
+function M.sudo_write()
     local tmpfile = vim.fn.tempname()
     local filepath = vim.fn.expand("%")
     if not filepath or #filepath == 0 then
@@ -113,11 +115,29 @@ local function sudo_write()
     return true
 end
 
-return {
-    tab_term = tab_term,
-    clear_buf_maps = clear_maps,
-    map_gen = map_gen,
-    cur_buffer_path = cur_buffer_path,
-    sudo_write = sudo_write,
-    sudo_exec = sudo_exec,
-}
+local check_values = setmetatable({
+    mode  = false,
+    lhs   = false,
+    rhs   = false,
+    setup = false
+}, { __index = function () return true end })
+
+function M.lazy_keymap(tbl)
+    local map_opts = {}
+    for k, v in pairs(map_opts) do
+        if check_values[v] then
+            map_opts[k] = v
+        end
+    end
+
+    local setup_f = function ()
+        vim.keymap.del(tbl.mode, tbl.lhs, map_opts)
+        tbl.setup()
+        vim.keymap.set(tbl.mode, tbl.lhs, tbl.rhs, map_opts)
+        vim.api.nvim_feedkeys(vim.keycode(tbl.lhs), "m", false)
+    end
+
+    vim.keymap.set(tbl.mode, tbl.lhs, setup_f, map_opts)
+end
+
+return M
