@@ -1,495 +1,158 @@
-local home_dir = os.getenv("HOME")
-local remote_group = vim.api.nvim_create_augroup("Magda_Remote", { clear = true })
-local reset_globals = function ()
+local uv = vim.uv
+local M = {}
+local H = {}
+local SSH = {}
+
+M.error = {
+    failed = 1,
+    failed_password = 2,
+}
+
+H.info = vim.schedule_wrap(function (msg)
+    vim.notify(msg, vim.log.levels.INFO)
+end)
+H.error = vim.schedule_wrap(function (msg)
+    vim.notify(msg, vim.log.levels.ERROR)
+end)
+
+function H.nothing() end
+function H.concat(tbl)
+    return table.concat(tbl, "")
+end
+function H.split(str)
+    return vim.split(str, " ", { plain = true, trimempty = true })
+end
+
+function H.pipe_close(pipe)
+    uv.shutdown(pipe, function (err)
+        assert(not err, err)
+        uv.close(pipe)
+    end)
+end
+
+function H.tbl_find(tbl, pred)
+    if type(pred) ~= "function" then
+        for index, value in ipairs(tbl) do
+            if pred == value then return index end
+        end
+    else
+        for index, value in ipairs(tbl) do
+            if pred(value) then return index end
+        end
+    end
+end
+
+function H.mod_opts(ssh)
+    if not H.tbl_find(ssh.args, "-T") and not H.tbl_find(ssh.args, "-t") then
+        table.insert(ssh.args, 1, "-T")
+    end
+
+    local e_pos = H.tbl_find(ssh.args, "-E")
+    if e_pos then
+        ssh.logs = ssh.args[e_pos+1]
+    else
+        ssh.logs = vim.fn.tempname()
+        table.insert(ssh.args, 1, "-E")
+        table.insert(ssh.args, 2, ssh.logs)
+    end
+    return ssh
+end
+
+function SSH.new(connection)
+    local obj = setmetatable({}, { __index = SSH })
+    if type(connection) == "string" then
+        obj.connection = connection
+        obj.args = H.split(connection)
+    elseif type(connection) == "table" then
+        obj.connection = connection
+        obj.args = connection
+    end
+    return H.mod_opts(obj)
+end
+
+function SSH:connect()
+    H.info("Connecting...")
+    vim.system({ "mkfifo", self.logs }, { detach = true }, H.nothing)
+    local ssh do
+        local h = io.popen("which ssh")
+        ssh = h:read("*a"):gsub("[\n\r]+", "")
+        h:close()
+    end
+
+    self.stdio = {
+        uv.new_pipe(),
+        uv.new_pipe(),
+        uv.new_pipe()
+    }
+
+    local on_exit = function (code)
+        H.info("Exited with code :: " .. code)
+        self.handle = nil
+        self.pid = nil
+    end
+    self.handle, self.pid = uv.spawn(ssh, {
+        args = self.args,
+        stdio = self.stdio
+    }, on_exit)
+
+    self.logs_pipe = uv.new_pipe()
+    self.logs_pipe:open(uv.fs_open(self.logs, "r", 438))
+
+    uv.read_start(self.stdio[2], function(err, data)
+        assert(not err, err)
+        if data then
+            H.info(data)
+        else
+            if not self.stdio[2]:is_closing() then
+                self.stdio[2]:close()
+            end
+        end
+    end)
+    uv.read_start(self.stdio[3], function(err, data)
+        assert(not err, err)
+        if data then
+            H.info(data)
+        else
+            if not self.stdio[3]:is_closing() then
+                self.stdio[3]:close()
+            end
+        end
+    end)
+    uv.read_start(self.logs_pipe, function(err, data)
+        assert(not err, err)
+        if data then
+            if data:find "Permission denied.*password" then
+                H.error("Password is not supported")
+                return
+            end
+            H.info("FIFO :: " .. data)
+        else
+            if not self.logs_pipe:is_closing() then
+                self.logs_pipe:close()
+            end
+        end
+    end)
+
+    vim.g.remote = function ()
+        return self
+    end
+    return self
+end
+
+function SSH:send(cmd)
+    self.stdio[1]:write(cmd .. "\n")
+end
+
+function SSH:close()
+    H.info("Disconnecting...")
     vim.g.remote = nil
+    if self.handle then
+        uv.process_kill(self.handle, "SIGTERM")
+    end
+    vim.system({ "rm", self.logs }, { detach = true }, H.nothing)
 end
 
-local g_path = function (path)
-    if path then
-        if not vim.g.remote then
-            vim.g.remote = {
-                path = path
-            }
-        else
-            local _remote = vim.g.remote
-            _remote["path"] = path
-            vim.g.remote = _remote
-        end
-        return
-    end
-    if vim.g.remote and vim.g.remote.path then
-        return vim.g.remote.path
-    end
-end
+SSH.new("Juno"):connect()
 
-local g_hostname = function (hostname)
-    if hostname then
-        if not vim.g.remote then
-            vim.g.remote = {
-                hostname = hostname
-            }
-        else
-            local _remote = vim.g.remote
-            _remote["hostname"] = hostname
-            vim.g.remote = _remote
-        end
-        return
-    end
-    if vim.g.remote and vim.g.remote.hostname then
-        return vim.g.remote.hostname
-    end
-end
-
-local autocmds = {
-    connected = vim.schedule_wrap(function ()
-        vim.api.nvim_exec_autocmds("User", {
-            pattern = "RemoteConnected",
-            data = {
-                hostname = g_hostname(),
-                path = g_path()
-            }
-        })
-    end),
-    disconnected = vim.schedule_wrap(function ()
-        vim.api.nvim_exec_autocmds("User", {
-            pattern = "RemoteDisconnected",
-            data = {
-                hostname = g_hostname(),
-                path = g_path()
-            }
-        })
-    end)
-}
-
-local get_ssh_cmd = function (remote_command, dir, hostname)
-    if not hostname and not g_hostname() then
-        return nil
-    end
-    local opt = function (option)
-        return { "-o", option }
-    end
-    local func_name = "remote"
-    local shell_expr
-
-    if not remote_command and not dir then
-        shell_expr = nil
-    elseif remote_command then
-        shell_expr = (dir and ("cd " .. dir .. " && $@")) or "$@"
-    else
-        shell_expr = (dir and ("cd " .. dir .. " && exec \\$SHELL -l")) or "exec \\$SHELL -l"
-    end
-
-    if shell_expr then
-        shell_expr = [["]] .. shell_expr .. [[";]]
-    end
-
-    local ssh = {
-        "()", "{",
-        "ssh",
-        opt "BatchMode=yes",
-        opt "ControlMaster=auto",
-        opt "ControlPersist=60",
-        opt [[ControlPath=/tmp/ssh/control:\%h:\%p:\%r]],
-    }
-    if shell_expr and shell_expr:find("SHELL") then
-        table.insert(ssh, "-t")
-    end
-
-    table.insert(ssh, g_hostname() or hostname)
-    if shell_expr then
-        table.insert(ssh, shell_expr)
-    end
-    table.insert(ssh, "};")
-    table.insert(ssh, func_name)
-
-    table.insert(ssh, remote_command)
-    return vim.iter(ssh):flatten():fold(func_name, function (acc, p)
-        return acc .. " " .. p
-    end)
-end
-
-local get_remote_home = function (hostname)
-    local ssh = get_ssh_cmd("echo \\$HOME", nil, hostname)
-    local stdout = vim.system({ "bash", "-c", ssh }, { stdout = true }):wait().stdout
-    return (stdout:gsub("\n", ""))
-end
-
-local log = {
-    info = vim.schedule_wrap(function (msg)
-        vim.notify(msg, vim.log.levels.INFO)
-    end),
-    err = vim.schedule_wrap(function (msg)
-        vim.notify(msg, vim.log.levels.ERROR)
-    end)
-}
-
-local create_if_not_exists = function (path)
-    if not vim.uv.fs_stat(path) then
-        vim.schedule(function ()
-            vim.fn.mkdir(path, "p")
-        end)
-    end
-    return path
-end
-
-local get_sshfs_path_or_create = function (hostname)
-    return create_if_not_exists(home_dir .. "/.sshfs/" .. hostname)
-end
-
-local ControlPath = function (escape)
-    if escape then
-        return [[ControlPath=/tmp/ssh/control:\%h:\%p:\%r]]
-    end
-    return [[ControlPath=/tmp/ssh/control:%h:%p:%r]]
-end
-
-local cmd = {
-    sshfs = function (tbl)
-        tbl.path = tbl.path or ""
-        create_if_not_exists("/tmp/ssh/")
-        local sshfs = {
-            "sshfs",
-            "-o", "ControlMaster=auto",
-            "-o", "ControlPersist=60",
-            "-o", "dir_cache=yes",
-            "-o", "reconnect",
-            "-o", ControlPath(tbl.escape),
-            tbl.hostname .. ":" .. tbl.path,
-            get_sshfs_path_or_create(tbl.hostname)
-        }
-        if tbl.with_pass then
-            table.insert(sshfs, 2, "password_stdin")
-            table.insert(sshfs, 2, "-o")
-        elseif not tbl.interactive then
-            table.insert(sshfs, 2, "BatchMode=yes")
-            table.insert(sshfs, 2, "-o")
-        end
-        return sshfs
-    end,
-    ssh = function (hostname)
-        local ssh = {
-            "ssh",
-            "-o", "BatchMode=yes",
-            "-o", "ConnectTimeout=5",
-            hostname,
-        }
-        return ssh
-    end
-}
-
-local get_default = function (hostname)
-    local state = create_if_not_exists(vim.fn.stdpath("state") .. "/remote")
-    local file_name = state .. "/default_paths"
-    if not vim.uv.fs_stat(file_name) then
-        return
-    end
-    local file = assert(io.open(file_name))
-    local defaults = vim.iter(file:lines())
-        :map(function (line)
-            local tokens = {}
-            for token in string.gmatch(line, "[^%s]+") do
-                table.insert(tokens, token)
-            end
-            return tokens
-        end)
-        :filter(function (tokens)
-            return tokens[1] == hostname
-        end)
-        :take(1)
-
-    local next = defaults:next()
-    if not next then
-        return
-    end
-    return next[2]
-end
-
-local save_default = function (hostname, path)
-    local state = create_if_not_exists(vim.fn.stdpath("state") .. "/remote")
-    local file_name = state .. "/default_paths"
-    if not vim.uv.fs_stat(file_name) then
-        vim.fn.writefile({ hostname .. "\t\t\t" .. path }, file_name)
-        return
-    end
-    local file = assert(io.open(file_name))
-    local defaults = vim.iter(file:lines())
-        :map(function (line)
-            local tokens = {}
-            for token in string.gmatch(line, "[^%s]+") do
-                table.insert(tokens, token)
-            end
-            return tokens
-        end)
-        :totable()
-
-    if not vim.iter(defaults):any(function (default) return default[1] == hostname end) then
-        table.insert(defaults, { hostname, path })
-    end
-
-    local lines = vim.iter(defaults)
-        :map(function (default)
-            if default[1] == hostname then
-                default[2] = path
-            end
-            return table.concat(default, "\t\t\t")
-        end)
-        :totable()
-
-    vim.fn.writefile(lines, file_name)
-end
-
-local get_path = function (hostname, cb)
-    local f = function (path)
-        if not path then
-            return
-        end
-        save_default(hostname, path)
-        cb(path)
-    end
-
-    vim.schedule(function ()
-        vim.ui.input({
-            prompt = "remote path to mount :: ",
-            default = get_default(hostname),
-        }, f)
-    end)
-end
-
-local mount = function (tbl)
-    tbl.opts = { detach = true }
-
-    if tbl.with_pass then
-        local password = vim.fn.inputsecret("Enter password for " .. tbl.hostname .. " :: ")
-        if password and password ~= "" then
-            tbl.opts = { stdin = password }
-        else
-            return
-        end
-    end
-
-    local on_path = vim.schedule_wrap(function (path)
-        tbl.path = path
-        tbl.cmd = cmd.sshfs(tbl)
-        log.info("Trying to mount...")
-        local f = vim.schedule_wrap(function (result)
-            if result.code == 0 then
-                log.info("Mounted host: " .. tbl.hostname)
-                g_hostname(tbl.hostname)
-                g_path(tbl.path ~= "" and tbl.path or get_remote_home(tbl.hostname))
-                autocmds.connected()
-                return
-            end
-            log.err("Failed mounting " .. tbl.hostname)
-            log.err(result.stderr)
-        end)
-        vim.system(tbl.cmd, tbl.opts, f)
-    end)
-
-    if not tbl.path then
-        get_path(tbl.hostname, on_path)
-    else
-        on_path(tbl.path)
-    end
-end
-
-local in_term = function(hostname, path)
-    local cmd = table.concat(cmd.sshfs { hostname = hostname, escape = true, interactive = true }, " ")
-    local bufnr = vim.api.nvim_create_buf(false, true)
-    local size = 0.50
-
-    local columns = vim.opt.columns:get()
-    local lines   = vim.opt.lines:get()
-    local i_size  = (1 - size) / 2
-
-    local height = math.floor(lines   * size)
-    local width  = math.floor(columns * size)
-    local row    = math.floor(lines   * i_size)
-    local col    = math.floor(columns * i_size)
-
-    vim.api.nvim_open_win(bufnr, true, {
-        relative = "editor",
-        width = width,
-        height = height,
-        row = row,
-        col = col,
-        border = "single",
-    })
-    vim.cmd.term(cmd)
-    vim.api.nvim_create_autocmd("TermClose", {
-        once = true,
-        buffer = vim.api.nvim_get_current_buf(),
-        callback = function ()
-            if vim.v.event.status == 0 then
-                vim.cmd("bd!")
-                log.info("Connected to host: " .. hostname)
-                vim.cmd("bd!")
-                g_hostname(hostname)
-                g_path(path or get_remote_home(hostname))
-                autocmds.connected()
-                return
-            end
-            vim.cmd("bd!")
-            log.err("Failed to connect to " .. hostname)
-        end
-    })
-    vim.cmd.startinsert()
-end
-
-local is_mounted = function (hostname)
-    local path = get_sshfs_path_or_create(hostname)
-    local mountpoint = vim.system({ "mountpoint", "-q", path }, {}):wait()
-    return mountpoint.code == 0 -- 0 = mountpoint, 32 = not a mountpoint
-end
-
-local disconnect = function (hostname)
-    vim.api.nvim_clear_autocmds({ group = remote_group })
-    local cmd = {
-        "fusermount3",
-        "-u",
-        get_sshfs_path_or_create(hostname)
-    }
-    if require("cathy.scopes").get_root():find(home_dir .. "/.sshfs") then
-        vim.cmd("silent cd")
-    end
-    vim.system(cmd, { detach = true }, function (result)
-        if result.code == 0 then
-            log.info("Disconnected from host: " .. hostname)
-            autocmds.disconnected()
-            reset_globals()
-            return
-        end
-        log.err("Failed to disconnect from host " .. hostname)
-        log.err(result.stderr)
-    end)
-end
-
-local connect = function (hostname, path)
-    if path then
-        save_default(hostname, path)
-    end
-    vim.api.nvim_create_autocmd("VimLeavePre", {
-        group = remote_group,
-        pattern = "*",
-        callback = function ()
-            disconnect(hostname)
-        end
-    })
-    if is_mounted(hostname) then
-        g_hostname(hostname)
-        vim.system(
-            { "findmnt", "-no", "SOURCE", "-t", "fuse.sshfs" },
-            { detach = true },
-            function (obj)
-                local lines = vim.split(obj.stdout, "\n", { trimempty = true, plain = true })
-                local mounts = vim.iter(lines)
-                    :map(function (line)
-                        return vim.split(line, ":", { trimempty = true, plain = true })
-                    end)
-                    :filter(function (entry)
-                        return entry[1] == hostname
-                    end)
-                    :take(1)
-                local next = mounts:next()
-                if next then
-                    g_path(next[2])
-                    vim.schedule(function ()
-                        local path = get_sshfs_path_or_create(hostname)
-                        vim.cmd("silent cd " .. path)
-                        vim.cmd.e(path)
-                    end)
-                end
-            end
-        )
-        log.info("Connecting to mounted filesystem")
-        return
-    end
-    log.info("Connecting to: " .. hostname)
-    vim.system(cmd.ssh(hostname), {}, function (result)
-        if result.code == 0 then
-            mount {
-                hostname = hostname,
-                path = path,
-            }
-            return
-        end
-
-        if result.stderr:match("Permission denied") then
-            vim.schedule(function ()
-                mount {
-                    hostname = hostname,
-                    with_pass = true,
-                    path = path,
-                }
-            end)
-            return
-        end
-
-        vim.schedule(function ()
-            in_term(hostname, path)
-        end)
-    end)
-end
-
-local get_hosts = function ()
-    local ssh_conf = home_dir .. "/.ssh/config"
-
-    if not vim.uv.fs_stat(ssh_conf) then
-        error "no ssh config"
-    end
-
-    local file = assert(io.open(ssh_conf))
-    return vim.iter(file:lines())
-        :filter(function (line)
-            return line:find "Host%s+" and not line:find "Host%s+%*"
-        end)
-        :map(function (line)
-            return (line:gsub("Host%s+", ""))
-        end)
-        :totable()
-end
-
-local choose_host = function (cb)
-    local names = get_hosts()
-
-    table.insert(names, "Other...")
-
-    vim.ui.select(names, { prompt = "Connect to host" }, function (hostname)
-        if not hostname then
-            return
-        end
-        if hostname == "Other..." then
-            vim.ui.input({
-                prompt = "Hostname:"
-            }, cb)
-            return
-        end
-        cb(hostname)
-    end)
-end
-
-return {
-    get_path = get_sshfs_path_or_create,
-    choose_host = choose_host,
-    get_hosts = get_hosts,
-    connect = connect,
-    disconnect = disconnect,
-    is_mounted = is_mounted,
-    get_ssh_cmd = get_ssh_cmd,
-    local_to_remote_path = function (path)
-        if not g_hostname() then
-            return path
-        end
-
-        local mount_path = get_sshfs_path_or_create(g_hostname())
-        if not vim.startswith(path, mount_path) then
-            return path
-        end
-
-        local rel_path = string.sub(path, #mount_path + 1)
-        if rel_path:sub(1, 1) == "/" then
-            rel_path = rel_path:sub(2)
-        end
-
-        return g_path() .. "/" .. rel_path
-    end
-}
+M.SSH = SSH
+return M
