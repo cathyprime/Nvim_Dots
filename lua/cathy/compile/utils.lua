@@ -142,6 +142,44 @@ function QuickFix:clear()
     vim.fn.setqflist({}, "r")
 end
 
+local function prepare_data(data)
+    local function split (d)
+        return vim.split(d, "[\n\r]+", { plain = false })
+    end
+    local function strip_r(str)
+        return (str:gsub("\r", ""))
+    end
+    if type(data) == "string" then
+        return split(data)
+    elseif type(data) == "table" then
+        return vim.iter(data)
+            :map(strip_r)
+            :flatten()
+            :totable()
+    end
+end
+
+function QuickFix:append_data(data)
+    local lines = prepare_data(data)
+    local current_items = self:get().items
+    local size = self:get().size - 1
+    local last_item = current_items[#current_items]
+
+    if last_item then
+        last_item.text = last_item.text .. lines[1]
+        table.remove(lines, 1)
+        current_items[#current_items] = last_item
+        vim.fn.setqflist({}, "r", { id = self.id, items = current_items })
+    end
+
+    if #lines > 0 then
+        vim.fn.setqflist({}, "a", { lines = lines, id = self.id })
+        vim.cmd.cbottom()
+    end
+
+    return size
+end
+
 function QuickFix:append_lines(lines)
     if lines.plain then
         lines.plain = nil

@@ -15,34 +15,17 @@ vim.api.nvim_create_autocmd("VimLeave", {
     end
 })
 
-function H.prepare_data(data)
-    local function split (d)
-        return vim.split(d, "[\n\r]+", { plain = false, trimempty = true })
-    end
-    if type(data) == "string" then
-        data = split(data)
-    elseif type(data) == "table" then
-        data = vim.iter(data)
-            :map(split)
-            :flatten()
-            :totable()
-    end
-    return data
-end
-
 ---@param cmd Compile_Opts
 function H.make_stdout_handler(cmd, qflist)
     local setqflist = vim.schedule_wrap(function (data)
-        data = H.prepare_data(data)
         local ansi = require("cathy.ansi")
         if ansi.has_ansi_code(data) then
-            local stripped_data, color_func = ansi.strip_lines(data)
-            local linenr = qflist:get().size
-            qflist:append_lines(stripped_data)
+            local data, color_func = ansi.strip_lines(data)
+            local linenr = qflist:append_data(data)
             qflist:apply_color(color_func, linenr)
-        else
-            qflist:append_lines(data)
+            return
         end
+        qflist:append_data(data)
     end)
     return function (_, data)
         if data and #data > 0 then
@@ -77,8 +60,9 @@ function H.start(cmd)
         plain = true,
         string.format("-*- Compilation_Mode; Starting_Directory :: \"%s\" -*-", cwd),
         string.format("Compilation started at %s", os.date "%a %b %d %H:%M:%S"),
+        cmd:get_plain_cmd(),
         "",
-        cmd:get_plain_cmd()
+        ""
     })
     qflist:set_compiler(cmd.vim_compiler)
 
@@ -94,7 +78,6 @@ function H.start(cmd)
         local msg, color_func = code_func(duration)
         qflist:append_lines({
             plain = true,
-            "",
             msg
         })
         qflist:apply_color(color_func)
@@ -105,7 +88,6 @@ function H.start(cmd)
         on_stdout = H.make_stdout_handler(cmd, qflist),
         pty = true,
         cwd = cmd.cwd,
-        -- text = false,
         on_exit = on_exit,
         env = {
             TERM = "xterm 256color"
