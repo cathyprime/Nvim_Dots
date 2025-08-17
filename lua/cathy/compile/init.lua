@@ -6,9 +6,11 @@ local H = {}
 vim.api.nvim_create_autocmd("VimLeave", {
     group = vim.api.nvim_create_augroup("Magda_Compile_Mode", { clear = false }),
     callback = function ()
-        local pid = vim.fn.jobpid(M.running_job)
-        if pid then
-            vim.uv.kill(-pid, "sigint")
+        if M.running_job then
+            local pid = vim.fn.jobpid(M.running_job)
+            if pid then
+                vim.uv.kill(-pid, "sigint")
+            end
         end
     end
 })
