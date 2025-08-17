@@ -92,7 +92,7 @@ function QuickFix:open()
     clear_namespaces(self:get().qfbufnr)
 
     local winid = self:get().winid
-    local height = math.floor(vim.opt.lines:get() * 0.4 )
+    local height = math.floor(vim.opt.lines:get() * 0.6 )
     vim.cmd("copen " .. height)
 
     setup_buf_opts(bufnr)
