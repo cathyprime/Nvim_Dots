@@ -93,7 +93,7 @@ function QuickFix:open()
 
     local winid = self:get().winid
     local height = math.floor(vim.opt.lines:get() * 0.6 )
-    vim.cmd("copen " .. height)
+    vim.cmd("botright copen " .. height)
 
     setup_buf_opts(bufnr)
     setup_win_opts(winid)

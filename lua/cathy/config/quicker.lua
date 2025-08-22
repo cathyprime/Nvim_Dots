@@ -102,12 +102,17 @@ map {
             return
         end
         quicker.toggle({
-            height = math.floor(vim.opt.lines:get() * 0.4)
+            height = math.floor(vim.opt.lines:get() * 0.6),
+            open_cmd_mods = { split = "botright" }
         })
     end
 }
 
 map {
     "<leader>Q",
-    function() quicker.toggle({ loclist = true }) end
+    function() quicker.toggle({
+        height = math.floor(vim.opt.lines:get() * 0.6),
+        open_cmd_mods = { split = "botright" },
+        loclist = true
+    }) end
 }
