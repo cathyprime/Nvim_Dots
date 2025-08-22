@@ -134,12 +134,6 @@ local setup_func = function ()
                 pcall(dapui.close, { layout = indexer.current })
                 dapui.open({ layout = indexer:next() })
             end },
-            { "u", function()
-                local ok, _ = pcall(dapui.toggle, { layout = 1 })
-                if not ok then
-                    vim.notify("no active session", vim.log.levels.INFO)
-                end
-            end, { silent = false } },
             { "c", function() dap.continue() end, { silent = true } },
             { "K", function()
                 dapui.float_element(nil, {
