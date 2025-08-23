@@ -265,7 +265,7 @@ end
 
 local function filetype_component()
     if vim.bo.filetype == "" then
-        return "[no ft]"
+        return "[]"
     end
     return "%y"
 end
