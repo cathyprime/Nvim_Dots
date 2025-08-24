@@ -72,6 +72,7 @@ local function setup_win_opts(winid)
     vim.api.nvim_win_call(winid, function ()
         vim.wo.list = false
         vim.wo.winfixbuf = true
+        vim.wo.scrolloff = 0
     end)
     vim.api.nvim_create_autocmd("QuickFixCmdPost", {
         pattern = "*",
@@ -81,6 +82,7 @@ local function setup_win_opts(winid)
                     require("quicker").refresh(winid)
                     vim.wo.list = true
                     vim.wo.winfixbuf = false
+                    vim.wo.scrolloff = 8
                 end)
             end
         end
