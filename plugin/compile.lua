@@ -100,7 +100,7 @@ local compile = function (e)
 end
 
 vim.keymap.set("n", "'<cr>", "<cmd>Recompile<cr>", { silent = false })
-vim.keymap.set("n", "'<space>", ":Compile", { silent = false })
+vim.keymap.set("n", "'<space>", ":Compile ", { silent = false })
 vim.api.nvim_create_user_command(
     "Compile",
     function (e)
