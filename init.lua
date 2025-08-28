@@ -27,7 +27,7 @@ require("lazy").setup({
     spec = {
         "cathyprime/kanagawa_remix",
         "chrishrb/gx.nvim",
-        "echasnovski/mini.nvim",
+        "nvim-mini/mini.nvim",
         "JoosepAlviste/nvim-ts-context-commentstring",
         "kylechui/nvim-surround",
         "L3MON4D3/LuaSnip",
