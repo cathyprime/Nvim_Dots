@@ -5,14 +5,29 @@
   (enumerator_list)
   (compound_literal_expression)
   (initializer_list)
+  ; (init_declarator)
 ] @indent.begin
+
+(init_declarator
+  value: (_) @_value
+  (#not-kind-eq? @_value "lambda_expression" "initializer_list")) @indent.begin
 
 ; With current indent logic, if we capture expression_statement with @indent.begin
 ; It will be affected by _parent_ node with error subnodes deep down the tree
 ; So narrow indent capture to check for error inside expression statement only,
+
 (expression_statement
   (_) @indent.begin
   ";" @indent.end)
+
+; (lambda_expression) @indent.dedent
+
+(expression_statement
+  (lambda_expression) @indent.dedent)
+
+(expression_statement
+  (assignment_expression
+    right: (lambda_expression)) @indent.dedent)
 
 (ERROR
   "for"
@@ -96,3 +111,13 @@
   (#set! indent.close_delimiter ")"))
 
 (comment) @indent.auto
+
+(namespace_definition
+  body: (declaration_list) @indent.begin)
+
+(condition_clause) @indent.begin
+
+((field_initializer_list) @indent.begin
+  (#set! indent.start_at_same_line 1))
+
+(access_specifier) @indent.branch
