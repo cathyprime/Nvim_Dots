@@ -35,6 +35,7 @@ require("lazy").setup({
         "milisims/nvim-luaref",
         "monaqa/dial.nvim",
         "NeogitOrg/neogit",
+        "sindrets/diffview.nvim",
         "neovim/nvim-lspconfig",
         "nvim-lua/plenary.nvim",
         "nvim-neotest/nvim-nio",
@@ -42,7 +43,6 @@ require("lazy").setup({
         "nvim-treesitter/nvim-treesitter-textobjects",
         "rcarriga/nvim-dap-ui",
         "rktjmp/lush.nvim",
-        "sindrets/diffview.nvim",
         "stevearc/oil.nvim",
         "stevearc/quicker.nvim",
 
