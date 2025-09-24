@@ -23,6 +23,15 @@ if not vim.uv.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = "*",
+    callback = function(e)
+        if vim.treesitter.language.add(e.match) then
+            vim.treesitter.start()
+        end
+    end,
+})
+
 require("lazy").setup({
     spec = {
         "cathyprime/kanagawa_remix",
