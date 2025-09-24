@@ -31,14 +31,30 @@ function Mappings:ensure_needed()
 end
 
 function Mappings:map()
-    local ts_repeat_move = require("nvim-treesitter.textobjects.repeatable_move")
-    local funcs = { ts_repeat_move.make_repeatable_move_pair(self.rhs[1], self.rhs[2]) }
-    self.rhs = funcs
+    local ts_repeat_move = require("nvim-treesitter-textobjects.repeatable_move")
+    local f_func = self.rhs[1]
+    local b_func = self.rhs[2]
+    local general_f = function (move_opts)
+        if not move_opts then
+            return
+        end
+        if move_opts.forward then
+            f_func()
+        else
+            b_func()
+        end
+    end
+    local wrapped = ts_repeat_move.make_repeatable_move(general_f)
+    self.rhs = function (x)
+        return function ()
+            wrapped({ forward = x == 1 and true or false })
+        end
+    end
     for x = 1, 2 do
         self.opts.desc = type(self.desc) == "table"
             and self.desc[x]
             or self.desc
-        vim.keymap.set(self.mode, self.lhs[x], self.rhs[x], self.opts)
+        vim.keymap.set(self.mode, self.lhs[x], self.rhs(x), self.opts)
     end
 end
 

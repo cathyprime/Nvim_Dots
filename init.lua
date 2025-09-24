@@ -39,7 +39,6 @@ require("lazy").setup({
         "nvim-lua/plenary.nvim",
         "nvim-neotest/nvim-nio",
         "nvimtools/hydra.nvim",
-        "nvim-treesitter/nvim-treesitter-textobjects",
         "rcarriga/nvim-dap-ui",
         "rktjmp/lush.nvim",
         "sindrets/diffview.nvim",
@@ -48,7 +47,8 @@ require("lazy").setup({
 
         { "saghen/blink.cmp", version = "1.*" },
         { "jake-stewart/multicursor.nvim", branch = "1.0", },
-        { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate", },
+        { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate", branch = "main" },
+        { "nvim-treesitter/nvim-treesitter-textobjects", branch = "main" },
         {
             "folke/snacks.nvim",
             lazy = false,

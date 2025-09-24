@@ -7,14 +7,20 @@ setup_diffview = function ()
     ---@param options { forward: boolean, desc: string }
     ---@return { mode: string, lhs: string, rhs: function, opts: table }
     local function jump_diff(options)
-        local repeatable_move = require("nvim-treesitter.textobjects.repeatable_move")
+        local repeatable_move = require("nvim-treesitter-textobjects.repeatable_move")
         local actions = require("diffview.actions")
 
-        local repeatable_forward, repeatable_backward =
-        repeatable_move.make_repeatable_move_pair(
-            actions.next_conflict,
-            actions.prev_conflict
+        local wrapped = repeatable_move.make_repeatable_move(
+            function (move_opts)
+                if move_opts.forward then
+                    actions.next_conflict()
+                else
+                    actions.prev_conflict()
+                end
+            end
         )
+        local repeatable_forward = function () wrapped({ forward = true }) end
+        local repeatable_backward = function () wrapped({ forward = false }) end
         local key = options.forward and "]x" or "[x"
         local rhs = options.forward and repeatable_forward or repeatable_backward
 

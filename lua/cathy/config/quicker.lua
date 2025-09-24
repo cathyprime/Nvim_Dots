@@ -70,11 +70,18 @@ local jump = function (forward)
     jumps[list_type][direction]()
 end
 
-local ts_repeat_move = require("nvim-treesitter.textobjects.repeatable_move")
-local jump_next, jump_prev = ts_repeat_move.make_repeatable_move_pair(
-    function () jump(true)  end,
-    function () jump(false) end
+local ts_repeat_move = require("nvim-treesitter-textobjects.repeatable_move")
+local wrapped = ts_repeat_move.make_repeatable_move(
+    function (move_opts)
+        if move_opts.forward then
+            jump(true)
+        else
+            jump(false)
+        end
+    end
 )
+local jump_next = function () wrapped({ forward = true }) end
+local jump_prev = function () wrapped({ forward = false }) end
 
 local map = function (opts)
     local map_opts = {}

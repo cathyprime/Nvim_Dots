@@ -12,7 +12,7 @@ local disable_func = function(lang, buf)
 end
 
 ---@diagnostic disable-next-line
-require("nvim-treesitter.configs").setup({
+require("nvim-treesitter").setup({
     auto_install = true,
     context_commentstring = { enabled = true },
     sync_install = false,
