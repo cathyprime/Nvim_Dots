@@ -23,10 +23,14 @@ if not vim.uv.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+local trans = setmetatable({
+    cs = "c_sharp"
+}, { __index = function (tbl, key) return key end})
+
 vim.api.nvim_create_autocmd("FileType", {
     pattern = "*",
     callback = function(e)
-        if vim.treesitter.language.add(e.match) then
+        if vim.treesitter.language.add(trans[e.match]) then
             vim.treesitter.start()
             vim.opt.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
         end
