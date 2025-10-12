@@ -1,5 +1,6 @@
 vim.g.mapleader = " "
 vim.g.localleader = [[\]]
+vim.cmd.colorscheme "kanagawa"
 
 function _G.lazy_require(module)
     return setmetatable({}, { __index = function (_, key)
@@ -39,7 +40,6 @@ vim.api.nvim_create_autocmd("FileType", {
 
 require("lazy").setup({
     spec = {
-        "cathyprime/kanagawa_remix",
         "chrishrb/gx.nvim",
         "nvim-mini/mini.nvim",
         "JoosepAlviste/nvim-ts-context-commentstring",
@@ -55,7 +55,6 @@ require("lazy").setup({
         "nvim-neotest/nvim-nio",
         "nvimtools/hydra.nvim",
         "rcarriga/nvim-dap-ui",
-        "rktjmp/lush.nvim",
         "stevearc/oil.nvim",
         "stevearc/quicker.nvim",
 
@@ -69,6 +68,5 @@ require("lazy").setup({
             priority = 1000,
         }
     },
-    install = { colorscheme = { "habamax" } },
     checker = { enabled = false },
 })
