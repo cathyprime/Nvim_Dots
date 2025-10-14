@@ -325,6 +325,9 @@ return function (opts)
                     ["."] = true,
                 }
                 if cd_chars[string.sub(result, -1)] then
+                    if not vim.uv.fs_stat(result) then
+                        vim.uv.fs_mkdir(result, tonumber("755", 8))
+                    end
                     vim.cmd.cd(result)
                 end
                 local edit = edit_cmd[action.cmd]
