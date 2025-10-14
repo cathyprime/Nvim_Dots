@@ -1,6 +1,24 @@
 set background=light
 hi clear
 let g:colors_name = "kanagawa"
+let g:terminal_color_0 = "#16161D"
+let g:terminal_color_1 = "#C34043"
+let g:terminal_color_2 = "#76946A"
+let g:terminal_color_3 = "#C0A36E"
+let g:terminal_color_4 = "#7E9CD8"
+let g:terminal_color_5 = "#957FB8"
+let g:terminal_color_6 = "#6A9589"
+let g:terminal_color_7 = "#C8C093"
+let g:terminal_color_8 = "#727169"
+let g:terminal_color_9 = "#E82424"
+let g:terminal_color_10 = "#98BB6C"
+let g:terminal_color_11 = "#E6C384"
+let g:terminal_color_12 = "#7FB4CA"
+let g:terminal_color_13 = "#938AA9"
+let g:terminal_color_14 = "#7AA89F"
+let g:terminal_color_15 = "#DCD7BA"
+let g:terminal_color_16 = "#FFA066"
+let g:terminal_color_17 = "#FF5D62"
 highlight Normal guifg=#54546D guibg=#FBFAEE guisp=NONE blend=NONE gui=NONE
 highlight! link NeogitDiffContextHighlight Normal
 highlight! link NormalNC Normal
