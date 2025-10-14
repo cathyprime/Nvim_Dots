@@ -23,20 +23,6 @@ vim.api.nvim_create_user_command(
     }
 )
 
-vim.api.nvim_create_user_command(
-    "DarkMode",
-    function()
-        if vim.o.background == "light" then
-            vim.o.background = "dark"
-        else
-            vim.o.background = "light"
-        end
-    end,
-    {
-        desc = "toggle dark mode"
-    }
-)
-
 local function create_command(cmd, argument, desc)
     vim.api.nvim_create_user_command(
         cmd,
