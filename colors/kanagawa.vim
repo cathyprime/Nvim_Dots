@@ -60,7 +60,6 @@ function s:kanagawa_light()
     hi DapUIBreakpointsCurrentLine guifg=#54546D guibg=NONE guisp=NONE blend=NONE gui=bold
     hi DapUIDecoration guifg=#CDCAB9 guibg=NONE guisp=NONE blend=NONE gui=NONE
     hi DapUIModifiedValue guifg=#4C689A guibg=NONE guisp=NONE blend=NONE gui=bold
-    hi Delimiter guifg=#7459A1 guibg=NONE guisp=NONE blend=NONE gui=NONE
     hi DiagnosticError guifg=#E82626 guibg=NONE guisp=NONE blend=NONE gui=NONE
     hi DiagnosticHint guifg=#6A9589 guibg=NONE guisp=NONE blend=NONE gui=NONE
     hi DiagnosticInfo guifg=#658695 guibg=NONE guisp=NONE blend=NONE gui=NONE
@@ -280,7 +279,6 @@ function! s:kanagawa_dark()
     hi DapUIBreakpointsCurrentLine guifg=#DDD8BB guibg=NONE guisp=NONE blend=NONE gui=bold
     hi DapUIDecoration guifg=#54546D guibg=NONE guisp=NONE blend=NONE gui=NONE
     hi DapUIModifiedValue guifg=#81B4CA guibg=NONE guisp=NONE blend=NONE gui=bold
-    hi Delimiter guifg=#9CABC9 guibg=NONE guisp=NONE blend=NONE gui=NONE
     hi DiagnosticError guifg=#E82626 guibg=NONE guisp=NONE blend=NONE gui=NONE
     hi DiagnosticHint guifg=#6A9589 guibg=NONE guisp=NONE blend=NONE gui=NONE
     hi DiagnosticInfo guifg=#658695 guibg=NONE guisp=NONE blend=NONE gui=NONE
@@ -460,6 +458,7 @@ else
     call s:kanagawa_dark()
 endif
 
+hi! link Delimiter Normal
 hi! link BlinkCmpDocBorder CmpDocumentationBorder
 hi! link BlinkCmpDoc CmpDocumentation
 hi! link BlinkCmpGhostText Comment
@@ -596,7 +595,6 @@ hi! link @field Property
 hi! link @float Float
 hi! link FloatFooter FloatTitle
 hi! link Float Number
-hi! link @function.call.lua Function
 hi! link @function Function
 hi! link @function.macro Macro
 hi! link GitSignsAdd DiffAdded
