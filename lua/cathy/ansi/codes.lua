@@ -127,10 +127,10 @@ end
 
 local function ansi_to_hex(ansi_code)
     local ansi16 = setmetatable({
-        "#000000", "#cd0000", "#00cd00", "#cdcd00",
-        "#0000ee", "#cd00cd", "#00cdcd", "#e5e5e5",
-        "#7f7f7f", "#ff0000", "#00ff00", "#ffff00",
-        "#5c5cff", "#ff00ff", "#00ffff", "#ffffff",
+        vim.g.terminal_color_0, vim.g.terminal_color_1, vim.g.terminal_color_2, vim.g.terminal_color_3,
+        vim.g.terminal_color_4, vim.g.terminal_color_5, vim.g.terminal_color_6, vim.g.terminal_color_7,
+        vim.g.terminal_color_8, vim.g.terminal_color_9, vim.g.terminal_color_10, vim.g.terminal_color_11,
+        vim.g.terminal_color_12: vim.g.terminal_color_13, vim.g.terminal_color_14, vim.g.terminal_color_15,
     }, {
         __index = function (self, code)
             local foreground_range = 30 <= code and code <= 37
