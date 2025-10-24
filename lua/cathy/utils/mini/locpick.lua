@@ -60,6 +60,13 @@ local get_path = function (query, n)
     end
 end
 
+local just_path = function (query)
+    while query[#query] ~= "/" do
+        table.remove(query, #query)
+    end
+    return query
+end
+
 local get_match = function (query)
     local prompt = table.concat(query)
     local last_slash = prompt:match(".*()/")
@@ -95,30 +102,109 @@ local matcher = function (stritems, inds, query)
     )
 end
 
-local complete = function ()
-    local matches = MiniPick.get_picker_matches()
-    if not matches then return end
-    if not matches.current then return end
-    local query = MiniPick.get_picker_query()
-    if not query then return end
-
-    local cur_path = get_path(query, function (x) return x end)
-    local new_query = cur_path .. matches.current.text
-    local real_path = vim.uv.fs_realpath(vim.fn.fnamemodify(new_query, ":p"))
-    if vim.fn.isdirectory(real_path) == 1 then
-        new_query = new_query .. "/"
-    end
-    MiniPick.set_picker_query(vim.split(new_query, ""))
-    MiniPick.refresh()
-end
-
 local go_home = function ()
     MiniPick.set_picker_query({ "~", "/"})
     MiniPick.refresh()
 end
 
-return function ()
+local shorten_query = function (query)
+    if query[1] == "~" then
+        return query
+    end
+    local len = #vim.split(os.getenv "HOME", "")
+    return { "~", unpack(query, len+1) }
+end
+
+local expand_query = function (query)
+    if query[1] ~= "~" then
+        return query
+    end
+    table.remove(query, 1)
+    return vim.fn.extend(vim.split(os.getenv "HOME", ""), query)
+end
+
+local has_home = function (query)
+    local home = vim.split(os.getenv "HOME", "")
+    if query[1] == "~" then
+        return true
+    end
+    if #query < #home then
+        return false
+    end
+    return true
+end
+
+local dir_up = function (query)
+    if #query == 2 and query[1] == "~" and query[2] == "/" then
+        MiniPick.set_picker_query(
+            vim.split(vim.fn.fnamemodify(os.getenv "HOME", ":h") .. "/", "")
+        )
+        return
+    end
+    local slash_count = vim.iter(query)
+        :fold(0, function (acc, v)
+            if v == "/" then
+                acc = acc + 1
+            end
+            return acc
+        end)
+
+    if slash_count > 1 then
+        table.remove(query, #query)
+        while query[#query] ~= "/" do
+            table.remove(query, #query)
+        end
+    end
+
+    MiniPick.set_picker_query(query)
+    MiniPick.refresh()
+end
+
+local complete = function ()
+    local matches = MiniPick.get_picker_matches()
+    if not matches then return end
+    if not matches.current then return end
+
+    if matches.current.text == "." then
+        return
+    end
+
+    local query = MiniPick.get_picker_query()
+    if matches.current.text == ".." then
+        dir_up(just_path(query))
+        return
+    end
+
+    local cur_path = get_path(query, function (x) return x end)
+    local new_query = cur_path .. matches.current.text
+    local real_path = vim.uv.fs_realpath(vim.fn.fnamemodify(new_query, ":p"))
+    MiniPick.set_picker_query(vim.split(new_query, ""))
+    MiniPick.refresh()
+end
+
+local delete_or_up = function ()
+    local query = MiniPick.get_picker_query()
+    if query[#query] == "/" then
+        dir_up(query)
+        return
+    end
+    table.remove(query, #query)
+    MiniPick.set_picker_query(query)
+end
+
+local delete_word = function ()
+    local query = MiniPick.get_picker_query()
+    if query[#query] == "/" then
+        dir_up(query)
+        return
+    end
+
+    MiniPick.set_picker_query(just_path(query))
+end
+
+return function (opts)
     local pick = require("mini.pick")
+    opts.cb = opts.cb or pick.default_choose
     local start = require("cathy.utils").cur_buffer_path()
     vim.api.nvim_create_autocmd("User", {
         once = true,
@@ -130,8 +216,16 @@ return function ()
     last_path = norm(start)
     pick.start({
         mappings = {
+            caret_left = "",
+            caret_right = "",
+            delete_char_right = "",
+            delete_word = "",
+            delete_left = "",
             complete = { char = "<tab>", func = complete },
-            go_home = { char = "<c-h>", func = go_home }
+            go_home = { char = "<c-h>", func = go_home },
+            delete_or_up = { char = "<bs>", func = delete_or_up },
+            delete_w = { char = "<c-w>", func = delete_word },
+            delete_all = { char = "<c-u>", func = function () MiniPick.set_picker_query({"/"}) end }
         },
         window = {
             prompt_prefix = " Find File :: "
@@ -144,9 +238,7 @@ return function ()
             show = function(buf_id, items, query)
                 require("mini.pick").default_show(buf_id, items, get_match(query), { show_icons = true })
             end,
-            choose = function (item)
-                vim.print(item)
-            end
+            choose = opts.cb
         }
     })
 end

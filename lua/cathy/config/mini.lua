@@ -44,7 +44,7 @@ local minis = {
                 anchor = 'NW', height = height, width = width,
                 row = vim.o.lines - height,
                 col = math.floor(0.5 * (vim.o.columns - width)),
-                border = { "-", "-", "-", " ", " ", " ", " ", " " }
+                border = { " ", "─", "─", " ", " ", " ", " ", " " }
             }
         end
         require("mini.pick").setup {
