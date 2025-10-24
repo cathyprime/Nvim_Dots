@@ -1,35 +1,22 @@
 local references = function ()
-    Snacks.picker.lsp_references({
-        prompt = " References :: ",
-        layouts = {
-            ivy = {
-                layout = {
-                    box = "vertical",
-                    backdrop = false,
-                    row = -1,
-                    width = 0,
-                    height = 0.4,
-                    border = "top",
-                    title = "{live} {flags}",
-                    title_pos = "left",
-                    { win = "input", height = 1, border = "none" },
-                    {
-                        box = "horizontal",
-                        { win = "list", border = "none" },
-                        { win = "preview", title = "{preview}", width = 0.6, border = "left" },
-                    },
-                },
-            }
-        }
-    })
+    MiniPick.registry.lsp {
+        scope = "references",
+        prompt_prefix = "References :: "
+    }
 end
 
 local lsp_document_symbols = function ()
-    Snacks.picker.lsp_symbols({ prompt = " Document Symbols :: " })
+    MiniPick.registry.lsp {
+        scope = "document_symbol",
+        prompt_prefix = "Document Symbols :: "
+    }
 end
 
 local lsp_workspace_symbols = function ()
-    Snacks.picker.lsp_workspace_symbols({ prompt = " Workspace Symbols :: " })
+    MiniPick.registry.lsp {
+        scope = "workspace_symbol",
+        prompt_prefix = "Workspace Symbols :: "
+    }
 end
 
 local hover = function ()

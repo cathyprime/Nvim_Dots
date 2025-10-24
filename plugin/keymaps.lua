@@ -113,8 +113,6 @@ vim.keymap.set({ "n", "x" }, "gs", "<Plug>(substitute)")
 vim.keymap.set("n", "gss", "<Plug>(substitute-linewise)")
 vim.keymap.set("n", "gS", "<Plug>(substitute-file)")
 
-vim.keymap.set("n", "<leader>r", require("cathy.tasks"), { desc = "Tasks" })
-
 local ts_repeat_move = require("nvim-treesitter-textobjects.repeatable_move")
 local nxo = { "n", "x", "o" }
 vim.keymap.set(nxo, ";", ts_repeat_move.repeat_last_move)
