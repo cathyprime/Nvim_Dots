@@ -17,6 +17,23 @@ local minis = {
 
     extra = function ()
         require("mini.extra").setup()
+        local MiniPick = require("mini.pick")
+        local MiniExtra = require("mini.extra")
+        for name, picker in pairs(MiniExtra.pickers) do
+            MiniPick.registry[name] = function(local_opts)
+                local prompt_prefix
+                if local_opts and local_opts.prompt_prefix then
+                    prompt_prefix = local_opts.prompt_prefix
+                    local_opts = vim.tbl_deep_extend("force", {}, local_opts)
+                    local_opts.prompt_prefix = nil
+                end
+                local opts = {}
+                if prompt_prefix then
+                    opts.window = { prompt_prefix = prompt_prefix }
+                end
+                return picker(local_opts, opts)
+            end
+        end
     end,
 
     pick = function ()
@@ -27,13 +44,63 @@ local minis = {
                 anchor = 'NW', height = height, width = width,
                 row = vim.o.lines - height,
                 col = math.floor(0.5 * (vim.o.columns - width)),
+                border = { "-", "-", "-", " ", " ", " ", " ", " " }
             }
         end
         require("mini.pick").setup {
-            window = { config = win_config }
+            window = {
+                config = win_config,
+                prompt_caret = " "
+            }
         }
+        for name, builtin in pairs(require("mini.pick").builtin) do
+            MiniPick.registry[name] = function (local_opts)
+                local prompt_prefix
+                if local_opts and local_opts.prompt_prefix then
+                    prompt_prefix = local_opts.prompt_prefix
+                    local_opts.prompt_prefix = nil
+                end
+                local opts = {}
+                if prompt_prefix then
+                    opts.window = { prompt_prefix = prompt_prefix }
+                end
+                return builtin(local_opts, opts)
+            end
+        end
+
+        vim.cmd [[hi! link MiniPickPrompt Normal]]
+        vim.cmd [[hi! link MiniPickPromptCaret Cursor]]
+        vim.cmd [[hi! link MiniPickPromptPrefix Normal]]
 
         MiniPick.registry.locpick = require("cathy.utils.mini.locpick")
+        local pick = function (name)
+            return function (prefix)
+                return function ()
+                    MiniPick.registry[name]({ prompt_prefix = prefix })
+                end
+            end
+        end
+        local map = function (lhs)
+            return function (opts)
+                vim.keymap.set("n", lhs, opts[1], { silent = true })
+            end
+        end
+
+        map "<leader>ff"       { function () vim.cmd.Pick "locpick" end }
+        map "<leader><leader>" { pick "files"        "Files :: " }
+        map "<leader>fg"       { pick "grep_live"    "Grep :: " }
+        map "<leader>fh"       { pick "help"         "Help :: " }
+        map "<leader>b"        { pick "buffers"      "Buffers :: " }
+        map "z="               { pick "spellsuggest" "Spelling :: " }
+        map "<leader>fw" {
+            function ()
+                local word = vim.fn.expand("<cword>")
+                MiniPick.registry.grep({
+                    pattern = word,
+                    prompt_prefix = word .. " >> Grep :: "
+                })
+            end
+        }
     end,
 
     operators = function()
