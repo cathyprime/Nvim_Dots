@@ -15,6 +15,27 @@ local minis = {
         })
     end,
 
+    extra = function ()
+        require("mini.extra").setup()
+    end,
+
+    pick = function ()
+        local win_config = function()
+            local height = math.floor(0.5 * vim.o.lines)
+            local width = vim.o.columns
+            return {
+                anchor = 'NW', height = height, width = width,
+                row = vim.o.lines - height,
+                col = math.floor(0.5 * (vim.o.columns - width)),
+            }
+        end
+        require("mini.pick").setup {
+            window = { config = win_config }
+        }
+
+        MiniPick.registry.locpick = require("cathy.utils.mini.locpick")
+    end,
+
     operators = function()
         require("mini.operators").setup({
             sort = {
