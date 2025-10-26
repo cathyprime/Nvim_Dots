@@ -206,7 +206,7 @@ function s:kanagawa_light()
     hi TreesitterContextLineNumber guifg=#928AA8 guibg=NONE guisp=NONE blend=NONE gui=NONE
     hi Type guifg=#397462 guibg=NONE guisp=NONE blend=NONE gui=nocombine
     hi Underlined guifg=#7D9CD8 guibg=NONE guisp=NONE blend=NONE gui=underline
-    hi VertSplit guifg=#C8C092 guibg=#C8C092 guisp=NONE blend=NONE gui=NONE
+    hi WinSeparator guifg=#F2ECBF guibg=#F2ECBF guisp=NONE blend=NONE gui=NONE
     hi Visual guifg=NONE guibg=#A4D4D5 guisp=NONE blend=NONE gui=NONE
     hi WarningMsg guifg=#FF9E3D guibg=NONE guisp=NONE blend=NONE gui=NONE
     hi Whitespace guifg=#E8DCA1 guibg=NONE guisp=NONE blend=NONE gui=NONE
@@ -425,7 +425,7 @@ function! s:kanagawa_dark()
     hi TreesitterContextLineNumber guifg=#928AA8 guibg=NONE guisp=NONE blend=NONE gui=NONE
     hi Type guifg=#7AA89F guibg=NONE guisp=NONE blend=NONE gui=nocombine
     hi Underlined guifg=#81B4CA guibg=NONE guisp=NONE blend=NONE gui=underline
-    hi VertSplit guifg=#262636 guibg=#262636 guisp=NONE blend=NONE gui=NONE
+    hi WinSeparator guifg=#353545 guibg=#353545 guisp=NONE blend=NONE gui=NONE
     hi Visual guifg=NONE guibg=#223249 guisp=NONE blend=NONE gui=NONE
     hi WarningMsg guifg=#FF9E3D guibg=NONE guisp=NONE blend=NONE gui=NONE
     hi Whitespace guifg=#353545 guibg=NONE guisp=NONE blend=NONE gui=NONE
@@ -705,4 +705,4 @@ hi! link @variable.member Property
 hi! link @variable.parameter @parameter
 hi! link VisualNOS Visual
 hi! link WildMenu Pmenu
-hi! link WinSeparator VertSplit
+hi! link VertSplit WinSeparator
