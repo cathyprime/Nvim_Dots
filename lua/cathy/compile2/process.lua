@@ -56,7 +56,7 @@ function Process:kill()
 end
 
 function Process:create_win()
-    self.winid = vim.api.nvim_open_win(buf_id, false, {
+    vim.api.nvim_open_win(buf_id, false, {
         split = "below",
         win = 0
     })

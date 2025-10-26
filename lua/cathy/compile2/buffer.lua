@@ -115,6 +115,14 @@ function Buf:register_keymap(mode, lhs, rhs, opts)
     vim.keymap.set(mode, lhs, rhs, opts)
 end
 
+function Buf:pos(str)
+    local ret
+    vim.api.nvim_buf_call(self.bufid, function ()
+        ret = vim.fn.getpos(str)
+    end)
+    return ret
+end
+
 function Buf.new()
     local obj = setmetatable({}, { __index = Buf })
     obj._ends_with_newline = false

@@ -1,5 +1,3 @@
-local ns = vim.api.nvim_create_namespace("Magda_Compile_Mode")
-
 local M = {}
 local H = {
     hl_group = {
@@ -9,6 +7,8 @@ local H = {
         underline = "CompileModeUnderline"
     },
 }
+
+M.ns = vim.api.nvim_create_namespace("Magda_Compile_Mode")
 
 if vim.fn.hlexists(H.hl_group.ok) == 0 then
     vim.api.nvim_set_hl(0, H.hl_group.ok, { link = "DiffAdd" })
@@ -34,4 +34,3 @@ function M.clear_ns(bufnr)
 end
 
 return M
-
