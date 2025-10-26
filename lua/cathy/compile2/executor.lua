@@ -14,11 +14,11 @@ function M.shell(opts)
     }
 
     return vim.system(command, {
-        stdout = opts.stdout_cb,
+        stdout = opts.write_cb,
         cwd = opts.cwd,
         detach = false,
         text = true,
-    }, exit_cb)
+    }, opts.exit_cb)
 end
 
 return M

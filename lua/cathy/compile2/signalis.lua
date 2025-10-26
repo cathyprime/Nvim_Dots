@@ -7,7 +7,7 @@ local term_string_abnormal_pos = string.find(term_string_abnormal, "%d", 1, true
 
 local what = function (msg)
     return function (duration)
-        vim.validate("duration", duration, "string")
+        vim.validate("duration", duration, "number")
         return string.format(
             term_string,
             msg,
@@ -51,7 +51,7 @@ return setmetatable(
     {
         __index = function (_, code)
             return function (duration)
-                vim.validate("duration", duration, "string")
+                vim.validate("duration", duration, "number")
                 local str = string.format(
                     term_string_abnormal,
                     code,
