@@ -1,19 +1,24 @@
 local M = {}
 
 function M.shell(opts)
-    vim.validate("cmd", opts.cmd, "string")
-    vim.validate("cwd", opts.cwd, "string")
-    vim.validate("write_cb", opts.write_cb, "function")
-    vim.validate("exit_cb", opts.exit_cb, "function")
+    vim.validate("opts.cmd", opts.cmd, "string")
+    vim.validate("opts.cwd", opts.cwd, "string")
+    vim.validate("opts.write_cb", opts.write_cb, "function")
+    vim.validate("opts.exit_cb", opts.exit_cb, "function")
 
-    return vim.fn.jobstart(opts.cmd, {
-        env = { TERM = "xterm-256color" },
-        on_stdout = opts.write_cb,
-        on_exit = opts.exit_cb,
+    local command = {
+        vim.opt.shell:get(),
+        vim.opt.shellcmdflag:get(),
+        opts.cmd,
+        "2>&1"
+    }
+
+    return vim.system(command, {
+        stdout = opts.stdout_cb,
         cwd = opts.cwd,
         detach = false,
-        pty = true,
-    })
+        text = true,
+    }, exit_cb)
 end
 
 return M

@@ -1,7 +1,6 @@
 local Buf = {}
 
 local function set_lines(buffer, start, end_, replacement)
-    replacement.plain = nil
     vim.bo[buffer].modifiable = true
     vim.api.nvim_buf_set_lines(buffer, start, end_, false, replacement)
     vim.bo[buffer].modifiable = false
@@ -11,13 +10,46 @@ end
 local function normalize_lines(lines)
     if type(lines) == "string" then
         lines = vim.split(lines, "\n", { plain = true, trimempty = false })
-        lines.plain = true
     end
     return lines
 end
 
 local function obj_guard(buf_obj)
-    return buf_obj.bufid == nil
+    return buf_obj.bufid == nil or not vim.api.nvim_buf_is_valid(buf_obj.bufid)
+end
+
+function Buf:append_data(data)
+    vim.validate("data", data, "string")
+    if obj_guard(self) then return end
+
+    local buf = self.bufid
+
+    local line_count = vim.api.nvim_buf_line_count(buf)
+
+    if line_count == 0 then
+        vim.api.nvim_buf_set_lines(buf, 0, 0, false, {""})
+        line_count = 1
+    end
+
+    vim.bo[buf].modifiable = true
+
+    local parts = vim.split(data, "\n", { plain = true, trimempty = false })
+    if not self._ends_with_newline then
+        local last_line_index = line_count - 1
+        local last_line = vim.api.nvim_buf_get_lines(buf, last_line_index, last_line_index + 1, false)[1] or ""
+        local new_first = last_line .. parts[1]
+        vim.api.nvim_buf_set_lines(buf, last_line_index, last_line_index + 1, false, { new_first })
+        table.remove(parts, 1)
+    end
+
+    if #parts > 0 then
+        vim.api.nvim_buf_set_lines(buf, -1, -1, false, parts)
+    end
+
+    vim.bo[buf].modifiable = false
+    vim.bo[buf].modified = false
+
+    self._ends_with_newline = vim.endswith(data, "\n")
 end
 
 function Buf:lines(start, end_)
@@ -33,18 +65,35 @@ function Buf:lines(start, end_)
     return vim.api.nvim_buf_get_lines(self.bufid, start, end_, false)
 end
 
-function Buf:append(lines)
+function Buf:append_lines(lines)
     vim.validate("lines", lines, { "table", "string" })
     if obj_guard(self) then return end
     set_lines(self.bufid, -1, -1, normalize_lines(lines))
+    self._ends_with_newline = true
 end
 
-function Buf:replace(start, lines)
-    vim.validate("start", start, "number")
-    vim.validate("lines", lines, { "table", "string" })
+function Buf:replace_lines(...)
+    local start
+    local end_
+    local lines
+    if select("#", ...) == 2 then
+        vim.validate("start", select(1, ...), "number")
+        vim.validate("lines", select(2, ...), { "table", "string" })
+        start, lines = select(1, ...)
+    else
+        vim.validate("start", select(1, ...), "number")
+        vim.validate("end",   select(2, ...), "number")
+        vim.validate("lines", select(3, ...), { "table", "string" })
+        start, end_, lines = select(1, ...)
+    end
     if obj_guard(self) then return end
     lines = normalize_lines(lines)
-    set_lines(self.bufid, start, start + #lines, lines)
+    if end_ then
+        set_lines(self.bufid, start, end_, lines)
+    else
+        set_lines(self.bufid, start, start + #lines, lines)
+    end
+    self._ends_with_newline = true
 end
 
 function Buf:delete()
@@ -68,29 +117,11 @@ end
 
 function Buf.new()
     local obj = setmetatable({}, { __index = Buf })
+    obj._ends_with_newline = false
     obj.bufid = vim.api.nvim_create_buf(true, false)
     vim.bo[obj.bufid].modifiable = false
 
     return obj
 end
 
-local buf = Buf.new()
-local window = vim.api.nvim_open_win(buf.bufid, false, {
-    split = "below",
-    win = 0
-})
-
-buf:register_keymap("n", "q", function ()
-    vim.api.nvim_win_close(window, false)
-    buf:delete()
-end)
-
-buf:replace(0, {
-    plain = true,
-    string.format("-*- Compilation_Mode; Starting_Directory :: %s -*-", vim.uv.cwd():gsub(os.getenv "HOME", "~")),
-    "Compilation started at "..os.date "%a %b %d %H:%M:%S"
-})
-
-buf:append({ "hello", "world" })
-buf:append({ "hello", "world" })
-buf:replace(4, { "goodbye", "mars" })
+return Buf
