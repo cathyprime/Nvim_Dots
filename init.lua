@@ -62,11 +62,6 @@ require("lazy").setup({
         { "jake-stewart/multicursor.nvim", branch = "1.0", },
         { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate", branch = "main" },
         { "nvim-treesitter/nvim-treesitter-textobjects", branch = "main" },
-        {
-            "folke/snacks.nvim",
-            lazy = false,
-            priority = 1000,
-        }
     },
     checker = { enabled = false },
 })
