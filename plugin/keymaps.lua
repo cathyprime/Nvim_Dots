@@ -127,3 +127,5 @@ require("cathy.utils.repeatable_jump").set_pair {
     lhs = { "[s", "]s" },
     desc = { "Previous spelling mistake", "Next spelling mistake" }
 }
+
+vim.keymap.set("n", "<leader><cr>", "<cmd>sp | term<cr>", { silent = true })
