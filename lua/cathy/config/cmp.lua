@@ -79,11 +79,12 @@ local setup_blink = function ()
             documentation = {
                 treesitter_highlighting = true,
                 window = {
-                    border = "rounded"
+                    border = "single"
                 }
             },
             ghost_text = { enabled = true },
             menu = {
+                border = "none",
                 max_height = 6,
                 auto_show = false,
                 draw = {
