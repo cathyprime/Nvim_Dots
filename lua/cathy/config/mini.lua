@@ -89,6 +89,7 @@ local minis = {
         map "<leader>ff"       { function () vim.cmd.Pick "locpick" end }
         map "<leader><leader>" { pick "files"        "Files :: " }
         map "<leader>fg"       { pick "grep_live"    "Grep :: " }
+        map "<leader>fo"       { pick "oldfiles"     "Oldfiles :: " }
         map "<leader>fh"       { pick "help"         "Help :: " }
         map "z="               { pick "spellsuggest" "Spelling :: " }
         map "<leader>b"        {

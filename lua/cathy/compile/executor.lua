@@ -9,8 +9,7 @@ function M.shell(opts)
     local command = {
         vim.opt.shell:get(),
         vim.opt.shellcmdflag:get(),
-        opts.cmd,
-        "2>&1"
+        opts.cmd .. " 2>&1",
     }
 
     return vim.system(command, {

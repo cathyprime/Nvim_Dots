@@ -53,7 +53,7 @@ function Buf:append_data(data)
     vim.api.nvim_exec_autocmds("User", {
         pattern = "CompileDataAppended",
         data = {
-            buf_ref = self,
+            buf = self.bufid,
             affected_range = {
                 line_count,
                 vim.api.nvim_buf_line_count(self.bufid)
@@ -133,17 +133,28 @@ function Buf:pos(str)
     return ret
 end
 
+function Buf:apply_settings()
+    vim.bo[self.bufid].modifiable = false
+    vim.bo[self.bufid].buftype    = "nofile"
+    vim.bo[self.bufid].bufhidden  = "hide"
+    vim.bo[self.bufid].swapfile   = false
+    vim.bo[self.bufid].filetype   = "Compile_Mode"
+end
+
 function Buf.new(name)
     local obj = setmetatable({}, { __index = Buf })
     obj._ends_with_newline = false
 
     if vim.fn.bufnr(name) == -1 then
-        obj.bufid = vim.api.nvim_create_buf(true, false)
-        vim.bo[obj.bufid].modifiable = false
+        obj.bufid = vim.api.nvim_create_buf(false, false)
         vim.api.nvim_buf_set_name(obj.bufid, name)
-        vim.bo[obj.bufid].buftype = "nofile"
-        vim.bo[obj.bufid].bufhidden = "hide"
-        vim.bo[obj.bufid].swapfile = false
+        obj:apply_settings()
+        vim.api.nvim_create_autocmd({ "BufFilePost", "BufNew" }, {
+            buffer = obj.bufid,
+            callback = function ()
+                obj:apply_settings()
+            end
+        })
     else
         obj.bufid = vim.fn.bufnr(name)
         require("cathy.compile.highlights").clear_ns(obj.bufid)

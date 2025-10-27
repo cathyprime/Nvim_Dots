@@ -5,7 +5,10 @@ local Process = {}
 Process.__index = Process
 
 function Process:create_buf(name)
+
     self.buf = require("cathy.compile.buffer").new(name)
+    local e = require("cathy.compile.errors").new()
+    e:attach(self.buf.bufid)
 
     self.buf:register_keymap("n", "q", function ()
         vim.cmd [[close]]
@@ -17,10 +20,21 @@ function Process:create_buf(name)
         end
     end)
 
+    self.buf:register_keymap("n", "<cr>", function()
+        local item = e[vim.fn.line(".")]
+        if not item then return end
+        local prev_win = vim.fn.win_getid(vim.fn.winnr('#'))
+
+        vim.api.nvim_win_set_buf(prev_win, item.bufnr)
+        vim.api.nvim_win_set_cursor(prev_win, { item.lnum, item.col - 1 or 0 })
+        vim.api.nvim_set_current_win(prev_win)
+    end)
+
     self.buf:register_keymap("n", "R", function ()
         if self.is_running then
             return
         end
+        e:clear()
         self.buf:replace_lines(0, - 1, {})
         self.buf._ends_with_newline = false
         require("cathy.compile.highlights").clear_ns(self.buf.bufid)
@@ -45,7 +59,7 @@ function Process:start(executor, opts)
         vim.uv.cwd():gsub(os.getenv "HOME", "~"),
         os.date "%a %b %d %H:%M:%S"
     )
-    local name = "Compile :: " .. opts.cmd
+    local name = "Compile://" .. opts.cmd
     self:create_buf(name)
 
     self.buf:append_data(banner)
@@ -94,6 +108,9 @@ function Process:start(executor, opts)
             self.buf:append_lines({ "", line })
             local linenr = self.buf:pos("$")[2]
             hl(self.buf.bufid, highlights.ns, linenr, highlights.get_group(exit_code))
+            vim.api.nvim_exec_autocmds("User", {
+                pattern = "CompileFinished",
+            })
         end)
     }, opts)
 

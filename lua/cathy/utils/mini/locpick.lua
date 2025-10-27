@@ -39,8 +39,14 @@ local make_items = function (path)
 
         local fs_type
         if type == "link" then
-            local resolved = uv.fs_stat(uv.fs_realpath(string.format("%s/%s", path, name))).type
-            fs_type = resolved == "directory" and resolved or "file"
+            local full_path = string.format("%s/%s", path, name)
+            local real_path = uv.fs_realpath(full_path)
+            if not real_path then
+                fs_type = "link"
+            else
+                local resolved = uv.fs_stat(real_path).type
+                fs_type = resolved == "directory" and resolved or "file"
+            end
         else
             fs_type = type == "directory" and type or "file"
         end
