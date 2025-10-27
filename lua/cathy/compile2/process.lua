@@ -1,6 +1,5 @@
 local banner_proto = [[-*- Compilation_Mode; Starting_Directory :: %s -*-
-Compilation started at %s
-]]
+Compilation started at %s]]
 
 local Process = {}
 Process.__index = Process
@@ -47,7 +46,7 @@ function Process:start(executor, opts)
     self:create_buf(name)
 
     self.buf:append_data(banner)
-    self.buf:append_lines({ opts.cmd })
+    self.buf:append_lines({ "", opts.cmd })
     local highlights = require("cathy.compile2.highlights")
     local line = self.buf:pos("$")[2]
     vim.hl.range(

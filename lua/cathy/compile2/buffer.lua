@@ -33,7 +33,7 @@ function Buf:append_data(data)
 
     vim.bo[buf].modifiable = true
 
-    local parts = vim.split(data, "\n", { plain = true, trimempty = false })
+    local parts = vim.split(data, "\n", { plain = true, trimempty = true })
     if not self._ends_with_newline then
         local last_line_index = line_count - 1
         local last_line = vim.api.nvim_buf_get_lines(buf, last_line_index, last_line_index + 1, false)[1] or ""
