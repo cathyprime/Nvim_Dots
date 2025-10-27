@@ -37,7 +37,13 @@ local make_items = function (path)
         local name, type = uv.fs_scandir_next(dir)
         if not name then break end
 
-        local fs_type = type == "directory" and type or "file"
+        local fs_type
+        if type == "link" then
+            local resolved = uv.fs_stat(uv.fs_realpath(string.format("%s/%s", path, name))).type
+            fs_type = resolved == "directory" and resolved or "file"
+        else
+            fs_type = type == "directory" and type or "file"
+        end
         table.insert(items, {
             fs_type = fs_type,
             path = string.format("%s/%s", path, name),
