@@ -18,6 +18,9 @@ function Process:create_buf(name)
     end)
 
     self.buf:register_keymap("n", "R", function ()
+        if self.is_running then
+            return
+        end
         self.buf:replace_lines(0, - 1, {})
         self.buf._ends_with_newline = false
         require("cathy.compile.highlights").clear_ns(self.buf.bufid)
@@ -102,7 +105,9 @@ function Process:start(executor, opts)
 end
 
 function Process:kill()
-    self._proc:kill()
+    if self.is_running then
+        self._proc:kill()
+    end
 end
 
 function Process:create_win()
