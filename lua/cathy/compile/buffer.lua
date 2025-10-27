@@ -50,6 +50,16 @@ function Buf:append_data(data)
     vim.bo[buf].modified = false
 
     self._ends_with_newline = vim.endswith(data, "\n")
+    vim.api.nvim_exec_autocmds("User", {
+        pattern = "CompileDataAppended",
+        data = {
+            buf_ref = self,
+            affected_range = {
+                line_count,
+                vim.api.nvim_buf_line_count(self.bufid)
+            }
+        }
+    })
 end
 
 function Buf:lines(start, end_)
