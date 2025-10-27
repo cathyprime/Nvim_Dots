@@ -40,7 +40,7 @@ return {
     settings = {
         Lua = {
             diagnostics = {
-                globals = { "Snacks", "MiniStatusline", "MiniIcons" }
+                globals = { "MiniStatusline", "MiniIcons" }
             }
         }
     }

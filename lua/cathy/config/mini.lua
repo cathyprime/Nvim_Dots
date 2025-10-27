@@ -54,13 +54,13 @@ local minis = {
             }
         }
         for name, builtin in pairs(require("mini.pick").builtin) do
-            MiniPick.registry[name] = function (local_opts)
+            MiniPick.registry[name] = function (local_opts, opts)
                 local prompt_prefix
                 if local_opts and local_opts.prompt_prefix then
                     prompt_prefix = local_opts.prompt_prefix
                     local_opts.prompt_prefix = nil
                 end
-                local opts = {}
+                opts = opts or {}
                 if prompt_prefix then
                     opts.window = { prompt_prefix = prompt_prefix }
                 end
@@ -90,8 +90,26 @@ local minis = {
         map "<leader><leader>" { pick "files"        "Files :: " }
         map "<leader>fg"       { pick "grep_live"    "Grep :: " }
         map "<leader>fh"       { pick "help"         "Help :: " }
-        map "<leader>b"        { pick "buffers"      "Buffers :: " }
         map "z="               { pick "spellsuggest" "Spelling :: " }
+        map "<leader>b"        {
+            function ()
+                local wipeout_cur = function()
+                    local matches = MiniPick.get_picker_matches()
+                    if matches.marked then
+                        for _, item in ipairs(matches.marked) do
+                            vim.api.nvim_buf_delete(item.bufnr, {})
+                        end
+                        return true
+                    end
+                    vim.api.nvim_buf_delete(matches.current.bufnr, {})
+                    return true
+                end
+                local buffer_mappings = { wipeout = { char = '<C-d>', func = wipeout_cur } }
+                MiniPick.registry.buffers(
+                    { prompt_prefix = "Buffers :: " },
+                    { mappings = buffer_mappings })
+            end
+        }
         map "<leader>fw" {
             function ()
                 local word = vim.fn.expand("<cword>")
