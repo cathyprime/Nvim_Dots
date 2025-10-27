@@ -106,7 +106,7 @@ function M.sudo_write()
         vim.fn.shellescape(tmpfile),
         vim.fn.shellescape(filepath))
     vim.api.nvim_exec2(string.format("write! %s", tmpfile), { output = true })
-    if sudo_exec(cmd) then
+    if M.sudo_exec(cmd) then
         -- refreshes the buffer and prints the "written" message
         vim.cmd.checktime()
         vim.api.nvim_feedkeys(vim.keycode "<Esc>", "n", true)
