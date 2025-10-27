@@ -5,27 +5,34 @@ Compilation started at %s
 local Process = {}
 Process.__index = Process
 
-function Process.new()
-    local obj = setmetatable({}, Process)
-    obj.buf = require("cathy.compile2.buffer").new()
+function Process:create_buf(name)
+    self.buf = require("cathy.compile2.buffer").new(name)
 
-    obj.buf:register_keymap("n", "q", function ()
+    self.buf:register_keymap("n", "q", function ()
         vim.cmd [[close]]
     end)
 
-    obj.buf:register_keymap("n", "R", function ()
-        obj.buf:replace_lines(0, - 1, {})
-        obj.buf._ends_with_newline = false
-        require("cathy.compile2.highlights").clear_ns(obj.buf.bufid)
-        obj:start(vim.b[obj.buf.bufid].executor, vim.b[obj.buf.bufid].exec_opts)
+    self.buf:register_keymap("n", "<c-c>", function ()
+        if self.is_running then
+            self:kill()
+        end
     end)
 
-    return obj
+    self.buf:register_keymap("n", "R", function ()
+        self.buf:replace_lines(0, - 1, {})
+        self.buf._ends_with_newline = false
+        require("cathy.compile2.highlights").clear_ns(self.buf.bufid)
+        self:start(vim.b[self.buf.bufid].executor, vim.b[self.buf.bufid].exec_opts)
+    end)
+end
+
+function Process.new()
+    return setmetatable({}, Process)
 end
 
 function Process:start(executor, opts)
     vim.validate("executor",      executor,      "string")
-    vim.validate("opts",          opts,          "table")
+    vim.validate("opts",          opts,          "table" )
     vim.validate("opts.cmd",      opts.cmd,      "string")
     vim.validate("opts.cwd",      opts.cwd,      "string",   true)
     vim.validate("opts.write_cb", opts.write_cb, "function", true)
@@ -36,9 +43,11 @@ function Process:start(executor, opts)
         vim.uv.cwd():gsub(os.getenv "HOME", "~"),
         os.date "%a %b %d %H:%M:%S"
     )
+    local name = "Compile :: " .. opts.cmd
+    self:create_buf(name)
+
     self.buf:append_data(banner)
     self.buf:append_lines({ opts.cmd })
-
     local highlights = require("cathy.compile2.highlights")
     local line = self.buf:pos("$")[2]
     vim.hl.range(
@@ -68,24 +77,49 @@ function Process:start(executor, opts)
             end
         end),
         exit_cb = vim.schedule_wrap(function (obj)
+            local exit_code
+            if obj.signal and obj.signal ~= 0 then
+                exit_code = 128 + obj.signal
+            else
+                exit_code = obj.code
+            end
+            if self.on_exit then
+                self.on_exit(exit_code)
+            end
+            self.is_running = false
             local duration = (vim.uv.hrtime() - self.start_time) / 1e9
-            local line, hl = require("cathy.compile2.signalis")[obj.code](duration)
+            local line, hl = require("cathy.compile2.signalis")[exit_code](duration)
             self.buf:append_lines({ "", line })
             local linenr = self.buf:pos("$")[2]
-            hl(self.buf.bufid, highlights.ns, linenr, highlights.get_group(obj.code))
+            hl(self.buf.bufid, highlights.ns, linenr, highlights.get_group(exit_code))
         end)
     }, opts)
 
     vim.b[self.buf.bufid].executor = executor
     vim.b[self.buf.bufid].exec_opts = opts
+    self.is_running = true
+    self:create_win()
     self._proc = require("cathy.compile2.executor")[executor](opts)
 end
 
 function Process:kill()
-    self._proc:kill("sigint")
+    self._proc:kill()
 end
 
 function Process:create_win()
+    if not self.buf then
+        return
+    end
+
+    local win_exist = vim.iter(ipairs(vim.api.nvim_list_wins()))
+        :any(function (_, winid)
+            return vim.api.nvim_win_get_buf(winid) == self.buf.bufid
+        end)
+
+    if win_exist then
+        return
+    end
+
     local win = vim.api.nvim_open_win(self.buf.bufid, false, {
         split = "below",
         win = 0

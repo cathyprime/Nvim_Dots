@@ -1,3 +1,5 @@
+local running_process = nil
+
 return function (opts)
     vim.validate("opts",          opts,          "table")
     vim.validate("opts.cmd",      opts.cmd,      "string")
@@ -7,6 +9,15 @@ return function (opts)
     vim.validate("opts.exit_cb",  opts.exit_cb,  "function", true)
     opts.executor = opts.executor or "shell"
 
-    local process = require("cathy.compile2.process")
+    if running_process then
+        return running_process
+    end
 
+    local process = require("cathy.compile2.process")
+    running_process = process.new()
+    running_process.on_exit = function ()
+        running_process = nil
+    end
+    running_process:start(opts.executor, opts)
+    return running_process
 end

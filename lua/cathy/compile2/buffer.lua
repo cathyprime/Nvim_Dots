@@ -123,11 +123,23 @@ function Buf:pos(str)
     return ret
 end
 
-function Buf.new()
+function Buf.new(name)
     local obj = setmetatable({}, { __index = Buf })
     obj._ends_with_newline = false
-    obj.bufid = vim.api.nvim_create_buf(true, false)
-    vim.bo[obj.bufid].modifiable = false
+
+    if vim.fn.bufnr(name) == -1 then
+        obj.bufid = vim.api.nvim_create_buf(true, false)
+        vim.bo[obj.bufid].modifiable = false
+        vim.api.nvim_buf_set_name(obj.bufid, name)
+        vim.bo[obj.bufid].buftype = "nofile"
+        vim.bo[obj.bufid].bufhidden = "hide"
+        vim.bo[obj.bufid].swapfile = false
+    else
+        obj.bufid = vim.fn.bufnr(name)
+        require("cathy.compile2.highlights").clear_ns(obj.bufid)
+        obj:replace_lines(0, - 1, {})
+        obj._ends_with_newline = false
+    end
 
     return obj
 end
