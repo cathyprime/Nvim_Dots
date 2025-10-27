@@ -5,7 +5,7 @@ local Process = {}
 Process.__index = Process
 
 function Process:create_buf(name)
-    self.buf = require("cathy.compile2.buffer").new(name)
+    self.buf = require("cathy.compile.buffer").new(name)
 
     self.buf:register_keymap("n", "q", function ()
         vim.cmd [[close]]
@@ -20,7 +20,7 @@ function Process:create_buf(name)
     self.buf:register_keymap("n", "R", function ()
         self.buf:replace_lines(0, - 1, {})
         self.buf._ends_with_newline = false
-        require("cathy.compile2.highlights").clear_ns(self.buf.bufid)
+        require("cathy.compile.highlights").clear_ns(self.buf.bufid)
         self:start(vim.b[self.buf.bufid].executor, vim.b[self.buf.bufid].exec_opts)
     end)
 end
@@ -47,7 +47,7 @@ function Process:start(executor, opts)
 
     self.buf:append_data(banner)
     self.buf:append_lines({ "", opts.cmd })
-    local highlights = require("cathy.compile2.highlights")
+    local highlights = require("cathy.compile.highlights")
     local line = self.buf:pos("$")[2]
     vim.hl.range(
         self.buf.bufid,
@@ -87,7 +87,7 @@ function Process:start(executor, opts)
             end
             self.is_running = false
             local duration = (vim.uv.hrtime() - self.start_time) / 1e9
-            local line, hl = require("cathy.compile2.signalis")[exit_code](duration)
+            local line, hl = require("cathy.compile.signalis")[exit_code](duration)
             self.buf:append_lines({ "", line })
             local linenr = self.buf:pos("$")[2]
             hl(self.buf.bufid, highlights.ns, linenr, highlights.get_group(exit_code))
@@ -98,7 +98,7 @@ function Process:start(executor, opts)
     vim.b[self.buf.bufid].exec_opts = opts
     self.is_running = true
     self:create_win()
-    self._proc = require("cathy.compile2.executor")[executor](opts)
+    self._proc = require("cathy.compile.executor")[executor](opts)
 end
 
 function Process:kill()
