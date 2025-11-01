@@ -16,13 +16,20 @@ function _G.prot_require(module_name)
     return ok, module
 end
 
--- Bootstrap lazy.nvim
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.uv.fs_stat(lazypath) then
-    local lazyrepo = "https://github.com/folke/lazy.nvim.git"
-    vim.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
+-- Clone 'mini.nvim' manually in a way that it gets managed by 'mini.deps'
+local path_package = vim.fn.stdpath("data") .. "/site/"
+local mini_path = path_package .. "pack/deps/start/mini.nvim"
+if not vim.loop.fs_stat(mini_path) then
+    vim.cmd([[echo "Installing mini.nvim" | redraw]])
+    local clone_cmd = {
+        "git", "clone", "--filter=blob:none",
+        "https://github.com/nvim-mini/mini.nvim", mini_path
+    }
+    vim.fn.system(clone_cmd)
+    vim.cmd("packadd mini.nvim | helptags ALL")
+    vim.cmd([[echo "Installed mini.nvim" | redraw]])
 end
-vim.opt.rtp:prepend(lazypath)
+require('mini.deps').setup({ path = { package = path_package } })
 
 local trans = setmetatable({
     cs = "c_sharp"
@@ -38,30 +45,47 @@ vim.api.nvim_create_autocmd("FileType", {
     end,
 })
 
-require("lazy").setup({
-    spec = {
-        "chrishrb/gx.nvim",
-        "nvim-mini/mini.nvim",
-        "JoosepAlviste/nvim-ts-context-commentstring",
-        "kylechui/nvim-surround",
-        "L3MON4D3/LuaSnip",
-        "mfussenegger/nvim-dap",
-        "milisims/nvim-luaref",
-        "monaqa/dial.nvim",
-        "NeogitOrg/neogit",
-        "sindrets/diffview.nvim",
-        "neovim/nvim-lspconfig",
-        "nvim-lua/plenary.nvim",
-        "nvim-neotest/nvim-nio",
-        "nvimtools/hydra.nvim",
-        "rcarriga/nvim-dap-ui",
-        "stevearc/oil.nvim",
-        "stevearc/quicker.nvim",
+local plugins = {
+    "chrishrb/gx.nvim",
+    "nvim-mini/mini.nvim",
+    "JoosepAlviste/nvim-ts-context-commentstring",
+    "kylechui/nvim-surround",
+    "L3MON4D3/LuaSnip",
+    "mfussenegger/nvim-dap",
+    "milisims/nvim-luaref",
+    "monaqa/dial.nvim",
+    "NeogitOrg/neogit",
+    "sindrets/diffview.nvim",
+    "neovim/nvim-lspconfig",
+    "nvim-lua/plenary.nvim",
+    "nvim-neotest/nvim-nio",
+    "nvimtools/hydra.nvim",
+    "rcarriga/nvim-dap-ui",
+    "stevearc/oil.nvim",
+    "stevearc/quicker.nvim",
 
-        { "saghen/blink.cmp", version = "1.*" },
-        { "jake-stewart/multicursor.nvim", branch = "1.0", },
-        { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate", branch = "main" },
-        { "nvim-treesitter/nvim-treesitter-textobjects", branch = "main" },
+    {
+        source = "saghen/blink.cmp",
+        version = "v1.7.0"
     },
-    checker = { enabled = false },
-})
+    {
+        source = "jake-stewart/multicursor.nvim",
+        checkout = "1.0",
+    },
+    {
+        source = "nvim-treesitter/nvim-treesitter",
+        checkout = "main",
+        hooks = {
+            post_install = function () vim.cmd "TSUpdate" end,
+            post_checkout = function () vim.cmd "TSUpdate" end
+        }
+    },
+    {
+        source = "nvim-treesitter/nvim-treesitter-textobjects",
+        checkout = "main"
+    },
+}
+
+for _, spec in ipairs(plugins) do
+    require("mini.deps").add(spec)
+end
