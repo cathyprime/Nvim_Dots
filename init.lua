@@ -45,6 +45,16 @@ vim.api.nvim_create_autocmd("FileType", {
     end,
 })
 
+local function build_blink(params)
+    vim.notify("Building blink.cmp", vim.log.levels.INFO)
+    local obj = vim.system({ "cargo", "build", "--release" }, { cwd = params.path }):wait()
+    if obj.code == 0 then
+        vim.notify("Building blink.cmp done", vim.log.levels.INFO)
+    else
+        vim.notify("Building blink.cmp failed", vim.log.levels.ERROR)
+    end
+end
+
 local plugins = {
     "chrishrb/gx.nvim",
     "nvim-mini/mini.nvim",
@@ -66,7 +76,11 @@ local plugins = {
 
     {
         source = "saghen/blink.cmp",
-        version = "v1.7.0"
+        version = "v1.7.0",
+        hooks = {
+            post_install = build_blink,
+            post_checkout = build_blink,
+        }
     },
     {
         source = "jake-stewart/multicursor.nvim",
