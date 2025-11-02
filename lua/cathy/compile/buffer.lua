@@ -27,12 +27,13 @@ function Buf:append_data(data)
     local line_count = vim.api.nvim_buf_line_count(buf)
 
     if line_count == 0 then
-        vim.api.nvim_buf_set_lines(buf, 0, 0, false, {""})
+        vim.api.nvim_buf_set_lines(buf, 0, 0, false, { "" })
         line_count = 1
     end
 
     vim.bo[buf].modifiable = true
 
+    data = data:gsub("\r\n", "\n"):gsub("\r", "\n")
     local parts = vim.split(data, "\n", { plain = true, trimempty = true })
     if not self._ends_with_newline then
         local last_line_index = line_count - 1
