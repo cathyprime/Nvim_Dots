@@ -52,10 +52,10 @@ vim.api.nvim_create_user_command(
             vim.cmd(opts.mods .. " split")
         end
 
-        local buf = find_buffer_by_name("Scratch :: " .. ft)
+        local buf = find_buffer_by_name("Scratch://" .. ft)
         if buf == nil then
             buf = vim.api.nvim_create_buf(false, true)
-            vim.api.nvim_buf_set_name(buf, "Scratch :: " .. ft)
+            vim.api.nvim_buf_set_name(buf, "Scratch://" .. ft)
             vim.bo[buf].bufhidden = "hide"
             vim.bo[buf].swapfile = false
             vim.bo[buf].buftype = "nofile"
