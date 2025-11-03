@@ -123,9 +123,14 @@ local shorten_query = function (query)
     if query[1] == "~" then
         return query
     end
-    local len = #vim.split(os.getenv "HOME", "")
-    if #query < len then
+    local home = vim.split(os.getenv "HOME", "")
+    if #query < #home then
         return query
+    end
+    for i = 1, #home do
+        if query[i] ~= home[i] then
+            return query
+        end
     end
     return { "~", unpack(query, len+1) }
 end
