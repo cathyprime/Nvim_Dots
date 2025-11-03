@@ -10,11 +10,7 @@ vim.api.nvim_create_autocmd("Filetype", {
 })
 
 local neogit_setup = function ()
-    neogit.setup({
-        integrations = {
-            snacks = false
-        }
-    })
+    neogit.setup()
 end
 
 local open_neogit = function()

@@ -68,6 +68,23 @@ local minis = {
             end
         end
 
+        vim.ui.select = function(items, opts, on_choice)
+            local start_opts = {
+                mappings = {
+                    complete = {
+                        char = "<tab>",
+                        func = function ()
+                            local matches = MiniPick.get_picker_matches()
+                            if not matches then return end
+                            if not matches.current then return end
+                            MiniPick.set_picker_query(vim.split(matches.current.text, ""))
+                        end
+                    },
+                }
+            }
+            return MiniPick.ui_select(items, opts, on_choice, start_opts)
+        end
+
         vim.cmd [[hi! link MiniPickPrompt Normal]]
         vim.cmd [[hi! link MiniPickPromptCaret Cursor]]
         vim.cmd [[hi! link MiniPickPromptPrefix Normal]]
