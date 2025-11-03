@@ -13,7 +13,7 @@ Clone the repository and install the plugins:
 
 ```sh
 git clone git@github.com:cathyprime/nvim-dots ~/.config/cathyprime/nvim-dots
-NVIM_APPNAME=cathyprime/nvim-dots/ nvim --headless +"Lazy! sync" +qa
+NVIM_APPNAME=cathyprime/nvim-dots/ nvim --headless +qa
 ```
 
 Open Neovim with this config:
@@ -25,10 +25,10 @@ NVIM_APPNAME=cathyprime/nvim-dots/ nvim
 ## Plugins
 
 ### code-runner
-+ [tpope/vim-dispatch](https://github.com/tpope/vim-dispatch)
++ Custom :Compile command
 
 ### colorscheme
-+ [cathyprime/kanagawa_remix](https://github.com/Cathyprime/kanagawa_remix)
++ Custom scheme based on kanagawa
 
 ### comment
 + [JoosepAlviste/nvim-ts-context-commentstring](https://github.com/JoosepAlviste/nvim-ts-context-commentstring)
@@ -41,9 +41,6 @@ NVIM_APPNAME=cathyprime/nvim-dots/ nvim
 + [mfussenegger/nvim-dap](https://github.com/mfussenegger/nvim-dap)
 + [rcarriga/nvim-dap-ui](https://github.com/rcarriga/nvim-dap-ui)
 
-### diagnostics
-+ [folke/trouble.nvim](https://github.com/folke/trouble.nvim)
-
 ### editing-support
 + [monaqa/dial.nvim](https://github.com/monaqa/dial.nvim)
 + [kylechui/nvim-surround](https://github.com/kylechui/nvim-surround)
@@ -52,7 +49,7 @@ NVIM_APPNAME=cathyprime/nvim-dots/ nvim
 + [stevearc/oil.nvim](https://github.com/stevearc/oil.nvim)
 
 ### fuzzy-finder
-+ [folke/snacks.nvim](https://github.com/folke/snacks.nvim)
++ [echasnovski/mini.pick](https://github.com/echasnovski/mini.pick)
 
 ### git
 + [NeogitOrg/neogit](https://github.com/NeogitOrg/neogit)
@@ -60,21 +57,20 @@ NVIM_APPNAME=cathyprime/nvim-dots/ nvim
 
 ### keybinding
 + [nvimtools/hydra.nvim](https://github.com/nvimtools/hydra.nvim)
-+ [mawkler/demicolon.nvim](https://github.com/mawkler/demicolon.nvim)
 
 ### lsp
 + [neovim/nvim-lspconfig](https://github.com/neovim/nvim-lspconfig)
 
 ### navigation
-+ [folke/snacks.nvim](https://github.com/folke/snacks.nvim)
-+ custom snacks find\_file
++ [echasnovski/mini.pick](https://github.com/echasnovski/mini.pick)
++ custom mini.pick picker `locpick`
 
 ### nvim-dev
 + [milisims/nvim-luaref](https://github.com/milisims/nvim-luaref)
 + [nvim-lua/plenary.nvim](https://github.com/nvim-lua/plenary.nvim)
 
 ### plugin-manager
-+ [folke/lazy.nvim](https://github.com/folke/lazy.nvim)
++ [echasnovski/mini.deps](https://github.com/echasnovski/mini.deps)
 
 ### quickfix
 + [stevearc/quicker.nvim](https://github.com/stevearc/quicker.nvim)
@@ -88,4 +84,3 @@ NVIM_APPNAME=cathyprime/nvim-dots/ nvim
 
 ### utility
 + [echasnovski/mini.nvim](https://github.com/echasnovski/mini.nvim)
-+ [folke/snacks.nvim](https://github.com/folke/snacks.nvim)
