@@ -124,6 +124,9 @@ local shorten_query = function (query)
         return query
     end
     local len = #vim.split(os.getenv "HOME", "")
+    if #query < len then
+        return query
+    end
     return { "~", unpack(query, len+1) }
 end
 
@@ -133,6 +136,17 @@ local expand_query = function (query)
     end
     table.remove(query, 1)
     return vim.fn.extend(vim.split(os.getenv "HOME", ""), query)
+end
+
+local append_slash = function ()
+    local query = MiniPick.get_picker_query()
+    if query[#query] == "/" then
+        return
+    end
+    query[#query+1] = "/"
+    MiniPick.set_picker_query(
+        shorten_query(query)
+    )
 end
 
 local has_home = function (query)
@@ -190,7 +204,9 @@ local complete = function ()
     local cur_path = get_path(query, function (x) return x end)
     local new_query = cur_path .. matches.current.text
     local real_path = vim.uv.fs_realpath(vim.fn.fnamemodify(new_query, ":p"))
-    MiniPick.set_picker_query(vim.split(new_query, ""))
+    MiniPick.set_picker_query(
+        shorten_query(vim.split(new_query, ""))
+    )
     MiniPick.refresh()
 end
 
@@ -233,6 +249,7 @@ return function (opts)
             delete_char_right = "",
             delete_word = "",
             delete_left = "",
+            slash = { char = "/", func = append_slash },
             complete = { char = "<tab>", func = complete },
             go_home = { char = "<c-h>", func = go_home },
             delete_or_up = { char = "<bs>", func = delete_or_up },
