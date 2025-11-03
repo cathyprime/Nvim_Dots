@@ -1,5 +1,4 @@
 undo
-plugin/packer_compiled.lua
-repl_output
+pack/system_specific/*
 doc/tags
 spell/*.spl
