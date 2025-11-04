@@ -80,6 +80,27 @@ local minis = {
                             MiniPick.set_picker_query(vim.split(matches.current.text, ""))
                         end
                     },
+                    custom_choose = {
+                        char = "<cr>",
+                        func = function()
+                            local selected = MiniPick.get_picker_matches().current
+                            local opts = MiniPick.get_picker_opts()
+                            if selected ~= nil then
+                                MiniPick.stop()
+                                vim.schedule(function()
+                                    on_choice(selected.item, selected.index)
+                                end)
+                            else
+                                local query = table.concat(MiniPick.get_picker_query())
+                                if query == '' then
+                                    vim.notify("Nothing selected or entered!", vim.log.levels.WARN)
+                                    return
+                                end
+                                MiniPick.stop()
+                                on_choice(query, -1)
+                            end
+                        end,
+                    },
                 }
             }
             return MiniPick.ui_select(items, opts, on_choice, start_opts)
