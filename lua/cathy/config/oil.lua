@@ -50,6 +50,7 @@ oil.setup({
             if not ok or cmd == nil then return end
             vim.cmd(string.format("Compile %s %s", cmd, parsed_name))
         end, desc = "perform an action on item" },
+        ["cd"] = "actions.cd",
         ["<C-p>"] = false,
         ["g\\"] = false,
         ["gs"] = false,
