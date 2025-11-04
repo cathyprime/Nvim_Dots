@@ -249,7 +249,11 @@ local minis = {
     end,
 
     git = function()
-        require("mini.git").setup()
+        require("mini.git").setup {
+            command = {
+                split = "horizontal"
+            }
+        }
         local align_blame = function(au_data)
             if au_data.data.git_subcommand ~= 'blame' then return end
 
