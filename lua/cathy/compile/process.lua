@@ -37,7 +37,6 @@ function Process:create_buf(name)
         e:clear()
         self.buf:replace_lines(0, - 1, {})
         self.buf._ends_with_newline = false
-        require("cathy.compile.highlights").clear_ns(self.buf.bufid)
         self:start(vim.b[self.buf.bufid].executor, vim.b[self.buf.bufid].exec_opts)
     end)
 end
@@ -63,25 +62,8 @@ function Process:start(executor, opts)
     self:create_buf(name)
 
     self.buf:append_data(banner)
-    self.buf:append_lines({ "", opts.cmd })
-    local highlights = require("cathy.compile.highlights")
+    self.buf:append_lines({ "", "[CMD] :: " .. opts.cmd })
     local line = self.buf:pos("$")[2]
-    vim.hl.range(
-        self.buf.bufid,
-        highlights.ns,
-        highlights.hl_group.underline,
-        { line, 0 },
-        { line, -1 },
-        { inclusive = true }
-    )
-    vim.hl.range(
-        self.buf.bufid,
-        highlights.ns,
-        "DiagnosticFloatingInfo",
-        { line, 0 },
-        { line, -1 },
-        { inclusive = true }
-    )
 
     self.start_time = vim.uv.hrtime()
     opts = vim.tbl_deep_extend("force", {
@@ -103,11 +85,9 @@ function Process:start(executor, opts)
                 self.on_exit(exit_code)
             end
             self.is_running = false
-            local duration = (vim.uv.hrtime() - self.start_time) / 1e9
-            local line, hl = require("cathy.compile.signalis")[exit_code](duration)
+            local line = require("cathy.compile.signalis")[exit_code]((vim.uv.hrtime() - self.start_time) / 1e9)
             self.buf:append_lines({ "", line })
             local linenr = self.buf:pos("$")[2]
-            hl(self.buf.bufid, highlights.ns, linenr, highlights.get_group(exit_code))
             vim.api.nvim_exec_autocmds("User", {
                 pattern = "CompileFinished",
             })

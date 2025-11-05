@@ -29,7 +29,6 @@ function Errors:attach(bufid)
             vim.fn.setqflist({}, "r", { lines = lines })
             local qf_items = vim.fn.getqflist({ items = 0 }).items or {}
 
-            local highlights = require("cathy.compile.highlights")
             for i, item in ipairs(qf_items) do
                 if item.valid == 1 then
                     local line_idx = range[1] + i

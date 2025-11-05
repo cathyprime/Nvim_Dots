@@ -158,7 +158,6 @@ function Buf.new(name)
         })
     else
         obj.bufid = vim.fn.bufnr(name)
-        require("cathy.compile.highlights").clear_ns(obj.bufid)
         obj:replace_lines(0, - 1, {})
         obj._ends_with_newline = false
     end
