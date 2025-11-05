@@ -12,6 +12,12 @@ vim.fn.sign_define("CompileErrorSign", {
 
 function Errors:attach(bufid)
     vim.api.nvim_create_autocmd("User", {
+        pattern = "CompileFinished",
+        callback = function ()
+            vim.fn.setqflist({}, "r", { items = {} })
+        end
+    })
+    vim.api.nvim_create_autocmd("User", {
         pattern = "CompileDataAppended",
         callback = function (ev)
             local buf = ev.data.buf
