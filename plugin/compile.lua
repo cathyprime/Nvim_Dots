@@ -30,7 +30,7 @@ vim.api.nvim_create_user_command(
 )
 vim.api.nvim_create_user_command(
     "Seethe",
-    function () last_process:create_win() end,
+    function () last_process:show() end,
     {}
 )
 vim.keymap.set("n", "'<cr>", "<cmd>Recompile<cr>", { silent = true })
