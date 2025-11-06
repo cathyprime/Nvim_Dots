@@ -291,7 +291,7 @@ local minis = {
                     if ok then
                         return ft(true)
                     end
-                    local filename      = config.filename({ trunc_width = 110 })
+                    local filename      = config.filename({ trunc_width = math.floor(vim.o.columns / 2) + 5 })
                     local filetype      = config.filetype()
                     local last_button   = config.last_button({ trunc_width = 20 })
                     local diff          = config.diff({ trunc_width = 75 })
@@ -317,7 +317,7 @@ local minis = {
                     if ok then
                         return ft(false)
                     end
-                    local filename   = config.filename({ trunc_width = 110 })
+                    local filename   = config.filename({ trunc_width = math.floor(vim.o.columns / 2) + 5 })
                     local cursor_pos = config.cursor_pos_min({ trunc_width = 75 })
                     return MiniStatusline.combine_groups({
                         { hl = 'MiniStatuslineDevinfoB', strings = { filename } },
