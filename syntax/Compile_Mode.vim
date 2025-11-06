@@ -8,20 +8,19 @@ EOF
 syntax match CompileCmd /^\[CMD\]\s*::\s*\zs.*/
 
 hi! link CompileModeErr DiffDelete
-syntax match CompileModeErr /code\s*\zs\d\+/
-syntax match CompileModeErr /^Compilation\s*\zs.*\ze\swith code/
-syntax match CompileModeErr /^Compilation\s\+\zs[[:alpha:]() ]\+\ze\sat.\+duration/
+syntax match CompileModeErr /code\s*\zs\d\+/ contained
+syntax match CompileModeErr /^Compilation\s*\zs.*\ze\swith/ contained
+syntax match CompileModeErr /^Compilation\s\+\zs[[:alpha:]() ]\+\ze\sat/ contained
 
 hi! link CompileModeOk DiffAdd
-syntax match CompileModeOk /^Compilation\s*\zs\<finished\>\ze/
+syntax match CompileModeOk /^Compilation\s*\zs\<finished\>\ze/ contained
+syntax match LastLine /^.*\%$/ contains=CompileModeOk,CompileModeErr
 
-syntax match DiagnosticWarn /\cwarn:/
-syntax match DiagnosticWarn /\cwarning:/
-
-syntax match DiagnosticInfo /\cnote:/
-syntax match DiagnosticInfo /\cinfo:/
-
-syntax match DiagnosticError /\cerror:/
+syntax case ignore
+syntax iskeyword @,48-57,_,192-255,#,:
+syntax keyword DiagnosticWarn warn: warning:
+syntax keyword DiagnosticInfo note: info: usage:
+syntax keyword DiagnosticError fatal error:
 
 lua << EOF
 local hl = vim.api.nvim_get_hl(0, {
@@ -31,4 +30,4 @@ hl.underline = true
 vim.api.nvim_set_hl(0, "CompileModeFile", hl)
 EOF
 
-syntax match CompileModeFile /^[A-Za-z0-9._\/-]\+:/
+syntax match CompileModeFile /^[A-Za-z0-9_\/-]\+\.[A-Za-z0-9_\/-]\+:/
