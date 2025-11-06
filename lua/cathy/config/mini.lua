@@ -83,22 +83,32 @@ local minis = {
                     custom_choose = {
                         char = "<cr>",
                         func = function()
-                            local selected = MiniPick.get_picker_matches().current
-                            local opts = MiniPick.get_picker_opts()
-                            if selected ~= nil then
+                            local function select (selected)
                                 MiniPick.stop()
                                 vim.schedule(function()
                                     on_choice(selected.item, selected.index)
                                 end)
-                            else
-                                local query = table.concat(MiniPick.get_picker_query())
-                                if query == '' then
-                                    vim.notify("Nothing selected or entered!", vim.log.levels.WARN)
-                                    return
-                                end
-                                MiniPick.stop()
-                                on_choice(query, -1)
                             end
+                            local selected = MiniPick.get_picker_matches().current
+                            if selected ~= nil then
+                                select(selected)
+                                return
+                            end
+
+                            local query = table.concat(MiniPick.get_picker_query())
+                            if query == '' then
+                                vim.notify("Nothing selected or entered!", vim.log.levels.WARN)
+                                return
+                            end
+                            local items = MiniPick.get_picker_items()
+                            local selected = {
+                                item = query,
+                                text = query,
+                                index = 1
+                            }
+                            table.insert(items, 1, selected)
+                            MiniPick.set_picker_items(items)
+                            select(selected)
                         end,
                     },
                 }
