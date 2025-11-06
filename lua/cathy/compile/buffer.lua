@@ -34,7 +34,10 @@ function Buf:append_data(data)
     vim.bo[buf].modifiable = true
 
     data = data:gsub("\r\n", "\n"):gsub("\r", "\n")
-    local parts = vim.split(data, "\n", { plain = true, trimempty = true })
+    local parts = vim.split(data, "\n", { plain = true, trimempty = false })
+    if parts[#parts] == "" then
+        table.remove(parts, #parts)
+    end
     if not self._ends_with_newline then
         local last_line_index = line_count - 1
         local last_line = vim.api.nvim_buf_get_lines(buf, last_line_index, last_line_index + 1, false)[1] or ""
@@ -44,6 +47,7 @@ function Buf:append_data(data)
     end
 
     if #parts > 0 then
+        vim.bo[buf].modifiable = true
         vim.api.nvim_buf_set_lines(buf, -1, -1, false, parts)
     end
 
@@ -137,7 +141,6 @@ end
 function Buf:apply_settings()
     vim.bo[self.bufid].modifiable = false
     vim.bo[self.bufid].swapfile   = false
-    vim.bo[self.bufid].list       = false
     vim.bo[self.bufid].bufhidden  = "hide"
     vim.bo[self.bufid].buftype    = "nofile"
     vim.bo[self.bufid].filetype   = "Compile_Mode"

@@ -62,7 +62,7 @@ function Process:start(executor, opts)
     self:create_buf(name)
 
     self.buf:append_data(banner)
-    self.buf:append_lines({ "", "[CMD] :: " .. opts.cmd })
+    self.buf:append_lines({ "[CMD] :: " .. opts.cmd, "" })
     local line = self.buf:pos("$")[2]
 
     self.start_time = vim.uv.hrtime()
@@ -86,7 +86,11 @@ function Process:start(executor, opts)
             end
             self.is_running = false
             local line = require("cathy.compile.signalis")[exit_code]((vim.uv.hrtime() - self.start_time) / 1e9)
-            self.buf:append_lines({ "", line })
+            if self.buf:lines(-2, -1)[1] == "" then
+                self.buf:append_lines { line }
+            else
+                self.buf:append_lines { "", line }
+            end
             local linenr = self.buf:pos("$")[2]
             vim.api.nvim_exec_autocmds("User", {
                 pattern = "CompileFinished",
@@ -140,6 +144,7 @@ function Process:show()
         })
     end
 
+    vim.wo[win].list  = false
     vim.wo[win].spell = false
 end
 
