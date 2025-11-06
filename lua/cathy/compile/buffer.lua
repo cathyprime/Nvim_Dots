@@ -136,9 +136,10 @@ end
 
 function Buf:apply_settings()
     vim.bo[self.bufid].modifiable = false
-    vim.bo[self.bufid].buftype    = "nofile"
-    vim.bo[self.bufid].bufhidden  = "hide"
     vim.bo[self.bufid].swapfile   = false
+    vim.bo[self.bufid].list       = false
+    vim.bo[self.bufid].bufhidden  = "hide"
+    vim.bo[self.bufid].buftype    = "nofile"
     vim.bo[self.bufid].filetype   = "Compile_Mode"
 end
 

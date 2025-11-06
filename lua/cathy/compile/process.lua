@@ -111,7 +111,8 @@ function Process:show()
     if not self.buf then
         return
     end
-    vim.bo[self.buf.bufid].filetype = "Compile_Mode"
+    -- might be some saved buffer in old buffer list
+    self.buf:apply_settings()
 
     local win_exist = vim.iter(ipairs(vim.api.nvim_list_wins()))
         :any(function (_, winid)
