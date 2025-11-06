@@ -143,6 +143,7 @@ function Process:show()
             win = 0
         })
     end
+    vim.api.nvim_set_current_win(win)
 
     vim.wo[win].list  = false
     vim.wo[win].spell = false
