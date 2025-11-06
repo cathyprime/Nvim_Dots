@@ -19,9 +19,10 @@ syntax match LastLine /^.*\%$/ contains=CompileModeOk,CompileModeErr
 syntax match CompileModeFile /^[~A-Za-z0-9_\/-]\+\.[A-Za-z0-9]\+/
 
 syntax case ignore
+syntax keyword CompileModeOk ok
 syntax keyword DiagnosticWarn warn warning
 syntax keyword DiagnosticInfo note info usage
-syntax keyword DiagnosticError fatal error
+syntax keyword DiagnosticError fatal error failed errors failure
 
 lua << EOF
 local hl = vim.api.nvim_get_hl(0, {
