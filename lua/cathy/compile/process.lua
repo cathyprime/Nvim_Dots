@@ -62,7 +62,7 @@ function Process:start(executor, opts)
     self:create_buf(name)
 
     self.buf:append_data(banner)
-    self.buf:append_lines({ "[CMD] :: " .. opts.cmd, "" })
+    self.buf:append_lines({ "", "[CMD] :: " .. opts.cmd })
     local line = self.buf:pos("$")[2]
 
     self.start_time = vim.uv.hrtime()
