@@ -41,6 +41,8 @@ vim.api.nvim_create_autocmd("FileType", {
         if vim.treesitter.language.add(trans[e.match]) then
             vim.treesitter.start()
             vim.opt.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+        else
+            vim.notify(string.format("couldn't find parser for `%s`", e.match), vim.log.levels.WARN)
         end
     end,
 })
