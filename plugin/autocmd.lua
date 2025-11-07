@@ -154,3 +154,28 @@ vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {
     pattern = {"*.c", "*.h"},
     command = "set ft=c",
 })
+
+local trans = setmetatable({
+    cs = "c_sharp"
+}, { __index = function (tbl, key) return key end})
+
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = "*",
+    callback = function(e)
+        local ts = require "nvim-treesitter"
+        local has = function (what)
+            return function (it)
+                return it == what
+            end
+        end
+        local parser = trans[e.match]
+        if vim.iter(ts.get_installed()):any(has(parser)) then
+            vim.treesitter.start()
+            vim.opt.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+            return
+        end
+        if vim.iter(ts.get_available()):any(has(parser)) then
+            vim.cmd.TSInstall(parser)
+        end
+    end,
+})

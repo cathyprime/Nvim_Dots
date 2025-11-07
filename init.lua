@@ -31,22 +31,6 @@ if not vim.loop.fs_stat(mini_path) then
 end
 require('mini.deps').setup({ path = { package = path_package } })
 
-local trans = setmetatable({
-    cs = "c_sharp"
-}, { __index = function (tbl, key) return key end})
-
-vim.api.nvim_create_autocmd("FileType", {
-    pattern = "*",
-    callback = function(e)
-        if vim.treesitter.language.add(trans[e.match]) then
-            vim.treesitter.start()
-            vim.opt.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
-        else
-            vim.notify(string.format("couldn't find parser for `%s`", e.match), vim.log.levels.WARN)
-        end
-    end,
-})
-
 local function build_blink(params)
     vim.notify("Building blink.cmp", vim.log.levels.INFO)
     vim.fn.jobstart({ "cargo", "build", "--release" }, {
