@@ -29,34 +29,47 @@ if not vim.loop.fs_stat(mini_path) then
     vim.cmd("packadd mini.nvim | helptags ALL")
     vim.cmd([[echo "Installed mini.nvim" | redraw]])
 end
-require('mini.deps').setup({ path = { package = path_package } })
+require("mini.deps").setup {
+    path = {
+        package = path_package
+    }
+}
 
 local function build_blink(params)
     vim.notify("Building blink.cmp", vim.log.levels.INFO)
     vim.fn.jobstart({ "cargo", "build", "--release" }, {
-        cwd = params.path
+        cwd = params.path,
+        term = true
     })
 end
 
-local plugins = {
-    "chrishrb/gx.nvim",
+vim.iter {
     "nvim-mini/mini.nvim",
-    "JoosepAlviste/nvim-ts-context-commentstring",
-    "kylechui/nvim-surround",
-    "L3MON4D3/LuaSnip",
-    "mfussenegger/nvim-dap",
-    "milisims/nvim-luaref",
-    "monaqa/dial.nvim",
-    "NeogitOrg/neogit",
-    "sindrets/diffview.nvim",
-    "neovim/nvim-lspconfig",
+
+    -- libs
     "nvim-lua/plenary.nvim",
     "nvim-neotest/nvim-nio",
-    "nvimtools/hydra.nvim",
-    "rcarriga/nvim-dap-ui",
-    "stevearc/oil.nvim",
-    "stevearc/quicker.nvim",
 
+    -- debug
+    "mfussenegger/nvim-dap",
+    "rcarriga/nvim-dap-ui",
+
+    -- git
+    "NeogitOrg/neogit",
+    "sindrets/diffview.nvim",
+
+    -- misc
+    "neovim/nvim-lspconfig",
+    "stevearc/oil.nvim",
+    "nvimtools/hydra.nvim",
+    "chrishrb/gx.nvim",
+    "milisims/nvim-luaref",
+
+    -- editing
+    "kylechui/nvim-surround",
+    "L3MON4D3/LuaSnip",
+    "stevearc/quicker.nvim",
+    "monaqa/dial.nvim",
     {
         source = "saghen/blink.cmp",
         version = "v1.7.0",
@@ -69,6 +82,9 @@ local plugins = {
         source = "jake-stewart/multicursor.nvim",
         checkout = "1.0",
     },
+
+    -- treesitter
+    { source = "JoosepAlviste/nvim-ts-context-commentstring" },
     {
         source = "nvim-treesitter/nvim-treesitter",
         checkout = "main",
@@ -80,8 +96,4 @@ local plugins = {
         source = "nvim-treesitter/nvim-treesitter-textobjects",
         checkout = "main"
     },
-}
-
-for _, spec in ipairs(plugins) do
-    require("mini.deps").add(spec)
-end
+}:each(require("mini.deps").add)
