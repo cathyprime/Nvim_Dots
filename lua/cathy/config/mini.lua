@@ -1,5 +1,6 @@
-local minis = {
-    indentscope = function()
+vim.api.nvim_create_autocmd("VimEnter", {
+    once = true,
+    callback = function ()
         require("mini.indentscope").setup({
             symbol = "",
         })
@@ -13,9 +14,7 @@ local minis = {
                 end
             end
         })
-    end,
 
-    extra = function ()
         require("mini.extra").setup()
         local MiniPick = require("mini.pick")
         local MiniExtra = require("mini.extra")
@@ -34,9 +33,7 @@ local minis = {
                 return picker(local_opts, opts)
             end
         end
-    end,
 
-    pick = function ()
         local win_config = function()
             local height = math.floor(0.5 * vim.o.lines)
             local width = vim.o.columns
@@ -168,18 +165,14 @@ local minis = {
                 })
             end
         }
-    end,
 
-    operators = function()
         require("mini.operators").setup({
             sort = {
                 prefix = "",
                 func = nil,
             },
         })
-    end,
 
-    comment = function()
         require("mini.comment").setup({
             options = {
                 custom_commentstring = function()
@@ -187,13 +180,9 @@ local minis = {
                 end,
             },
         })
-    end,
 
-    trailspace = function()
         require("mini.trailspace").setup()
-    end,
 
-    move = function()
         require("mini.move").setup({
             mappings = {
                 left       = "<m-h>",
@@ -206,21 +195,15 @@ local minis = {
                 line_up    = "<m-k>",
             }
         })
-    end,
 
-    misc = function()
         require("mini.misc").setup()
-    end,
 
-    splitjoin = function()
         require("mini.splitjoin").setup({
             mappings = {
                 toggle = "<leader>s",
             }
         })
-    end,
 
-    ai = function()
         local module = require("mini.ai")
         module.setup({
             n_lines = 200,
@@ -234,9 +217,7 @@ local minis = {
                 t = module.gen_spec.treesitter({ a = "@type.outer", i = "@type.inner" }, {})
             },
         })
-    end,
 
-    diff = function()
         local module = require("mini.diff")
         module.setup({
             mappings = {
@@ -256,9 +237,7 @@ local minis = {
         vim.keymap.set("n", "<leader>go", function()
             pcall(module.toggle_overlay)
         end)
-    end,
 
-    git = function()
         require("mini.git").setup {
             command = {
                 split = "horizontal"
@@ -280,9 +259,7 @@ local minis = {
 
         local au_opts = { pattern = 'MiniGitCommandSplit', callback = align_blame }
         vim.api.nvim_create_autocmd('User', au_opts)
-    end,
 
-    statusline = function()
         require("mini.statusline").setup({
             content = {
                 active = function()
@@ -328,65 +305,45 @@ local minis = {
                 end
             }
         })
-    end,
 
-    -- surround = function()
-    --     local ts_input = require("mini.surround").gen_spec.input.treesitter
-    --     require("mini.surround").setup({
-    --         custom_surroundings = {
-    --             t = {
-    --                 input = ts_input({ outer = "@type.outer", inner = "@type.inner" }),
-    --                 output = function()
-    --                     local type_name = MiniSurround.user_input("Type name")
-    --                     return { left = type_name.."<", right = ">" }
-    --                 end
-    --             },
-    --             T = {
-    --                 input = { '<(%w-)%f[^<%w][^<>]->.-</%1>', '^<.->().*()</[^/]->$' },
-    --                 output = function()
-    --                     local tag_full = MiniSurround.user_input('Tag')
-    --                     if tag_full == nil then return nil end
-    --                     local tag_name = tag_full:match('^%S*')
-    --                     return { left = '<' .. tag_full .. '>', right = '</' .. tag_name .. '>' }
-    --                 end,
-    --             },
-    --         },
-    --         mappings = {
-    --             add = "s",
-    --             delete = "sd",
-    --             find = "",
-    --             find_left = "",
-    --             highlight = "",
-    --             replace = "sc",
-    --             update_n_lines = "",
-    --             suffix_last = 'l',
-    --             suffix_next = 'n',
-    --         },
-    --     })
-    --     vim.keymap.set("n", "ss", "s_", { remap = true })
-    --     vim.keymap.set("n", "S", "s", { remap = false })
-    -- end,
+        -- surround = function()
+        --     local ts_input = require("mini.surround").gen_spec.input.treesitter
+        --     require("mini.surround").setup({
+        --         custom_surroundings = {
+        --             t = {
+        --                 input = ts_input({ outer = "@type.outer", inner = "@type.inner" }),
+        --                 output = function()
+        --                     local type_name = MiniSurround.user_input("Type name")
+        --                     return { left = type_name.."<", right = ">" }
+        --                 end
+        --             },
+        --             T = {
+        --                 input = { '<(%w-)%f[^<%w][^<>]->.-</%1>', '^<.->().*()</[^/]->$' },
+        --                 output = function()
+        --                     local tag_full = MiniSurround.user_input('Tag')
+        --                     if tag_full == nil then return nil end
+        --                     local tag_name = tag_full:match('^%S*')
+        --                     return { left = '<' .. tag_full .. '>', right = '</' .. tag_name .. '>' }
+        --                 end,
+        --             },
+        --         },
+        --         mappings = {
+        --             add = "s",
+        --             delete = "sd",
+        --             find = "",
+        --             find_left = "",
+        --             highlight = "",
+        --             replace = "sc",
+        --             update_n_lines = "",
+        --             suffix_last = 'l',
+        --             suffix_next = 'n',
+        --         },
+        --     })
+        --     vim.keymap.set("n", "ss", "s_", { remap = true })
+        --     vim.keymap.set("n", "S", "s", { remap = false })
+        -- end,
 
-    icons = function()
         require("mini.icons").setup()
         MiniIcons.mock_nvim_web_devicons()
     end
-}
-
-local setup_mini = function ()
-    local load_mini = function (name, setup)
-        local ok, mini = prot_require("mini." .. name)
-        if not ok then
-            return
-        end
-        setup()
-    end
-
-    vim.iter(minis)
-        :each(load_mini)
-end
-
-vim.api.nvim_create_autocmd("VimEnter", {
-    once = true,
-    callback = setup_mini
 })
