@@ -1,7 +1,5 @@
-" vim compiler file
-" Compiler:     clang (Apple c compiler)
-" Maintainer:   Magda J. (magdajaroszynska47@gmail.com)
-" Last Change:  2024 Aug 10
+" vim: ft=vim
+
 if exists("clang")
   finish
 endif
@@ -15,5 +13,3 @@ setlocal errorformat=%f:%l:%c:\ %t%s:\ %m
 
 let &cpo = s:cpo_save
 unlet s:cpo_save
-
-"vim: ft=vim
