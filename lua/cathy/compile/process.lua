@@ -25,8 +25,9 @@ function Process:create_buf(name)
         if not item then return end
         local prev_win = vim.fn.win_getid(vim.fn.winnr('#'))
 
+        local col = item.col ~= 0 and item.col - 1 or 0
         vim.api.nvim_win_set_buf(prev_win, item.bufnr)
-        vim.api.nvim_win_set_cursor(prev_win, { item.lnum, item.col - 1 or 0 })
+        vim.api.nvim_win_set_cursor(prev_win, { item.lnum, item.col })
         vim.api.nvim_set_current_win(prev_win)
     end)
 
