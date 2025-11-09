@@ -43,12 +43,15 @@ oil.setup({
         ["gy"] = "actions.yank_entry",
         ["!"] = { function()
             local parsed_name = require("oil").get_cursor_entry().parsed_name
-            local ok, cmd = pcall(vim.fn.input, {
-                prompt = string.format("! on %s: ", parsed_name),
-                cancelreturn = nil,
-            })
-            if not ok or cmd == nil then return end
-            vim.cmd(string.format("Compile %s %s", cmd, parsed_name))
+            local cb = function (input)
+                if not input then return end
+                require("cathy.compile") {
+                    cmd = string.format("%s %s", input, parsed_name)
+                }
+            end
+            vim.ui.input({
+                prompt = string.format("! on %s: ", parsed_name)
+            }, cb)
         end, desc = "perform an action on item" },
         ["cd"] = "actions.cd",
         ["<C-p>"] = false,
