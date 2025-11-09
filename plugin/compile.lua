@@ -28,13 +28,20 @@ vim.api.nvim_create_user_command(
 vim.api.nvim_create_user_command(
     "Recompile",
     function ()
-        if not last_args then
+        if not last_process then
             vim.notify("No previous command!", vim.log.levels.ERROR)
             return
         end
-        last_process = require("cathy.compile") {
-            cmd = vim.fn.expandcmd(last_args)
-        }
+        if last_process.is_running then
+            return
+        end
+        last_process.e:clear()
+        last_process.buf:replace_lines(0, - 1, {})
+        last_process.buf._ends_with_newline = false
+        last_process:start(
+            vim.b[last_process.buf.bufid].executor,
+            vim.b[last_process.buf.bufid].exec_opts
+        )
     end,
     {
         nargs = 0
@@ -47,5 +54,6 @@ vim.api.nvim_create_user_command(
     {}
 )
 
+vim.keymap.set("n", "<leader>q", "<cmd>Seethe<cr>", { silent = true })
 vim.keymap.set("n", "'<cr>", "<cmd>Recompile<cr>", { silent = true })
 vim.keymap.set("n", "'<space>", "<cmd>Compile<cr>", { silent = false })

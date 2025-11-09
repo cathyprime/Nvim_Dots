@@ -7,8 +7,8 @@ Process.__index = Process
 function Process:create_buf(name)
 
     self.buf = require("cathy.compile.buffer").new(name)
-    local e = require("cathy.compile.errors").new()
-    e:attach(self.buf.bufid)
+    self.e = require("cathy.compile.errors").new()
+    self.e:attach(self.buf.bufid)
 
     self.buf:register_keymap("n", "q", function ()
         vim.cmd [[close]]
@@ -35,7 +35,7 @@ function Process:create_buf(name)
         if self.is_running then
             return
         end
-        e:clear()
+        self.e:clear()
         self.buf:replace_lines(0, - 1, {})
         self.buf._ends_with_newline = false
         self:start(vim.b[self.buf.bufid].executor, vim.b[self.buf.bufid].exec_opts)
