@@ -55,6 +55,14 @@ function Buf:append_data(data)
     vim.bo[buf].modified = false
 
     self._ends_with_newline = vim.endswith(data, "\n")
+
+    for _, winid in ipairs(vim.api.nvim_list_wins()) do
+        if vim.api.nvim_win_get_buf(winid) == self.bufid then
+            vim.api.nvim_win_set_cursor(winid, { vim.api.nvim_buf_line_count(self.bufid), 0 })
+            break
+        end
+    end
+
     vim.api.nvim_exec_autocmds("User", {
         pattern = "CompileDataAppended",
         data = {
