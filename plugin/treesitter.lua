@@ -70,10 +70,6 @@ require("nvim-treesitter").setup({
 
 local ensure_installed = {
     "bash",
-    "c",
-    "cmake",
-    "cpp",
-    "c_sharp",
     "diff",
     "disassembly",
     "gitattributes",
@@ -83,7 +79,6 @@ local ensure_installed = {
     "git_rebase",
     "lua",
     "luadoc",
-    "make",
     "markdown",
     "markdown_inline",
     "vimdoc",
