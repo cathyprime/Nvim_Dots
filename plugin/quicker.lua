@@ -13,9 +13,6 @@ quicker.setup({
         {
             "<c-l>",
             function ()
-                if vim.b.compile_mode then
-                    return
-                end
                 quicker.refresh()
             end,
             desc = "Refresh quickfix list",
@@ -23,9 +20,6 @@ quicker.setup({
         {
             "+",
             function()
-                if vim.b.compile_mode then
-                    return
-                end
                 quicker.expand({ before = 2, after = 2, add_to_existing = true })
             end,
             desc = "Expand quickfix context"
@@ -33,9 +27,6 @@ quicker.setup({
         {
             "-",
             function ()
-                if vim.b.compile_mode then
-                    return
-                end
                 quicker.collapse()
             end,
             desc = "Collapse quickfix context"
@@ -99,27 +90,4 @@ map {
 
 map {
     "[c", jump_prev, desc = "Prev quickfix item"
-}
-
-map {
-    "<leader>q", function()
-        local has_loclist = vim.fn.getloclist(0, {winid=0}).winid ~= 0
-        if has_loclist then
-            quicker.close({ loclist = true })
-            return
-        end
-        quicker.toggle({
-            height = math.floor(vim.opt.lines:get() * 0.6),
-            open_cmd_mods = { split = "botright" }
-        })
-    end
-}
-
-map {
-    "<leader>Q",
-    function() quicker.toggle({
-        height = math.floor(vim.opt.lines:get() * 0.6),
-        open_cmd_mods = { split = "botright" },
-        loclist = true
-    }) end
 }
