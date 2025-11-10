@@ -48,11 +48,10 @@ vim.iter {
 
     -- libs
     "nvim-lua/plenary.nvim",
-    "nvim-neotest/nvim-nio",
 
     -- debug
     "mfussenegger/nvim-dap",
-    "rcarriga/nvim-dap-ui",
+    "igorlfs/nvim-dap-view",
 
     -- git
     "NeogitOrg/neogit",
@@ -66,7 +65,6 @@ vim.iter {
     "milisims/nvim-luaref",
 
     -- editing
-    "kylechui/nvim-surround",
     "L3MON4D3/LuaSnip",
     "stevearc/quicker.nvim",
     "monaqa/dial.nvim",
