@@ -85,12 +85,15 @@ vim.api.nvim_create_autocmd("VimEnter", {
         local orig = vim.api.nvim_get_current_buf()
         vim.cmd.Scratch { bang = true, args = { "lua" } }
         vim.api.nvim_buf_delete(orig, { force = true, unload = false })
+        local undolvl = vim.opt_local.undolevels:get()
+        vim.cmd.setlocal({ args = { "undolevels=-1" } })
         vim.api.nvim_buf_set_lines(0, 0, -1, false, {
             "-- this buffer is for text that will not be saved and for evaluating lua code",
             "-- to visit file use <space>ff and navigate to your project and edit that",
             "",
             "",
         })
+        vim.cmd.setlocal({ args = { "undolevels=" .. tostring(undolvl) } })
         vim.api.nvim_win_set_cursor(0, { vim.api.nvim_buf_line_count(0), 0 })
     end
 })
