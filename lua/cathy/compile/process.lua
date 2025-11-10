@@ -110,7 +110,7 @@ function Process:start(executor, opts)
     vim.b[self.buf.bufid].executor = executor
     vim.b[self.buf.bufid].exec_opts = opts
     self.is_running = true
-    self:show()
+    self:show(false)
     self._proc = require("cathy.compile.executor")[executor](opts)
 end
 
@@ -120,7 +120,7 @@ function Process:kill()
     end
 end
 
-function Process:show()
+function Process:show(jump_if_opened)
     if not self.buf then
         return
     end
@@ -133,8 +133,11 @@ function Process:show()
         return name:find("Compile://")
     end, vim.api.nvim_list_wins())
 
-    local win = with_any_compile_buf[1]
+    if not jump_if_opened and #with_any_compile_buf > 0 then
+        return
+    end
 
+    local win = with_any_compile_buf[1]
     if not win then
         win = vim.api.nvim_open_win(self.buf.bufid, false, {
             split = "below",
