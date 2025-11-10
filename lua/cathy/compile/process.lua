@@ -127,15 +127,6 @@ function Process:show()
     -- might be some saved buffer in old buffer list
     self.buf:apply_settings()
 
-    local win_exist = vim.iter(ipairs(vim.api.nvim_list_wins()))
-        :any(function (_, winid)
-            return vim.api.nvim_win_get_buf(winid) == self.buf.bufid
-        end)
-
-    if win_exist then
-        return
-    end
-
     local with_any_compile_buf = vim.tbl_filter(function (win)
         local buffer = vim.api.nvim_win_get_buf(win)
         local name = vim.api.nvim_buf_get_name(buffer)
@@ -144,9 +135,7 @@ function Process:show()
 
     local win = with_any_compile_buf[1]
 
-    if win then
-        vim.api.nvim_win_set_buf(win, self.buf.bufid)
-    else
+    if not win then
         win = vim.api.nvim_open_win(self.buf.bufid, false, {
             split = "below",
             win = 0
