@@ -116,7 +116,7 @@ function s:kanagawa_light()
     hi MiniNotifyNormal guifg=#1F1F28 guibg=#FBFAEE guisp=NONE blend=NONE gui=NONE
     hi MiniNotifyTitle guifg=#928AA8 guibg=#FBFAEE guisp=NONE blend=NONE gui=bold
     hi MiniStatuslineBrackets guifg=#948057 guibg=#D3E0E4 guisp=NONE blend=NONE gui=NONE
-    hi MiniStatuslineDevinfo guifg=#7D9CD8 guibg=#98BC6C guisp=NONE blend=NONE gui=bold
+    hi MiniStatuslineDevinfo guifg=#16161D guibg=#98BC6C guisp=NONE blend=NONE gui=NONE
     hi MiniStatuslineDevinfoB guifg=#2A2A37 guibg=#F2ECBF guisp=NONE blend=NONE gui=NONE
     hi MiniStatuslineModeCommand guifg=#181820 guibg=#FFA166 guisp=NONE blend=NONE gui=bold
     hi MiniStatuslineModeDebug guifg=#C8C092 guibg=#E82626 guisp=NONE blend=NONE gui=bold
@@ -335,7 +335,7 @@ function! s:kanagawa_dark()
     hi MiniNotifyNormal guifg=#C8C092 guibg=#181820 guisp=NONE blend=NONE gui=NONE
     hi MiniNotifyTitle guifg=#928AA8 guibg=#181820 guisp=NONE blend=NONE gui=bold
     hi MiniStatuslineBrackets guifg=#DCA460 guibg=#262636 guisp=NONE blend=NONE gui=NONE
-    hi MiniStatuslineDevinfo guifg=#7D9CD8 guibg=#98BC6C guisp=NONE blend=NONE gui=bold
+    hi MiniStatuslineDevinfo guifg=#16161D guibg=#98BC6C guisp=NONE blend=NONE gui=NONE
     hi MiniStatuslineDevinfoB guifg=#DDD8BB guibg=#353545 guisp=NONE blend=NONE gui=NONE
     hi MiniStatuslineModeCommand guifg=#181820 guibg=#FFA166 guisp=NONE blend=NONE gui=bold
     hi MiniStatuslineModeDebug guifg=#C8C092 guibg=#E82626 guisp=NONE blend=NONE gui=bold

@@ -244,7 +244,6 @@ local function filename_component(args)
         return "%t"
     end
 
-    -- return vim.fn.expand('%:~:.') .. " %m%r"
     return "%F %m%r"
 end
 
@@ -300,6 +299,7 @@ local dap_names = {
     ["dapui_scopes"]      = "DAP Scopes",
     ["dapui_stacks"]      = "DAP Stacks",
     ["dap-repl"]          = "DAP Repl",
+    ["dap-view"]          = "DAP View"
 }
 
 local function Statusline_normal(active)
@@ -328,12 +328,23 @@ local function oil()
 end
 
 local filetypes = {
+    ["dap-view"]          = dap_component,
     ["dapui_breakpoints"] = dap_component,
     ["dapui_watches"]     = dap_component,
     ["dapui_console"]     = dap_component,
     ["dapui_scopes"]      = dap_component,
     ["dapui_stacks"]      = dap_component,
     ["dap-repl"]          = dap_component,
+    ["Compile_Mode"] = function (active)
+        local cmd = vim.fn.bufname():gsub("Compile://", "")
+        return MiniStatusline.combine_groups({
+            { hl = Statusline_normal(active), strings = { "Compile_Mode" } },
+            { hl = "MiniStatuslineDevinfo", strings = { cmd } },
+            { hl = "MiniStatuslineDevinfoB", strings = { "%=" } },
+            { hl = "MiniStatuslineDevinfo", strings = { "%P" } },
+            { hl = "StatuslineNormal", strings = { "%l:%c" } },
+        })
+    end,
     ["oil"] = function(active)
         return MiniStatusline.combine_groups({
             { hl = Statusline_normal(active), strings = { oil() } },
@@ -367,6 +378,38 @@ local filetypes = {
     end,
 }
 
+local function transform(fmt)
+    return function (...)
+        local formatted = string.format(fmt, ...)
+        return function (active)
+            return MiniStatusline.combine_groups({
+                { hl = Statusline_normal(active), strings = { formatted } },
+                { hl = "MiniStatuslineDevinfoB", strings = { "%=" } }
+            })
+        end
+    end
+end
+
+local function callmeta(tbl, key)
+    assert(key, "bufname call requires a key")
+
+    local test_string = function (...)
+        return select("#", ...) ~= 0 and select(1, ...) ~= nil, { ... }
+    end
+
+    for pattern, fn in pairs(tbl) do
+        local ok, captures = test_string(key:match(pattern))
+        if ok then
+            return ok, fn(unpack(captures))
+        end
+    end
+    return false, nil
+end
+
+local bufname = setmetatable({
+    ["Scratch://(.*)"] = transform "Scratch :: %s",
+}, { __call = callmeta })
+
 local function choose()
     local ft = vim.bo.filetype
     local ok = vim.iter(filetypes):any(function(filetype)
@@ -375,6 +418,9 @@ local function choose()
     if ok then
         return ok, filetypes[ft]
     end
+    local buf = vim.api.nvim_get_current_buf()
+    local name = vim.api.nvim_buf_get_name(buf)
+    return bufname(name)
 end
 
 return {
