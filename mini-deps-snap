@@ -12,7 +12,6 @@ return {
   ["nvim-dap-view"] = "170560c18866c0ecd7ba290d9246cae42ddee906",
   ["nvim-lspconfig"] = "2010fc6ec03e2da552b4886fceb2f7bc0fc2e9c0",
   ["nvim-luaref"] = "9cd3ed50d5752ffd56d88dd9e395ddd3dc2c7127",
-  ["nvim-surround"] = "fcfa7e02323d57bfacc3a141f8a74498e1522064",
   ["nvim-treesitter"] = "5eca61b32a5ce298f55ecdfd48511977f5c37f77",
   ["nvim-treesitter-textobjects"] = "2e5b8735a61d3cfaa65d9a8ff787a7b0a0a81b70",
   ["nvim-ts-context-commentstring"] = "1b212c2eee76d787bbea6aa5e92a2b534e7b4f8f",
