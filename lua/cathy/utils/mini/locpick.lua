@@ -262,7 +262,7 @@ return function (opts)
             delete_all = { char = "<c-u>", func = function () MiniPick.set_picker_query({"/"}) end }
         },
         window = {
-            prompt_prefix = " Find File :: "
+            prompt_prefix = opts.prompt or " Find File :: "
         },
         source = {
             items = make_items(start),

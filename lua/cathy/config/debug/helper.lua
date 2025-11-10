@@ -3,7 +3,19 @@ local cache = {
     netcoredbg_args = "",
 }
 
-return {
+local function file_picker(prompt)
+    return function ()
+        local item = require("cathy.utils.mini.locpick.blocking") {
+            prompt = prompt
+        }
+        if not item then
+            return
+        end
+        return item.path
+    end
+end
+
+local config = {
     adapters = {
         netcoredbg = {
             type = "executable",
@@ -17,6 +29,11 @@ return {
                 command = "codelldb",
                 args = { "--port", "${port}" }
             }
+        },
+        gdb = {
+            type = "executable",
+            command = "gdb",
+            args = { "--quiet", "--interpreter=dap" }
         }
     },
     configurations = {
@@ -25,24 +42,14 @@ return {
                 type = "coreclr",
                 name = "launch - netcoredbg",
                 request = "launch",
-                program = function()
-                    if cache.netcoredbg_dll_path then
-                        local input = vim.fn.input("Path to dll ", cache.netcoredbg_dll_path, "file")
-                        cache.netcoredbg_dll_path = input
-                        return input
-                    else
-                        local input = vim.fn.input("Path to dll ", vim.fn.getcwd() .. "/bin/Debug/", "file")
-                        cache.netcoredbg_dll_path = input
-                        return input
-                    end
-                end,
+                program = file_picker " Path to dll :: ",
                 args = function()
                     if cache.netcoredbg_args then
-                        local args_string = vim.fn.input("Arguments: ", cache.netcoredbg_args)
+                        local args_string = vim.fn.input("Program arguments: ", cache.netcoredbg_args)
                         cache.netcoredbg_args = args_string
                         return vim.split(args_string, " +")
                     else
-                        local args_string = vim.fn.input("Arguments: ")
+                        local args_string = vim.fn.input("Program arguments: ")
                         cache.netcoredbg_args = args_string
                         return vim.split(args_string, " +")
                     end
@@ -51,12 +58,16 @@ return {
         },
         cpp = {
             {
+                name = "GDB: Launch",
+                type = "gdb",
+                request = "launch",
+                program = file_picker " Path to executable :: "
+            },
+            {
                 name = "LLDB: Launch",
                 type = "codelldb",
                 request = "launch",
-                program = function()
-                    return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
-                end,
+                program = file_picker " Path to executable :: ",
                 cwd = "${workspaceFolder}",
                 stopOnEntry = false,
                 args = {},
@@ -66,9 +77,7 @@ return {
                 name = "LLDB: Launch (args)",
                 type = "codelldb",
                 request = "launch",
-                program = function()
-                    return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
-                end,
+                program = file_picker " Path to executable :: ",
                 cwd = "${workspaceFolder}",
                 stopOnEntry = false,
                 args = function()
@@ -79,3 +88,7 @@ return {
         }
     }
 }
+
+config.configurations.c = config.configurations.cpp
+
+return config

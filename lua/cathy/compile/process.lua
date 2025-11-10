@@ -133,11 +133,12 @@ function Process:show(jump_if_opened)
         return name:find("Compile://")
     end, vim.api.nvim_list_wins())
 
+    local win = with_any_compile_buf[1]
     if not jump_if_opened and #with_any_compile_buf > 0 then
+        vim.api.nvim_win_set_buf(win, self.buf.bufid)
         return
     end
 
-    local win = with_any_compile_buf[1]
     if not win then
         win = vim.api.nvim_open_win(self.buf.bufid, false, {
             split = "below",
