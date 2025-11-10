@@ -50,7 +50,13 @@ vim.api.nvim_create_user_command(
 
 vim.api.nvim_create_user_command(
     "Seethe",
-    function () last_process:show() end,
+    function ()
+        if not last_process then
+            vim.notify("No previous command!", vim.log.levels.ERROR)
+            return
+        end
+        last_process:show()
+    end,
     {}
 )
 
