@@ -21,14 +21,22 @@ function Process:create_buf(name)
     end)
 
     self.buf:register_keymap("n", "<cr>", function()
-        local item = e[vim.fn.line(".")]
+        local item = self.e[vim.fn.line(".")]
         if not item then return end
-        local prev_win = vim.fn.win_getid(vim.fn.winnr('#'))
+
+        local target_win = nil
+        for _, winid in ipairs(vim.api.nvim_list_wins()) do
+            if vim.api.nvim_win_get_buf(winid) == item.bufnr then
+                target_win = winid
+                break
+            end
+        end
+        target_win = target_win or vim.fn.win_getid(vim.fn.winnr('#'))
 
         local col = item.col ~= 0 and item.col - 1 or 0
-        vim.api.nvim_win_set_buf(prev_win, item.bufnr)
-        vim.api.nvim_win_set_cursor(prev_win, { item.lnum, item.col })
-        vim.api.nvim_set_current_win(prev_win)
+        vim.api.nvim_win_set_buf(target_win, item.bufnr)
+        vim.api.nvim_win_set_cursor(target_win, { item.lnum, item.col })
+        vim.api.nvim_set_current_win(target_win)
     end)
 
     self.buf:register_keymap("n", "R", function ()
