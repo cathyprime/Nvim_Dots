@@ -308,6 +308,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
 
         local ts_input = require("mini.surround").gen_spec.input.treesitter
         require("mini.surround").setup({
+            respect_selection_type = true,
             custom_surroundings = {
                 t = {
                     input = ts_input({ outer = "@type.outer", inner = "@type.inner" }),
@@ -338,7 +339,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
                 suffix_next = 'n',
             },
         })
-        vim.keymap.set("n", "ss", "s_", { remap = true })
+        vim.keymap.set("n", "ss", "_sg_", { remap = true })
 
         require("mini.icons").setup()
         MiniIcons.mock_nvim_web_devicons()
