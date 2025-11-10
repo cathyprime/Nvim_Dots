@@ -19,7 +19,7 @@ syntax match LastLine /^.*\%$/ contains=CompileModeOk,CompileModeErr
 syntax match CompileModeFile /^[~A-Za-z0-9_\/-]\+\.[A-Za-z0-9]\+/
 
 syntax case ignore
-syntax keyword CompileModeOk ok
+syntax keyword CompileModeOk ok success
 syntax keyword DiagnosticWarn warn warning
 syntax keyword DiagnosticInfo note info usage test testing
 syntax keyword DiagnosticError fatal error failed errors failure
