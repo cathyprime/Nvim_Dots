@@ -1,3 +1,11 @@
+vim.api.nvim_create_autocmd("TermLeave", {
+    command = "setlocal nu rnu scl=yes"
+})
+
+vim.api.nvim_create_autocmd("TermEnter", {
+    command = "setlocal nonu nornu scl=no"
+})
+
 vim.api.nvim_create_autocmd("TermOpen", {
     callback = function()
         local buf = vim.api.nvim_get_current_buf()
@@ -5,9 +13,24 @@ vim.api.nvim_create_autocmd("TermOpen", {
             buffer = buf,
             silent = true
         })
-        local esc_timer
-        map("t", "<m-w>", [[<c-\><c-n><c-w>w]])
+        map("t", "<c-space><esc>", [[<c-\><c-n>]])
+        map("t", "<c-space>c", [[<c-\><c-n>]])
+        map("t", "<c-space>q", [[<c-\><c-n>]])
+        map("t", "<c-space>\"", function ()
+            local char = vim.fn.nr2char(vim.fn.getchar())
+            vim.api.nvim_paste(vim.fn.getreg(char), true, -1)
+        end)
+        map("t", "<c-space><c-w>", function ()
+            vim.api.nvim_create_autocmd("BufEnter", {
+                once = true,
+                command = "startinsert",
+                buffer = vim.api.nvim_get_current_buf()
+            })
+            local prev_window = vim.fn.win_getid(vim.fn.winnr("#"))
+            vim.api.nvim_set_current_win(prev_window)
+        end)
         map("t", "<s-space>", "<space>")
+        map("t", "<c-space>", [[<c-\><c-o>]])
         map("t", "<c-bs>", "<c-w>")
         map("n", "gf", function()
             local f = vim.fn.findfile(vim.fn.expand("<cfile>"), "**")
@@ -24,15 +47,5 @@ vim.api.nvim_create_autocmd("TermOpen", {
                 end)
             end
         end)
-        map("t", "<esc>", function()
-            esc_timer = esc_timer or vim.uv.new_timer()
-            if esc_timer:is_active() then
-                esc_timer:stop()
-                return [[<c-\><c-n>]]
-            else
-                esc_timer:start(200, 0, function() end)
-                return "<esc>"
-            end
-        end, { expr = true })
     end,
 })
