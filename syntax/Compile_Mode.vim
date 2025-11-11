@@ -10,7 +10,7 @@ syntax match CompileCmd /^\[CMD\]\s*::\s*\zs.*/
 hi! link CompileModeErr DiffDelete
 syntax match CompileModeErr /code\s*\zs\d\+/ contained
 syntax match CompileModeErr /^Compilation\s*\zs.*\ze\swith/ contained
-syntax match CompileModeErr /^Compilation\s\+\zs[[:alpha:]() ]\+\ze\sat/ contained
+syntax match CompileModeErr /^Compilation\s\+\zs[[:alpha:]()/ ]\+\ze\sat/ contained
 
 hi! link CompileModeOk DiffAdd
 syntax match CompileModeOk /^Compilation\s*\zs\<finished\>\ze/ contained
