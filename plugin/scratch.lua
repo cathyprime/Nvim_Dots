@@ -82,6 +82,9 @@ vim.api.nvim_create_user_command(
 vim.api.nvim_create_autocmd("VimEnter", {
     once = true,
     callback = function ()
+        if vim.fn.argc() > 0 then
+            return
+        end
         local orig = vim.api.nvim_get_current_buf()
         vim.cmd.Scratch { bang = true, args = { "lua" } }
         vim.api.nvim_buf_delete(orig, { force = true, unload = false })
