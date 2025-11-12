@@ -142,7 +142,7 @@ function Process:show(jump_if_opened)
     if not win then
         win = vim.api.nvim_open_win(self.buf.bufid, false, {
             split = "below",
-            win = 0
+            win = -1
         })
     end
     vim.api.nvim_set_current_win(win)
