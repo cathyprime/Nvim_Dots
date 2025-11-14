@@ -54,7 +54,7 @@ function M.cur_buffer_path()
         if expand:match "^term" then
             expand = vim.fn.fnamemodify(expand:gsub("term://", ""):gsub("//.*", ""), ":p")
         end
-        if expand:match "^Scratch" then
+        if expand:match "^Scratch" or expand:match "^Compile" then
             expand = vim.uv.cwd()
         end
         return expand .. "/"
