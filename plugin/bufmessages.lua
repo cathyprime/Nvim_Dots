@@ -1,4 +1,4 @@
-local BUFNAME = "Messages"
+local BUFNAME = "Messages://"
 
 local old_messages = 0
 
