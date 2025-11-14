@@ -33,7 +33,8 @@ function! s:Options()
     set foldlevel=4 foldexpr=v:lua.vim.treesitter.foldexpr()
     set foldtext= foldmethod=expr foldcolumn=0 foldnestmax=4
     set formatoptions-=l
-    set hls cursorline cursorlineopt=number guicursor=n-v-i-ci-ve:block-Cursor showcmdloc=statusline
+    set hls cursorline cursorlineopt=number showcmdloc=statusline
+    set guicursor=n-v-i-ci-ve:block-Cursor,i:blinkwait700-blinkon500-blinkoff500
     set cmdwinheight=2 cmdheight=1 showtabline=1
     set scrolloff=8
     set smoothscroll
@@ -73,8 +74,8 @@ if exists("g:neovide")
     let g:neovide_fullscreen=v:true
     let g:neovide_floating_shadow=v:false
     let g:neovide_cursor_animation_length=0
-    let g:neovide_cursor_trail_size=0.2
-    let g:neovide_cursor_animate_command_line=v:false
+    let g:neovide_cursor_trail_size=0
+    let g:neovide_cursor_animate_command_line=v:true
     let g:neovide_scroll_animation_length=0
     let g:neovide_position_animation_length=0
 endif
