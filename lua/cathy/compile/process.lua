@@ -69,6 +69,7 @@ function Process:start(executor, opts)
     )
     local name = "Compile://" .. opts.cmd
     self:create_buf(name)
+    self.e:set_compiler_from_cmd(opts.cmd)
 
     self.buf:append_data(banner)
     self.buf:append_lines({ "", "[CMD] :: " .. opts.cmd })

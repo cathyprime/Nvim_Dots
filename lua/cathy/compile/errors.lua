@@ -10,7 +10,36 @@ vim.fn.sign_define("CompileErrorSign", {
     texthl = "DiagnosticError",
 })
 
+local function set_compiler(compiler)
+    return pcall(vim.cmd.compiler, {
+        args = { compiler },
+        bang = true,
+        mods = { silent = true }
+    })
+end
+
+function Errors:set_compiler_from_cmd(cmd)
+    vim.api.nvim_create_autocmd("User", {
+        pattern = "CompileFinished",
+        once = true,
+        callback = function ()
+            set_compiler "make"
+        end
+    })
+    local compiler = cmd:match("^(%S+)")
+    if not compiler then
+        set_compiler "make"
+        return
+    end
+
+    local ok = set_compiler(compiler)
+    if not ok then
+        set_compiler "make"
+    end
+end
+
 function Errors:attach(bufid)
+    self.buffer = bufid
     vim.api.nvim_create_autocmd("User", {
         pattern = "CompileFinished",
         callback = function ()
