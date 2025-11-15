@@ -67,6 +67,9 @@ vim.api.nvim_create_autocmd("VimEnter", {
 
         vim.ui.select = function(items, opts, on_choice)
             local start_opts = {
+                window = {
+                    prompt_prefix = string.format(" %s :: ", opts.prompt),
+                },
                 mappings = {
                     complete = {
                         char = "<tab>",
@@ -110,6 +113,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
                     },
                 }
             }
+            opts.prompt = "Select"
             return MiniPick.ui_select(items, opts, on_choice, start_opts)
         end
 
