@@ -105,7 +105,11 @@ function H.display_buffer(project_name)
         buffer = bufnr,
         once = true,
         callback = function ()
-            Projects[project_name].scopes = vim.api.nvim_buf_get_lines(buf, 0, -1, true)
+            local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, true)
+            if #lines == 1 and lines[1] == "" then
+                lines = {}
+            end
+            Projects[project_name].scopes = lines
         end
     })
     local close_buf = function ()
@@ -154,6 +158,9 @@ end
 
 ---@param bufpath string
 function M.switch_cwd(bufpath, switch_on_failure)
+    if not bufpath or bufpath == "" then
+        return
+    end
     local Projects = require "cathy.projectile.projects"
     bufpath = vim.fs.normalize(bufpath)
     H.process_path(bufpath, vim.schedule_wrap(function (project_name)
@@ -197,7 +204,9 @@ end
 ---@return table<string>
 function M.list_projects()
     local Projects = require "cathy.projectile.projects"
-    return vim.tbl_keys(Projects)
+    return vim.iter(Projects):map(function (name, p)
+        return { text = name, path = p.path }
+    end):totable()
 end
 
 return M

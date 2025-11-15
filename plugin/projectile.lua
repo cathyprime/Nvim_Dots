@@ -65,16 +65,28 @@ vim.api.nvim_create_autocmd({ "BufEnter" }, {
             return
         end
 
-        local pp = preprocess(env.file)
-        if pp == "" then
-            return
-        end
-
-        if vim.fn.isdirectory(pp) == 0 then
-            pp = vim.fs.dirname(pp)
-        end
-        require("cathy.projectile").switch_cwd(pp)
+        require("cathy.projectile").switch_cwd(preprocess(env.file))
     end
 })
 
-vim.api.nvim_create_user_command("Scopes", require("cathy.projectile").edit_scopes, { nargs = 0 })
+vim.api.nvim_create_user_command(
+    "Project",
+    function (e)
+        if e.fargs[1] == "new" then
+            require("cathy.projectile").add_project(
+                e.fargs[2] or vim.uv.cwd(),
+                e.fargs[3]
+            )
+            return
+        end
+        if e.fargs[1] == "scopes" then
+            require("cathy.projectile").edit_scopes()
+            return
+        end
+
+        require("cathy.projectile").edit_scopes()
+    end,
+    {
+        nargs = "?"
+    }
+)
