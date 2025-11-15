@@ -170,7 +170,12 @@ function M.switch_cwd(bufpath, switch_on_failure)
             end
             return
         end
-        vim.cmd.cd(Projects[project_name]:get_path())
+        vim.cmd.cd {
+            args = {
+                Projects[project_name]:get_path()
+            },
+            mods = { silent = true }
+        }
     end))
 end
 
