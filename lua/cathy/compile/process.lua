@@ -116,8 +116,18 @@ function Process:start(executor, opts)
 end
 
 function Process:kill()
+    local uv = vim.uv
     if self.is_running then
-        self._proc:kill()
+        local pid = self._proc.pid
+        self.kill_timer = self.kill_timer or vim.uv.new_timer()
+        if self.kill_timer:is_active() then
+            self.kill_timer:stop()
+            uv.kill(-pid, uv.constants.SIGKILL)
+        else
+            self.kill_timer:start(200, 0, function()
+                uv.kill(-pid, uv.constants.SIGTERM)
+            end)
+        end
     end
 end
 

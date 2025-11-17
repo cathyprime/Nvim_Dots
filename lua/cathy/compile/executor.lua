@@ -15,7 +15,7 @@ function M.shell(opts)
     return vim.system(command, {
         stdout = opts.write_cb,
         cwd = opts.cwd,
-        detach = false,
+        detach = true,
         text = true,
     }, opts.exit_cb)
 end
