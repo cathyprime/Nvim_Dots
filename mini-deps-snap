@@ -3,6 +3,7 @@ return {
   ["blink.cmp"] = "40380e711b616a28affb0f4086a2f7de2f2a556b",
   ["dial.nvim"] = "f0404ec1f83a03f2c3457e60087c6331d1cbb83f",
   ["diffview.nvim"] = "4516612fe98ff56ae0415a259ff6361a89419b0a",
+  ["grapple.nvim"] = "b41ddfc1c39f87f3d1799b99c2f0f1daa524c5f7",
   ["gx.nvim"] = "ba9c408fc0130fc4548760c3933a81b58fc50de8",
   ["hydra.nvim"] = "8c4a9f621ec7cdc30411a1f3b6d5eebb12b469dc",
   ["mini.nvim"] = "68d4478920c7afdfa21c13706464e275d9ce3255",

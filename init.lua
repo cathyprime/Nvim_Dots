@@ -63,6 +63,7 @@ vim.iter {
     "nvimtools/hydra.nvim",
     "chrishrb/gx.nvim",
     "milisims/nvim-luaref",
+    "cbochs/grapple.nvim",
 
     -- editing
     "L3MON4D3/LuaSnip",
