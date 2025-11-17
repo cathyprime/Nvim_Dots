@@ -59,6 +59,40 @@ function H.superproject_to_scope(superpath, current_path)
     return proj_name
 end
 
+local markers = {
+    "CMakeLists.txt",
+    ".git",
+}
+
+function H.check_for_markers(bufpath, callback)
+    bufpath = vim.fs.normalize(bufpath)
+    local Projects = require "cathy.projectile.projects"
+
+    local function join_paths(...)
+        return vim.fs.normalize(vim.fs.joinpath(...))
+    end
+
+    local function search(path)
+        local parent = vim.fs.dirname(path)
+
+        if parent == path then
+            callback(nil)
+            return
+        end
+
+        for _, marker in ipairs(markers) do
+            local full = vim.fs.joinpath(path, marker)
+            if vim.fn.filereadable(full) == 1 then
+                local name = Projects:register(path)
+                callback(name)
+                return
+            end
+        end
+        search(parent)
+    end
+    search(bufpath)
+end
+
 ---@param bufpath string
 ---@param callback fun(project_name: string|nil)
 function H.process_path(bufpath, callback)
@@ -75,7 +109,7 @@ function H.process_path(bufpath, callback)
 
     H.git_current(bufpath, function (repo_path)
         if not repo_path then
-            callback()
+            H.check_for_markers(bufpath, callback)
             return
         end
 
@@ -91,8 +125,6 @@ function H.process_path(bufpath, callback)
             callback(name)
         end)
     end)
-
-    callback()
 end
 
 ---@param project_name string
