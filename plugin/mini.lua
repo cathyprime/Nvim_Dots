@@ -140,7 +140,16 @@ vim.api.nvim_create_autocmd("VimEnter", {
         map "<leader>fg"       { pick "grep_live"    "Grep :: " }
         map "<leader>fo"       { pick "oldfiles"     "Oldfiles :: " }
         map "<leader>fh"       { pick "help"         "Help :: " }
-        map "z="               { pick "spellsuggest" "Spelling :: " }
+        map "z=" {
+            function ()
+                local picker = pick "spellsuggest" "Spelling :: "
+                if vim.v.count == 0 then
+                    picker()
+                    return
+                end
+                vim.api.nvim_feedkeys(vim.v.count .. "z=", "n", false)
+            end
+        }
         map "<leader>b"        {
             function ()
                 local wipeout_cur = function()
