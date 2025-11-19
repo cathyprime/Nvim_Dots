@@ -189,17 +189,18 @@ function H.display_buffer(project_name)
 end
 
 ---@param bufpath string
-function M.switch_cwd(bufpath, switch_on_failure)
+function M.switch_cwd(bufpath, is_oil)
     if not bufpath or bufpath == "" then
         return
     end
     local Projects = require "cathy.projectile.projects"
     bufpath = vim.fs.normalize(bufpath)
     H.process_path(bufpath, vim.schedule_wrap(function (project_name)
-        if not project_name then
-            if switch_on_failure then
-                vim.cmd.cd(bufpath)
-            end
+        if not project_name or is_oil then
+            vim.cmd.cd {
+                args = { bufpath },
+                mods = { silent = true }
+            }
             return
         end
         vim.cmd.cd {
