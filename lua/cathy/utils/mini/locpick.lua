@@ -110,7 +110,7 @@ local matcher = function (stritems, inds, query)
         stritems,
         inds,
         get_match(query),
-        { preserve_order = false, sync = true }
+        { preserve_order = false, sync = false }
     )
 end
 
