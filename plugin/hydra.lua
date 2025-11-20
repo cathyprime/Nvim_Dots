@@ -39,14 +39,10 @@ Hydra({
 ---@type number
 local scroll
 
-vim.api.nvim_create_autocmd("BufEnter", {
-    once = true,
-    callback = function()
-        scroll = vim.o.scrolloff
-    end,
-})
-
 local function scrolloff_toggle()
+    if scroll == nil then
+        scroll = vim.opt.scrolloff:get()
+    end
     if vim.o.scrolloff == 0 then
         vim.opt["scrolloff"] = scroll
     else
@@ -76,20 +72,35 @@ local function fold_column()
     end
 end
 
+local function background()
+    if vim.opt.background:get() == "light" then
+        vim.opt.background = "dark"
+    else
+        vim.opt.background = "light"
+    end
+end
+
+local function get_opt(opt, fmt)
+    return function ()
+        return string.format(fmt, vim.opt[opt]:get())
+    end
+end
+
 Hydra({
     name = "Options",
     hint = [[
   ^ ^        Options
   ^
   _v_ %{ve} virtual edit
-  _i_ %{list} invisible characters
-  _s_ %{so} scrolloff
+  _i_ %{list} invisible characters  ^
   _S_ %{spell} spell
-  _f_ %{fc} fold column
   _w_ %{wrap} wrap
   _c_ %{cul} cursor line
   _n_ %{nu} number
   _r_ %{rnu} relative number
+  _s_ %{so} scrolloff
+  _f_ %{fc} foldcolumn
+  _b_ %{bg}
   ^
        ^^^^                _<Esc>_
 ]],
@@ -102,20 +113,9 @@ Hydra({
                 border = "rounded",
             },
             funcs = {
-                ["so"] = function()
-                    if vim.o.scrolloff == 0 then
-                        return "[ ]"
-                    else
-                        return "[x]"
-                    end
-                end,
-                ["fc"] = function()
-                    if vim.o.foldcolumn ~= "0" then
-                        return "[x]"
-                    else
-                        return "[ ]"
-                    end
-                end
+                so = get_opt("scrolloff", "[%d]"),
+                fc = get_opt("foldcolumn", "[%s]"),
+                bg = get_opt("background", "[%.1s] background"),
             },
         },
     },
@@ -131,6 +131,7 @@ Hydra({
         { "f", fold_column, { desc = "foldcolumn" }, },
         { "v", virtual_edit, { desc = "virtualedit" } },
         { "s", scrolloff_toggle, { desc = "scrolloff" }, },
+        { "b", background, { desc = "background" }, },
         { "<Esc>", nil, { exit = true } },
     },
 })
