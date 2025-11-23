@@ -196,11 +196,13 @@ function M.switch_cwd(bufpath, is_oil)
     local Projects = require "cathy.projectile.projects"
     bufpath = vim.fs.normalize(bufpath)
     H.process_path(bufpath, vim.schedule_wrap(function (project_name)
-        if not project_name or is_oil then
-            vim.cmd.cd {
-                args = { bufpath },
-                mods = { silent = true }
-            }
+        if not project_name  then
+            if is_oil then
+                vim.cmd.cd {
+                    args = { bufpath },
+                    mods = { silent = true }
+                }
+            end
             return
         end
         vim.cmd.cd {
