@@ -117,10 +117,6 @@ vim.api.nvim_create_autocmd("VimEnter", {
             return MiniPick.ui_select(items, opts, on_choice, start_opts)
         end
 
-        vim.cmd [[hi! link MiniPickPrompt Normal]]
-        vim.cmd [[hi! link MiniPickPromptCaret Cursor]]
-        vim.cmd [[hi! link MiniPickPromptPrefix Normal]]
-
         MiniPick.registry.locpick = require("cathy.utils.mini.locpick")
         local pick = function (name)
             return function (prefix)

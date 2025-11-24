@@ -706,3 +706,7 @@ hi! link @variable.parameter @parameter
 hi! link VisualNOS Visual
 hi! link WildMenu Pmenu
 hi! link VertSplit WinSeparator
+hi! link MiniPickPrompt Normal
+hi! link MiniPickPromptCaret Cursor
+hi! link MiniPickPromptPrefix Normal
+
