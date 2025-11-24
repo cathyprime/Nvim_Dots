@@ -96,3 +96,4 @@ vim.iter {
         checkout = "main"
     },
 }:each(require("mini.deps").add)
+require "cathy.utils.persist_bg"
