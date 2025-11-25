@@ -200,9 +200,10 @@ local permutations = function (str)
         return tbl.to(parts)
     end
 
+    local seen = {}
     local uniq = function (acc, it)
-        local is_in = vim.tbl_contains(acc, it)
-        if not is_in then
+        if not seen[it] then
+            seen[it] = true
             table.insert(acc, it)
         end
         return acc
@@ -215,18 +216,18 @@ return {
     space_split = case.space.from,
     caseof = case_of,
     permutations = permutations,
-    str_to_parts = function (str)
-        local str_case = case_of(str)
-        if str_case == nil then
-            return nil
-        end
-        return case[case_of(str)].to(str)
+    str_to_parts = function (str, str_case)
+        return case[str_case].from(str)
     end,
     convert = function (str, str_case)
         return case[str_case].to(split(str))
     end,
-    parts_to_str = function (parts, str_case)
-        return case[str_case].from(parts)
+    parts_to_str = function (parts)
+        local str_case = case_of(parts)
+        if str_case == nil then
+            return nil
+        end
+        return case[str_case].to(parts)
     end,
     make_regex = function (str)
         return string.format([[\C\(%s\)]], table.concat(permutations(str), [[\|]]))
