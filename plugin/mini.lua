@@ -136,6 +136,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
         end
 
         map "<leader>ff"       { function () vim.cmd.Pick "locpick" end }
+        map "<leader>fF"       { function () vim.cmd.Pick "resume" end }
         map "<leader><leader>" { pick "files"        "Files :: " }
         map "<leader>fg"       { pick "grep_live"    "Grep :: " }
         map "<leader>fo"       { pick "oldfiles"     "Oldfiles :: " }
