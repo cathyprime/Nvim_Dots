@@ -66,6 +66,10 @@ vim.api.nvim_create_autocmd("VimEnter", {
         end
 
         vim.ui.select = function(items, opts, on_choice)
+            opts.prompt = vim.trim(opts.prompt or "")
+            if string.sub(opts.prompt, -1) == ':' then
+                opts.prompt = string.sub(opts.prompt, 1, -2)
+            end
             local start_opts = {
                 window = {
                     prompt_prefix = string.format(" %s :: ", opts.prompt),
