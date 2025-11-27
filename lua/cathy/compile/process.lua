@@ -62,19 +62,6 @@ function Process:start(executor, opts)
     vim.validate("opts.write_cb", opts.write_cb, "function", true)
     vim.validate("opts.exit_cb",  opts.exit_cb,  "function", true)
 
-    local banner = string.format(
-        banner_proto,
-        vim.uv.cwd():gsub(os.getenv "HOME", "~"),
-        os.date "%a %b %d %H:%M:%S"
-    )
-    local name = "Compile://" .. opts.cmd
-    self:create_buf(name)
-    self.e:set_compiler_from_cmd(opts.cmd)
-
-    self.buf:append_data(banner)
-    self.buf:append_lines({ "", "[CMD] :: " .. opts.cmd })
-    local line = self.buf:pos("$")[2]
-
     self.start_time = vim.uv.hrtime()
     opts = vim.tbl_deep_extend("force", {
         cwd = vim.uv.cwd(),
@@ -107,6 +94,19 @@ function Process:start(executor, opts)
             })
         end)
     }, opts)
+
+    local banner = string.format(
+        banner_proto,
+        opts.cwd:gsub(os.getenv "HOME", "~"),
+        os.date "%a %b %d %H:%M:%S"
+    )
+    local name = "Compile://" .. opts.cmd
+    self:create_buf(name)
+    self.e:set_compiler_from_cmd(opts.cmd)
+
+    self.buf:append_data(banner)
+    self.buf:append_lines({ "", "[CMD] :: " .. opts.cmd })
+    local line = self.buf:pos("$")[2]
 
     vim.b[self.buf.bufid].executor = executor
     vim.b[self.buf.bufid].exec_opts = opts

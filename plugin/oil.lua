@@ -46,7 +46,8 @@ oil.setup({
             local cb = function (input)
                 if not input then return end
                 require("cathy.compile") {
-                    cmd = string.format("%s %s", input, parsed_name)
+                    cmd = string.format("%s %s", input, parsed_name),
+                    cwd = require("oil").get_current_dir()
                 }
             end
             vim.ui.input({
