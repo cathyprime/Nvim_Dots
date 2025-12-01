@@ -157,6 +157,7 @@ function Process:show(jump_if_opened)
         })
     end
     vim.api.nvim_set_current_win(win)
+    vim.api.nvim_win_set_cursor(win, { vim.api.nvim_buf_line_count(self.buf.bufid), 0 })
 
     vim.wo[win].list  = false
     vim.wo[win].spell = false

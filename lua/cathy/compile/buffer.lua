@@ -58,7 +58,12 @@ function Buf:append_data(data)
 
     for _, winid in ipairs(vim.api.nvim_list_wins()) do
         if vim.api.nvim_win_get_buf(winid) == self.bufid then
-            vim.api.nvim_win_set_cursor(winid, { vim.api.nvim_buf_line_count(self.bufid), 0 })
+            local cur_line  = vim.api.nvim_win_get_cursor(winid)[1]
+            local last_line = vim.api.nvim_buf_line_count(self.bufid)
+
+            if last_line - cur_line <= 3 then
+                vim.api.nvim_win_set_cursor(winid, { last_line, 0 })
+            end
             break
         end
     end
