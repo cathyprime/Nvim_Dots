@@ -70,15 +70,18 @@ function s:kanagawa_light()
     hi DiagnosticUnderlineOk guifg=NONE guibg=NONE guisp=#98BC6C blend=NONE gui=undercurl
     hi DiagnosticUnderlineWarn guifg=NONE guibg=NONE guisp=#FF9E3D blend=NONE gui=undercurl
     hi DiagnosticWarn guifg=#FF9E3D guibg=NONE guisp=NONE blend=NONE gui=NONE
-    hi DiffAdd guifg=#76956A guibg=NONE guisp=NONE blend=NONE gui=NONE
+    hi DiffAdd guifg=#76956A guibg=#E4EAE1 guisp=NONE blend=NONE gui=NONE
+    hi DiffAdded guifg=#76956A guibg=NONE guisp=NONE blend=NONE gui=NONE
     hi DiffAddRev guifg=#76956A guibg=NONE guisp=NONE blend=NONE gui=reverse
-    hi DiffChange guifg=#DCA460 guibg=NONE guisp=NONE blend=NONE gui=NONE
+    hi DiffChange guifg=NONE guibg=#F2EBCA guisp=NONE blend=NONE gui=NONE
+    hi DiffChanged guifg=#DCA460 guibg=NONE guisp=NONE blend=NONE gui=NONE
     hi DiffChangeRev guifg=#DCA460 guibg=NONE guisp=NONE blend=NONE gui=reverse
     hi DiffCurrent guifg=#DCA460 guibg=#F7F3DE guisp=NONE blend=NONE gui=NONE
-    hi DiffDelete guifg=#C34143 guibg=NONE guisp=NONE blend=NONE gui=NONE
+    hi DiffDelete guifg=#C34143 guibg=#F3D8D9 guisp=NONE blend=NONE gui=NONE
+    hi DiffDeleted guifg=#C34143 guibg=NONE guisp=NONE blend=NONE gui=NONE
     hi DiffDeleteRev guifg=#C34143 guibg=NONE guisp=NONE blend=NONE gui=reverse
     hi DiffIncoming guifg=#76956A guibg=#F7F3DE guisp=NONE blend=NONE gui=NONE
-    hi DiffText guifg=NONE guibg=#F2EBCA guisp=NONE blend=NONE gui=NONE
+    hi DiffText guifg=#DCA460 guibg=#F2EBCA guisp=NONE blend=NONE gui=NONE
     hi Directory guifg=#7D9CD8 guibg=NONE guisp=NONE blend=NONE gui=NONE
     hi EndOfBuffer guifg=#C8C092 guibg=#FBFAEE guisp=NONE blend=NONE gui=NONE
     hi Error guifg=#E82626 guibg=NONE guisp=NONE blend=NONE gui=NONE
@@ -135,10 +138,6 @@ function s:kanagawa_light()
     hi MsgArea guifg=#2A2A37 guibg=NONE guisp=NONE blend=NONE gui=NONE
     hi MsgSeparator guifg=NONE guibg=#E4D795 guisp=NONE blend=NONE gui=NONE
     hi MultiCursorCursor guifg=#FBFAEE guibg=#54546D guisp=NONE blend=NONE gui=NONE
-    hi NeogitDiffAdd guifg=#76956A guibg=#E4EAE1 guisp=NONE blend=NONE gui=NONE
-    hi NeogitDiffAddHighlight guifg=#76956A guibg=#E4EAE1 guisp=NONE blend=NONE gui=NONE
-    hi NeogitDiffDelete guifg=#C34143 guibg=#F3D8D9 guisp=NONE blend=NONE gui=NONE
-    hi NeogitDiffDeleteHighlight guifg=#C34143 guibg=#F3D8D9 guisp=NONE blend=NONE gui=NONE
     hi NeogitHunkHeaderHighlight guifg=#7459A1 guibg=NONE guisp=NONE blend=NONE gui=bold
     hi NeogitSubtleText guifg=#A5A59C guibg=NONE guisp=NONE blend=NONE gui=italic
     hi NonText guifg=#54546D guibg=NONE guisp=NONE blend=NONE gui=NONE
@@ -289,15 +288,18 @@ function! s:kanagawa_dark()
     hi DiagnosticUnderlineOk guifg=NONE guibg=NONE guisp=#98BC6C blend=NONE gui=undercurl
     hi DiagnosticUnderlineWarn guifg=NONE guibg=NONE guisp=#FF9E3D blend=NONE gui=undercurl
     hi DiagnosticWarn guifg=#FF9E3D guibg=NONE guisp=NONE blend=NONE gui=NONE
-    hi DiffAdd guifg=#76956A guibg=NONE guisp=NONE blend=NONE gui=NONE
+    hi DiffAdd guifg=#76956A guibg=#2F3C2A guisp=NONE blend=NONE gui=NONE
+    hi DiffAdded guifg=#76956A guibg=NONE guisp=NONE blend=NONE gui=NONE
     hi DiffAddRev guifg=#76956A guibg=NONE guisp=NONE blend=NONE gui=reverse
-    hi DiffChange guifg=#DCA460 guibg=NONE guisp=NONE blend=NONE gui=NONE
+    hi DiffChange guifg=NONE guibg=#49443C guisp=NONE blend=NONE gui=NONE
+    hi DiffChanged guifg=#DCA460 guibg=NONE guisp=NONE blend=NONE gui=NONE
     hi DiffChangeRev guifg=#DCA460 guibg=NONE guisp=NONE blend=NONE gui=reverse
     hi DiffCurrent guifg=#DCA460 guibg=#2D2A25 guisp=NONE blend=NONE gui=NONE
-    hi DiffDelete guifg=#C34143 guibg=NONE guisp=NONE blend=NONE gui=NONE
+    hi DiffDelete guifg=#C34143 guibg=#4E1819 guisp=NONE blend=NONE gui=NONE
+    hi DiffDeleted guifg=#C34143 guibg=NONE guisp=NONE blend=NONE gui=NONE
     hi DiffDeleteRev guifg=#C34143 guibg=NONE guisp=NONE blend=NONE gui=reverse
     hi DiffIncoming guifg=#76956A guibg=#2D2A25 guisp=NONE blend=NONE gui=NONE
-    hi DiffText guifg=NONE guibg=#49443C guisp=NONE blend=NONE gui=NONE
+    hi DiffText guifg=#DCA460 guibg=#49443C guisp=NONE blend=NONE gui=NONE
     hi Directory guifg=#7D9CD8 guibg=NONE guisp=NONE blend=NONE gui=NONE
     hi EndOfBuffer guifg=#54546D guibg=#181820 guisp=NONE blend=NONE gui=NONE
     hi Error guifg=#E82626 guibg=NONE guisp=NONE blend=NONE gui=NONE
@@ -354,10 +356,6 @@ function! s:kanagawa_dark()
     hi MsgArea guifg=#C8C092 guibg=NONE guisp=NONE blend=NONE gui=NONE
     hi MsgSeparator guifg=NONE guibg=#16161D guisp=NONE blend=NONE gui=NONE
     hi MultiCursorCursor guifg=#181820 guibg=#DDD8BB guisp=NONE blend=NONE gui=NONE
-    hi NeogitDiffAdd guifg=#76956A guibg=#2F3C2A guisp=NONE blend=NONE gui=NONE
-    hi NeogitDiffAddHighlight guifg=#76956A guibg=#2F3C2A guisp=NONE blend=NONE gui=NONE
-    hi NeogitDiffDelete guifg=#C34143 guibg=#4E1819 guisp=NONE blend=NONE gui=NONE
-    hi NeogitDiffDeleteHighlight guifg=#C34143 guibg=#4E1819 guisp=NONE blend=NONE gui=NONE
     hi NeogitHunkHeaderHighlight guifg=#9CABC9 guibg=NONE guisp=NONE blend=NONE gui=bold
     hi NeogitSubtleText guifg=#727169 guibg=NONE guisp=NONE blend=NONE gui=italic
     hi NonText guifg=#54546D guibg=NONE guisp=NONE blend=NONE gui=NONE
@@ -586,10 +584,7 @@ hi! link DiagnosticVirtualTextHint DiagnosticHint
 hi! link DiagnosticVirtualTextInfo DiagnosticInfo
 hi! link DiagnosticVirtualTextOk DiagnosticOk
 hi! link DiagnosticVirtualTextWarn DiagnosticWarn
-hi! link DiffAdded DiffAdd
-hi! link DiffChanged DiffChange
-hi! link DiffDeleted DiffDelete
-hi! link DiffRemoved DiffDelete
+hi! link DiffRemoved DiffDeleted
 hi! link @exception Exception
 hi! link @field Property
 hi! link @float Float
@@ -653,6 +648,10 @@ hi! link @module @namespace
 hi! link MultiCursorDisabledCursor Visual
 hi! link MultiCursorDisabledVisual Visual
 hi! link MultiCursorVisual Visual
+hi! link NeogitDiffAdd DiffAdd
+hi! link NeogitDiffAddHighlight DiffAdd
+hi! link NeogitDiffDelete DiffDelete
+hi! link NeogitDiffDeleteHighlight DiffDelete
 hi! link NeogitCommitViewHeader DiffText
 hi! link NeogitDiffContextHighlight Normal
 hi! link NeogitHunkHeaderCursor NeogitHunkHeaderHighlight

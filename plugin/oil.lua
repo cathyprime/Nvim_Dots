@@ -5,9 +5,9 @@ end
 
 local permission_hlgroups = {
     ["-"] = "NonText",
-    ["r"] = "DiffChange",
-    ["w"] = "DiffDelete",
-    ["x"] = "DiffAdd",
+    ["r"] = "DiffChanged",
+    ["w"] = "DiffDeleted",
+    ["x"] = "DiffAdded",
 }
 
 oil.setup({
@@ -25,7 +25,7 @@ oil.setup({
                 return hls
             end,
         },
-        { "size", highlight = "DiffAdd" },
+        { "size", highlight = "DiffAdded" },
         { "mtime", highlight = "Function" },
         "icon",
     },
