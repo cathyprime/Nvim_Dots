@@ -35,7 +35,7 @@ function Process:create_buf(name)
 
         local col = item.col ~= 0 and item.col - 1 or 0
         vim.api.nvim_win_set_buf(target_win, item.bufnr)
-        vim.api.nvim_win_set_cursor(target_win, { item.lnum, item.col })
+        vim.api.nvim_win_set_cursor(target_win, { item.lnum, col })
         vim.api.nvim_set_current_win(target_win)
     end)
 
