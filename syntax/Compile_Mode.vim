@@ -7,12 +7,12 @@ vim.api.nvim_set_hl(0, "CompileCmd", base)
 EOF
 syntax match CompileCmd /^\[CMD\]\s*::\s*\zs.*/
 
-hi! link CompileModeErr DiffDelete
+hi! link CompileModeErr DiffDeleted
 syntax match CompileModeErr /code\s*\zs\d\+/ contained
 syntax match CompileModeErr /^Compilation\s*\zs.*\ze\swith/ contained
 syntax match CompileModeErr /^Compilation\s\+\zs[[:alpha:]()/ ]\+\ze\sat/ contained
 
-hi! link CompileModeOk DiffAdd
+hi! link CompileModeOk DiffAdded
 syntax match CompileModeOk /^Compilation\s*\zs\<finished\>\ze/ contained
 syntax match LastLine /^.*\%$/ contains=CompileModeOk,CompileModeErr
 
