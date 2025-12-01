@@ -39,6 +39,13 @@ oil.setup({
                 vim.cmd.bdelete()
             end
         end, desc = "close buffer" },
+        ["<leader><cr>"] = { function()
+            local dir = require("oil").get_current_dir()
+            vim.cmd("sp")
+            vim.cmd("lcd " .. vim.fn.fnameescape(dir))
+            vim.cmd("term")
+            vim.cmd("startinsert")
+        end, desc = "open terminal in split" },
         ["<C-q>"] = "actions.send_to_qflist",
         ["gy"] = "actions.yank_entry",
         ["!"] = { function()
