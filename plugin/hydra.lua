@@ -92,7 +92,7 @@ Hydra({
   ^ ^        Options
   ^
   _v_ %{ve} virtual edit
-  _i_ %{list} invisible characters  ^
+  _l_ %{list} list ^
   _S_ %{spell} spell
   _w_ %{wrap} wrap
   _c_ %{cul} cursor line
@@ -123,8 +123,8 @@ Hydra({
     body = "<leader>t",
     heads = {
         { "n", boolean_switch("number"), { desc = "number" } },
+        { "l", boolean_switch("list"), { desc = "list" } },
         { "r", boolean_switch("relativenumber"), { desc = "relativenumber" } },
-        { "i", boolean_switch("list"), { desc = "show invisible" } },
         { "w", boolean_switch("wrap"), { desc = "wrap" } },
         { "c", boolean_switch("cursorline"), { desc = "cursor line" } },
         { "S", boolean_switch("spell"), { desc = "spell" } },
