@@ -6,6 +6,9 @@ local save_sudo = function (e)
     vim.api.nvim_create_autocmd("BufWriteCmd", {
         buffer = e.buf,
         callback = function ()
+            if vim.fn.expand("%"):match "^oil://.*" then
+                return
+            end
             if require("cathy.utils").sudo_write() then
                 vim.bo[e.buf].modified = false
                 if vim.bo[e.buf].readonly then
@@ -18,6 +21,9 @@ end
 
 vim.api.nvim_create_autocmd("BufReadPost", {
     callback = function(e)
+        if vim.fn.expand("%"):match "^oil://.*" then
+            return
+        end
         if not require("cathy.utils").cur_buffer_path():match("^" .. os.getenv("HOME")) then
             vim.opt_local.modifiable = false
             save_sudo(e)
