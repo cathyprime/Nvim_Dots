@@ -64,9 +64,6 @@ map("n", "<c-,>", function() -- duplicate line and stay in the same pos
 end)
 
 -- command line
-map("c", "<c-a>", "<home>", { silent = false })
-map("c", "<m-f>", "<c-right>", { silent = false })
-map("c", "<m-b>", "<c-left>", { silent = false })
 map("c", "<c-k>", function()
     local line = vim.fn.getcmdline()
     local pos = vim.fn.getcmdpos()
