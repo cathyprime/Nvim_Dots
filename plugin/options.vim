@@ -39,7 +39,7 @@ function! s:Options()
     set scrolloff=8
     set smoothscroll
     set termguicolors
-    set signcolumn=yes
+    set signcolumn=yes:2
     set inccommand=nosplit
     set splitright
     set splitbelow
