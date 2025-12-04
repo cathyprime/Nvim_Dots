@@ -5,7 +5,7 @@ endif
 
 function! s:Options()
     set confirm
-    set nu rnu
+    set nonu nornu
     set cpo+=>
     set diffopt+=iwhite
     set diffopt+=algorithm:histogram
