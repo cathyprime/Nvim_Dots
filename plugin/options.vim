@@ -52,7 +52,7 @@ function! s:Options()
     set showmode
     set laststatus=2
     set undofile
-    set nowildmenu wildmode=full wildignorecase wildoptions-=pum
+    set wildmenu wildmode=noselect,full wildoptions=fuzzy
     set winminwidth=5
     set pumheight=4
     set wrap

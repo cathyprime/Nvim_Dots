@@ -74,7 +74,6 @@ vim.iter {
         source = "saghen/blink.cmp",
         version = "v1.7.0",
         hooks = {
-            post_install = build_blink,
             post_checkout = build_blink,
         }
     },

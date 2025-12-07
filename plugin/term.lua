@@ -1,9 +1,9 @@
 vim.api.nvim_create_autocmd("TermLeave", {
-    command = "setlocal nu rnu scl=yes"
+    command = "setlocal scl=yes:2"
 })
 
 vim.api.nvim_create_autocmd("TermEnter", {
-    command = "setlocal nonu nornu scl=no"
+    command = "setlocal scl=no"
 })
 
 vim.api.nvim_create_autocmd("TermOpen", {

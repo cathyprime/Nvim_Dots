@@ -115,3 +115,4 @@ vim.api.nvim_create_user_command(
 vim.keymap.set("n", "<leader>q", "<cmd>Seethe<cr>", { silent = true })
 vim.keymap.set("n", "'<cr>", "<cmd>Recompile<cr>", { silent = true })
 vim.keymap.set("n", "'<space>", "<cmd>Compile<cr>", { silent = false })
+vim.keymap.set("ca", "compile", "Compile")

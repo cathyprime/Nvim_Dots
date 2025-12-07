@@ -357,5 +357,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
 
         require("mini.icons").setup()
         MiniIcons.mock_nvim_web_devicons()
+
+        require("mini.cmdline").setup()
     end
 })

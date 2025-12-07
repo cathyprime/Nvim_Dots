@@ -50,21 +50,7 @@ local setup_blink = function ()
             nerd_font_variant = "mono",
         },
         signature = { enabled = false },
-        cmdline = {
-            completion = {
-                ghost_text = { enabled = true },
-                menu = {
-                    auto_show = function()
-                        return #vim.fn.getcmdline() > 5 and true or false
-                    end,
-                    draw = {
-                        columns = {
-                            { "kind_icon", gap = 1 }, { "label", "label_description" },
-                        },
-                    }
-                }
-            }
-        },
+        cmdline = { enabled = false },
         completion = {
             list = {
                 selection = {
