@@ -26,64 +26,67 @@ local setup_func = function ()
 
     local buttons = {
         { "_m_", "step into" },
-        { "_o_", "step over" },
-        { "_q_", "step out" },
         { "_u_", "toggle" },
-        { "_<cr>_", "Breakpoint" },
-        { "_<c-cr>_", "Cond break" },
-        { "_X_", "Quit" },
-        { "_I_", "Watch" },
         { "_L_", "Log point" },
+        { "_<cr>_", "Breakpoint" },
+        { "_o_", "step over" },
         { "_c_", "Continue/Start" },
+        { "_I_", "Watch" },
+        { "_<c-cr>_", "Cond break" },
+        { "_q_", "step out" },
+        { "_X_", "Quit" },
         { "_J_", "to cursor" },
         { "_<esc>_", "exit" },
     }
 
-    local function create_hint(buttons)
-        local half = math.ceil(#buttons / 2)
-        local row1, row2 = {}, {}
+    local third = math.ceil(#buttons / 3)
+    local row1, row2, row3 = {}, {}, {}
 
-        for i = 1, half do
-            table.insert(row1, buttons[i])
-        end
-        for i = half + 1, #buttons do
-            table.insert(row2, buttons[i])
-        end
-
-        local max_key_widths = {}
-        local max_widths = {}
-        for i = 1, half do
-            local k1 = #row1[i][1]
-            local k2 = row2[i] and #row2[i][1] or 0
-            max_key_widths[i] = math.max(k1, k2)
-
-            local w1 = max_key_widths[i] + 4 + #row1[i][2]  -- 4 = " :: "
-            local w2 = row2[i] and (max_key_widths[i] + 4 + #row2[i][2]) or 0
-            max_widths[i] = math.max(w1, w2)
-        end
-
-        local function format_row(btns)
-            local parts = {}
-            for i, btn in ipairs(btns) do
-                local key_padded = string.rep(" ", max_key_widths[i] - #btn[1]) .. btn[1]
-                local text = key_padded .. " :: " .. btn[2]
-                local padded = text .. string.rep(" ", max_widths[i] - #text)
-                table.insert(parts, padded)
-            end
-            return table.concat(parts, " | ")
-        end
-
-        local line1 = format_row(row1)
-        local line2 = format_row(row2)
-        local max_len = math.max(#line1, #line2)
-        local padding = math.floor((vim.o.columns - max_len) / 2)
-
-        return string.rep(" ", padding) .. "^ " .. line1 .. " ^\n" ..
-               string.rep(" ", padding) .. "^ " .. line2 .. " ^"
+    for i = 1, third do
+        table.insert(row1, buttons[i])
+    end
+    for i = third + 1, third * 2 do
+        table.insert(row2, buttons[i])
+    end
+    for i = third * 2 + 1, #buttons do
+        table.insert(row3, buttons[i])
     end
 
+    local max_key_widths = {}
+    local max_widths = {}
+    for i = 1, third do
+        local k1 = #row1[i][1]
+        local k2 = row2[i] and #row2[i][1] or 0
+        local k3 = row3[i] and #row3[i][1] or 0
+        max_key_widths[i] = math.max(k1, k2, k3)
+
+        local w1 = max_key_widths[i] + 4 + #row1[i][2]  -- 4 = " :: "
+        local w2 = row2[i] and (max_key_widths[i] + 4 + #row2[i][2]) or 0
+        local w3 = row3[i] and (max_key_widths[i] + 4 + #row3[i][2]) or 0
+        max_widths[i] = math.max(w1, w2, w3)
+    end
+
+    local function format_row(btns)
+        local parts = {}
+        for i, btn in ipairs(btns) do
+            local key_padded = string.rep(" ", max_key_widths[i] - #btn[1]) .. btn[1]
+            local text = key_padded .. " :: " .. btn[2]
+            local padded = text .. string.rep(" ", max_widths[i] - #text)
+            table.insert(parts, padded)
+        end
+        return table.concat(parts, " | ")
+    end
+
+    local line1 = format_row(row1)
+    local line2 = format_row(row2)
+    local line3 = format_row(row3)
+
+    local hint = "^ " .. line1 .. " ^\n" ..
+        "^ " .. line2 .. " ^\n" ..
+        "^ " .. line3 .. " ^"
+
     debug_hydra = require("hydra")({
-        hint = create_hint(buttons),
+        hint = hint,
         config = {
             color = "pink",
             on_enter = function ()
@@ -93,7 +96,8 @@ local setup_func = function ()
                 vim.g.debug_mode = nil
             end,
             hint = {
-                type = "cmdline",
+                type = "window",
+                position = "top"
             },
         },
         name = "dap",
@@ -111,7 +115,38 @@ local setup_func = function ()
             { "m", function() dap.step_into() end, { silent = true, nowait = true } },
             { "o", function() dap.step_over() end, { silent = true } },
             { "q", function() dap.step_out() end, { silent = true } },
-            { "c", function() dap.continue() end, { silent = true } },
+            { "c", function()
+                if dap.session() then
+                    dap.continue()
+                else
+                    local ft = vim.bo.filetype
+                    local locpick = require("cathy.utils.mini.locpick")
+                    locpick({
+                        prompt = " Select executable :: ",
+                        cb = function(item)
+                            if not item then return end
+                            local filepath = item.path
+                            local configs = dap.configurations[ft]
+                            if not configs or #configs == 0 then
+                                vim.notify("No debug configurations for filetype: " .. ft, vim.log.levels.WARN)
+                                return
+                            end
+                            vim.ui.select(configs, {
+                                prompt = "Select debug configuration:",
+                                format_item = function(config)
+                                    return config.name or config.type
+                                end
+                            }, function(config)
+                                if config then
+                                    local run_config = vim.deepcopy(config)
+                                    run_config.program = filepath
+                                    dap.run(run_config)
+                                end
+                            end)
+                        end
+                    })
+                end
+            end, { silent = true } },
             { "J", function() dap.run_to_cursor() end, { silent = true } },
             { "X", function() dap.disconnect({ terminateDebuggee = false }) end, { silent = true } },
             { "<esc>", nil, { exit = true,  silent = true } },

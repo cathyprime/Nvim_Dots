@@ -61,7 +61,8 @@ local config = {
                 name = "GDB: Launch",
                 type = "gdb",
                 request = "launch",
-                program = file_picker " Path to executable :: "
+                program = file_picker " Path to executable :: ",
+                args = {}
             },
             {
                 name = "LLDB: Launch",
