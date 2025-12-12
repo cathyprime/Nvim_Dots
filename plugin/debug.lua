@@ -24,35 +24,76 @@ local setup_func = function ()
         dap.listeners.before[event][plug] = func
     end
 
-    local hint = [[
- _o_: step over   _J_: to cursor  _<cr>_: Breakpoint
- _m_: step into   _X_: Quit       _<c-cr>_: Condition breakpoint ^
- _q_: step out    _I_: Watch       _L_: Log breakpoint
- ^ ^            ^                 ^  ^
- ^ ^ _c_: Continue/Start          ^  ^   Change window
- ^ ^                              ^  ^     _<c-k>_^
- ^ ^            ^                 ^  _<c-h>_ ^     ^ _<c-l>_
- ^ ^     _<esc>_: exit            ^  ^       _<c-j>_^
- ^ ^            ^
-]]
+    local buttons = {
+        { "_m_", "step into" },
+        { "_o_", "step over" },
+        { "_q_", "step out" },
+        { "_u_", "toggle" },
+        { "_<cr>_", "Breakpoint" },
+        { "_<c-cr>_", "Cond break" },
+        { "_X_", "Quit" },
+        { "_I_", "Watch" },
+        { "_L_", "Log point" },
+        { "_c_", "Continue/Start" },
+        { "_J_", "to cursor" },
+        { "_<esc>_", "exit" },
+    }
+
+    local function create_hint(buttons)
+        local half = math.ceil(#buttons / 2)
+        local row1, row2 = {}, {}
+
+        for i = 1, half do
+            table.insert(row1, buttons[i])
+        end
+        for i = half + 1, #buttons do
+            table.insert(row2, buttons[i])
+        end
+
+        local max_key_widths = {}
+        local max_widths = {}
+        for i = 1, half do
+            local k1 = #row1[i][1]
+            local k2 = row2[i] and #row2[i][1] or 0
+            max_key_widths[i] = math.max(k1, k2)
+
+            local w1 = max_key_widths[i] + 4 + #row1[i][2]  -- 4 = " :: "
+            local w2 = row2[i] and (max_key_widths[i] + 4 + #row2[i][2]) or 0
+            max_widths[i] = math.max(w1, w2)
+        end
+
+        local function format_row(btns)
+            local parts = {}
+            for i, btn in ipairs(btns) do
+                local key_padded = string.rep(" ", max_key_widths[i] - #btn[1]) .. btn[1]
+                local text = key_padded .. " :: " .. btn[2]
+                local padded = text .. string.rep(" ", max_widths[i] - #text)
+                table.insert(parts, padded)
+            end
+            return table.concat(parts, " | ")
+        end
+
+        local line1 = format_row(row1)
+        local line2 = format_row(row2)
+        local max_len = math.max(#line1, #line2)
+        local padding = math.floor((vim.o.columns - max_len) / 2)
+
+        return string.rep(" ", padding) .. "^ " .. line1 .. " ^\n" ..
+               string.rep(" ", padding) .. "^ " .. line2 .. " ^"
+    end
 
     debug_hydra = require("hydra")({
-        hint = hint,
+        hint = create_hint(buttons),
         config = {
             color = "pink",
             on_enter = function ()
                 vim.g.debug_mode = true
-                vim.cmd.DapViewOpen()
             end,
             on_exit = function ()
                 vim.g.debug_mode = nil
-                vim.cmd.DapViewClose()
             end,
             hint = {
-                position = "middle-right",
-                float_opts = {
-                    border = "rounded",
-                }
+                type = "cmdline",
             },
         },
         name = "dap",
@@ -66,16 +107,13 @@ local setup_func = function ()
                 end)
             end, { silent = false } },
             { "I", vim.cmd.DapViewWatch, { silent = true, nowait = true } },
+            { "u", vim.cmd.DapViewToggle, { silent = true } },
             { "m", function() dap.step_into() end, { silent = true, nowait = true } },
             { "o", function() dap.step_over() end, { silent = true } },
             { "q", function() dap.step_out() end, { silent = true } },
             { "c", function() dap.continue() end, { silent = true } },
             { "J", function() dap.run_to_cursor() end, { silent = true } },
             { "X", function() dap.disconnect({ terminateDebuggee = false }) end, { silent = true } },
-            { "<c-h>", "<c-w><c-h>", { silent = true } },
-            { "<c-j>", "<c-w><c-j>", { silent = true } },
-            { "<c-k>", "<c-w><c-k>", { silent = true } },
-            { "<c-l>", "<c-w><c-l>", { silent = true } },
             { "<esc>", nil, { exit = true,  silent = true } },
         }
     })
