@@ -43,56 +43,64 @@ local function build_blink(params)
     })
 end
 
+local function berg(str)
+    return ("https://codeberg.org/%s"):format(str)
+end
+
+local function gh(str)
+    return ("https://github.com/%s"):format(str)
+end
+
 vim.iter {
-    "nvim-mini/mini.nvim",
+    gh "nvim-mini/mini.nvim",
 
     -- libs
-    "nvim-lua/plenary.nvim",
+    gh "nvim-lua/plenary.nvim",
 
     -- debug
-    "mfussenegger/nvim-dap",
-    "igorlfs/nvim-dap-view",
+    berg "mfussenegger/nvim-dap",
+    gh "igorlfs/nvim-dap-view",
 
     -- git
-    "NeogitOrg/neogit",
-    "sindrets/diffview.nvim",
+    gh "NeogitOrg/neogit",
+    gh "sindrets/diffview.nvim",
 
     -- misc
-    "neovim/nvim-lspconfig",
-    "stevearc/oil.nvim",
-    "nvimtools/hydra.nvim",
-    "chrishrb/gx.nvim",
-    "milisims/nvim-luaref",
-    "cbochs/grapple.nvim",
-    "tpope/vim-rsi",
+    gh "neovim/nvim-lspconfig",
+    gh "stevearc/oil.nvim",
+    gh "nvimtools/hydra.nvim",
+    gh "chrishrb/gx.nvim",
+    gh "milisims/nvim-luaref",
+    gh "cbochs/grapple.nvim",
+    gh "tpope/vim-rsi",
 
     -- editing
-    "L3MON4D3/LuaSnip",
-    "stevearc/quicker.nvim",
-    "monaqa/dial.nvim",
+    gh "L3MON4D3/LuaSnip",
+    gh "stevearc/quicker.nvim",
+    gh "monaqa/dial.nvim",
     {
-        source = "saghen/blink.cmp",
+        source = gh "saghen/blink.cmp",
         version = "v1.7.0",
         hooks = {
             post_checkout = build_blink,
         }
     },
     {
-        source = "jake-stewart/multicursor.nvim",
+        source = gh "jake-stewart/multicursor.nvim",
         checkout = "1.0",
     },
 
     -- treesitter
-    { source = "JoosepAlviste/nvim-ts-context-commentstring" },
+    { source = gh "JoosepAlviste/nvim-ts-context-commentstring" },
     {
-        source = "nvim-treesitter/nvim-treesitter",
+        source = gh "nvim-treesitter/nvim-treesitter",
         checkout = "main",
         hooks = {
             post_checkout = function() vim.cmd "TSUpdate" end
         },
     },
     {
-        source = "nvim-treesitter/nvim-treesitter-textobjects",
+        source = gh "nvim-treesitter/nvim-treesitter-textobjects",
         checkout = "main"
     },
 }:each(require("mini.deps").add)
