@@ -17,17 +17,62 @@ local setup_func = function ()
 
     dap.defaults.fallback.exception_breakpoints = { "raised" }
 
-    local plug = "dapview_config"
-    local open = vim.cmd.DapViewOpen
-    local close = vim.cmd.DapViewClose
+    local run_or_continue = function()
+        if dap.session() then
+            dap.continue()
+            return
+        end
 
-    for event, func in pairs({
-        attach = open,
-        launch = open,
-        event_terminated = close,
-        event_exited = close
-    }) do
-        dap.listeners.before[event][plug] = func
+        local ft = vim.bo.filetype
+        local configs = dap.configurations[ft]
+
+        if not configs or #configs == 0 then
+            vim.notify(
+                "No debug configurations for filetype: " .. ft,
+                vim.log.levels.WARN
+            )
+            return
+        end
+
+        local function resolve_and_run(config)
+            local cfg = vim.tbl_deep_extend("force", {}, config)
+
+            local function resolve_args(cb)
+                if type(cfg.args) == "function" then
+                    cfg.args(function(resolved)
+                        cfg.args = resolved or {}
+                        cb(cfg)
+                    end)
+                else
+                    cb(cfg)
+                end
+            end
+
+            if type(cfg.program) == "function" then
+                cfg.program(function(item)
+                    if not item then return end
+                    cfg.program = item.path
+                    resolve_args(function(cfg)
+                        dap.run(cfg)
+                    end)
+                end)
+            else
+                resolve_args(function(cfg)
+                    dap.run(cfg)
+                end)
+            end
+        end
+
+        vim.ui.select(configs, {
+            prompt = "Select debug configuration:",
+            format_item = function(c)
+                return c.name or c.type
+            end,
+        }, function(choice)
+                if choice then
+                    resolve_and_run(choice)
+                end
+            end)
     end
 
     local buttons = {
@@ -121,38 +166,7 @@ local setup_func = function ()
             { "m", function() dap.step_into() end, { silent = true, nowait = true } },
             { "o", function() dap.step_over() end, { silent = true } },
             { "q", function() dap.step_out() end, { silent = true } },
-            { "c", function()
-                if dap.session() then
-                    dap.continue()
-                else
-                    local ft = vim.bo.filetype
-                    local locpick = require("cathy.utils.mini.locpick")
-                    locpick({
-                        prompt = " Select executable :: ",
-                        cb = function(item)
-                            if not item then return end
-                            local filepath = item.path
-                            local configs = dap.configurations[ft]
-                            if not configs or #configs == 0 then
-                                vim.notify("No debug configurations for filetype: " .. ft, vim.log.levels.WARN)
-                                return
-                            end
-                            vim.ui.select(configs, {
-                                prompt = "Select debug configuration:",
-                                format_item = function(config)
-                                    return config.name or config.type
-                                end
-                            }, function(config)
-                                if config then
-                                    local run_config = vim.deepcopy(config)
-                                    run_config.program = filepath
-                                    dap.run(run_config)
-                                end
-                            end)
-                        end
-                    })
-                end
-            end, { silent = true } },
+            { "c", run_or_continue, { silent = true } },
             { "J", function() dap.run_to_cursor() end, { silent = true } },
             { "X", function() dap.disconnect({ terminateDebuggee = false }) end, { silent = true } },
             { "<esc>", nil, { exit = true,  silent = true } },

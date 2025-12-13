@@ -1,17 +1,15 @@
 local cache = {
     netcoredbg_dll_path = "",
     netcoredbg_args = "",
+    gdb_args = "",
 }
 
 local function file_picker(prompt)
-    return function ()
-        local item = require("cathy.utils.mini.locpick.blocking") {
-            prompt = prompt
+    return function (cb)
+        local item = require("cathy.utils.mini.locpick") {
+            prompt = prompt,
+            cb = cb
         }
-        if not item then
-            return
-        end
-        return item.path
     end
 end
 
@@ -33,7 +31,7 @@ local config = {
         gdb = {
             type = "executable",
             command = "gdb",
-            args = { "--quiet", "--interpreter=dap" }
+            args = { "--interpreter=dap", "--eval-command", "set print pretty on" }
         }
     },
     configurations = {
@@ -43,16 +41,21 @@ local config = {
                 name = "launch - netcoredbg",
                 request = "launch",
                 program = file_picker " Path to dll :: ",
-                args = function()
-                    if cache.netcoredbg_args then
-                        local args_string = vim.fn.input("Program arguments: ", cache.netcoredbg_args)
-                        cache.netcoredbg_args = args_string
-                        return vim.split(args_string, " +")
-                    else
-                        local args_string = vim.fn.input("Program arguments: ")
-                        cache.netcoredbg_args = args_string
-                        return vim.split(args_string, " +")
-                    end
+                args = function(cb)
+                    vim.ui.input(
+                        {
+                            prompt = "Program arguments: ",
+                            default = cache.netcoredbg_args,
+                        },
+                        function(input)
+                            if not input then
+                                cb({})
+                                return
+                            end
+                            cache.netcoredbg_args = input
+                            cb(vim.split(input, " +", { trimempty = true }))
+                        end
+                    )
                 end
             },
         },
@@ -62,7 +65,29 @@ local config = {
                 type = "gdb",
                 request = "launch",
                 program = file_picker " Path to executable :: ",
-                args = {}
+                args = {},
+            },
+            {
+                name = "GDB: Launch (args)",
+                type = "gdb",
+                request = "launch",
+                program = file_picker " Path to executable :: ",
+                args = function(cb)
+                    vim.ui.input(
+                        {
+                            prompt = "Program Args: ",
+                            default = cache.gdb_args,
+                        },
+                        function(input)
+                            if not input then
+                                cb({})
+                                return
+                            end
+                            cache.gdb_args = input
+                            cb(vim.split(input, " +", { trimempty = true }))
+                        end
+                    )
+                end,
             },
             {
                 name = "LLDB: Launch",
@@ -71,8 +96,8 @@ local config = {
                 program = file_picker " Path to executable :: ",
                 cwd = "${workspaceFolder}",
                 stopOnEntry = false,
-                args = {},
                 console = "integratedTerminal",
+                args = {},
             },
             {
                 name = "LLDB: Launch (args)",
@@ -81,8 +106,16 @@ local config = {
                 program = file_picker " Path to executable :: ",
                 cwd = "${workspaceFolder}",
                 stopOnEntry = false,
-                args = function()
-                    return vim.split(vim.fn.input("Args: "), " +", { trimempty = true })
+                args = function(cb)
+                    vim.ui.input({ prompt = "Args: " },
+                        function(input)
+                            if not input then
+                                cb({})
+                                return
+                            end
+                            cb(vim.split(input, " +", { trimempty = true }))
+                        end
+                    )
                 end,
                 console = "integratedTerminal",
             }
