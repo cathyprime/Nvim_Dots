@@ -3,6 +3,12 @@ if not ok then
     return
 end
 
+require "dap-view" .setup {
+    windows = {
+        height = 0.4
+    }
+}
+
 local debug_hydra
 local setup_func = function ()
     local dap          = require("dap")
