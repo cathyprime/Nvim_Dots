@@ -42,20 +42,12 @@ local config = {
                 request = "launch",
                 program = file_picker " Path to dll :: ",
                 args = function(cb)
-                    vim.ui.input(
-                        {
-                            prompt = "Program arguments: ",
-                            default = cache.netcoredbg_args,
-                        },
-                        function(input)
-                            if not input then
-                                cb({})
-                                return
-                            end
-                            cache.netcoredbg_args = input
-                            cb(vim.split(input, " +", { trimempty = true }))
-                        end
-                    )
+                    local input = vim.fn.input({
+                        prompt = "Program Args: ",
+                        default = cache.netcoredbg_args,
+                    })
+                    cache.netcoredbg_args = input
+                    cb(vim.split(input, " +", { trimempty = true }))
                 end
             },
         },
@@ -73,20 +65,12 @@ local config = {
                 request = "launch",
                 program = file_picker " Path to executable :: ",
                 args = function(cb)
-                    vim.ui.input(
-                        {
-                            prompt = "Program Args: ",
-                            default = cache.gdb_args,
-                        },
-                        function(input)
-                            if not input then
-                                cb({})
-                                return
-                            end
-                            cache.gdb_args = input
-                            cb(vim.split(input, " +", { trimempty = true }))
-                        end
-                    )
+                    local input = vim.fn.input({
+                        prompt = "Program Args: ",
+                        default = cache.gdb_args,
+                    })
+                    cache.gdb_args = input
+                    cb(vim.split(input, " +", { trimempty = true }))
                 end,
             },
             {
@@ -107,15 +91,12 @@ local config = {
                 cwd = "${workspaceFolder}",
                 stopOnEntry = false,
                 args = function(cb)
-                    vim.ui.input({ prompt = "Args: " },
-                        function(input)
-                            if not input then
-                                cb({})
-                                return
-                            end
-                            cb(vim.split(input, " +", { trimempty = true }))
-                        end
-                    )
+                    local input = vim.fn.input({
+                        prompt = "Program Args: ",
+                        default = cache.gdb_args,
+                    })
+                    cache.gdb_args = input
+                    cb(vim.split(input, " +", { trimempty = true }))
                 end,
                 console = "integratedTerminal",
             }
