@@ -1,6 +1,6 @@
 hi clear
 
-let g:colors_name = "kanagawa"
+let g:colors_name = "cathy"
 
 if (has('termguicolors') && &termguicolors) || has('gui_running')
     let g:terminal_ansi_colors = [
@@ -14,7 +14,7 @@ if (has('termguicolors') && &termguicolors) || has('gui_running')
     endfor
 endif
 
-function s:kanagawa_light()
+function s:cathy_light()
     hi Normal guifg=#54546D guibg=#FBFAEE guisp=NONE blend=NONE gui=NONE
     hi Boolean guifg=#FF751F guibg=NONE guisp=NONE blend=NONE gui=NONE
     hi Character guifg=#6E915F guibg=NONE guisp=NONE blend=NONE gui=NONE
@@ -232,7 +232,7 @@ function s:kanagawa_light()
     hi @variable.builtin.vim guifg=#4C689A guibg=NONE guisp=NONE blend=NONE gui=italic
 endfunction
 
-function! s:kanagawa_dark()
+function! s:cathy_dark()
     hi Normal guifg=#DDD8BB guibg=#181820 guisp=NONE blend=NONE gui=NONE
     hi Boolean guifg=#FFA166 guibg=NONE guisp=NONE blend=NONE gui=NONE
     hi Character guifg=#98BC6C guibg=NONE guisp=NONE blend=NONE gui=NONE
@@ -451,9 +451,9 @@ function! s:kanagawa_dark()
 endfunction
 
 if &background == "light"
-    call s:kanagawa_light()
+    call s:cathy_light()
 else
-    call s:kanagawa_dark()
+    call s:cathy_dark()
 endif
 
 hi! link Delimiter Normal
