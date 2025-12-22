@@ -37,10 +37,19 @@ require("mini.deps").setup {
 
 local function build_blink(params)
     vim.notify("Building blink.cmp", vim.log.levels.INFO)
-    vim.fn.jobstart({ "cargo", "build", "--release" }, {
-        cwd = params.path,
-        term = true
-    })
+    local after = vim.schedule_wrap(function (obj)
+        local log = vim.log.levels.INFO
+        if obj.code ~= 0 then
+            log = vim.log.levels.WARN
+        end
+        local msg = ("finished building blink with: %d"):format(obj.code)
+        vim.notify(msg, log)
+    end)
+    vim.system({ "cargo", "clean" }, { cwd = params.path }, vim.schedule_wrap(function ()
+        vim.system({ "cargo", "build", "--release" }, {
+            cwd = params.path,
+        }, after)
+    end))
 end
 
 local function berg(str)
@@ -83,6 +92,7 @@ vim.iter {
         version = "v1.7.0",
         hooks = {
             post_checkout = build_blink,
+            post_install  = build_blink,
         }
     },
     {
