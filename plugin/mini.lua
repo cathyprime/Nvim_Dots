@@ -286,7 +286,6 @@ vim.api.nvim_create_autocmd("VimEnter", {
                     local filetype      = config.filetype()
                     local last_button   = config.last_button({ trunc_width = 20 })
                     local diff          = config.diff({ trunc_width = 75 })
-                    local diagnostics   = config.diagnostics({ trunc_width = 75 })
                     local cursor_pos    = config.cursor_pos_min({ trunc_width = 75 })
                     local five_hls      = config.mode_highlights()
                     local five_hls_b    = config.mode_highlightsB()
@@ -296,8 +295,8 @@ vim.api.nvim_create_autocmd("VimEnter", {
                     return MiniStatusline.combine_groups({
                         { hl = 'MiniStatuslineDevinfoB', strings = { filename } },
                         "%=",
-                        { hl = 'MiniStatuslineDevinfoB', strings = { last_button, search, diff } },
-                        { hl = five_hls_b,               strings = { lsp, filetype, diagnostics } },
+                        { hl = 'MiniStatuslineDevinfoB', strings = { last_button, search } },
+                        { hl = five_hls_b,               strings = { lsp, filetype, diff } },
                         { hl = five_hls,                 strings = { cursor_pos } },
                         "%P ",
                     })
@@ -359,5 +358,11 @@ vim.api.nvim_create_autocmd("VimEnter", {
         MiniIcons.mock_nvim_web_devicons()
 
         require("mini.cmdline").setup()
+        require("mini.align").setup({
+            mappings = {
+                start = "<leader>ga",
+                start_with_preview = "<leader>gA",
+            }
+        })
     end
 })

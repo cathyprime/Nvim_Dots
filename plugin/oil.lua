@@ -4,7 +4,7 @@ if not ok then
 end
 
 local permission_hlgroups = {
-    ["-"] = "NonText",
+    ["-"] = "Title",
     ["r"] = "DiffChanged",
     ["w"] = "DiffDeleted",
     ["x"] = "DiffAdded",
