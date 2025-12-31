@@ -177,7 +177,9 @@ vim.api.nvim_create_autocmd("FileType", {
         local parser = trans[e.match]
         if vim.iter(ts.get_installed()):any(has(parser)) then
             vim.treesitter.start()
-            vim.opt.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+            if #vim.treesitter.query.get_files(parser, "indents") > 0 then
+                vim.opt.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+            end
             return
         end
         if vim.iter(ts.get_available()):any(has(parser)) then
