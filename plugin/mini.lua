@@ -122,6 +122,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
         end
 
         MiniPick.registry.locpick = require("cathy.utils.mini.locpick")
+        MiniPick.registry.man =     require("cathy.utils.mini.man")
         local pick = function (name)
             return function (prefix)
                 return function ()
@@ -131,16 +132,20 @@ vim.api.nvim_create_autocmd("VimEnter", {
         end
         local map = function (lhs)
             return function (opts)
-                vim.keymap.set("n", lhs, opts[1], { silent = true })
+                local rhs = opts[1]
+                opts[1] = nil
+                opts.silent = true
+                vim.keymap.set("n", lhs, rhs, opts)
             end
         end
 
         map "<leader>ff"       { function () vim.cmd.Pick "locpick" end }
-        map "<leader>fF"       { function () vim.cmd.Pick "resume" end }
-        map "<leader><leader>" { pick "files"        "Files :: " }
-        map "<leader>fg"       { pick "grep_live"    "Grep :: " }
-        map "<leader>fo"       { pick "oldfiles"     "Oldfiles :: " }
-        map "<leader>fh"       { pick "help"         "Help :: " }
+        map "<leader>fF"       { function () vim.cmd.Pick "resume" end  }
+        map "<leader><leader>" { pick "files"        "Files :: "        }
+        map "<leader>fm"       { pick "man"          "Man :: "          }
+        map "<leader>fg"       { pick "grep_live"    "Grep :: "         }
+        map "<leader>fo"       { pick "oldfiles"     "Oldfiles :: "     }
+        map "<leader>fh"       { pick "help"         "Help :: "         }
         map "z=" {
             function ()
                 local picker = pick "spellsuggest" "Spelling :: "
@@ -357,7 +362,6 @@ vim.api.nvim_create_autocmd("VimEnter", {
         require("mini.icons").setup()
         MiniIcons.mock_nvim_web_devicons()
 
-        require("mini.cmdline").setup()
         require("mini.align").setup({
             mappings = {
                 start = "<leader>ga",
