@@ -114,15 +114,15 @@ return {
     ranges_views_snippet("|filter", t("filter")),
     ranges_views_snippet("|c", i(2, "func")),
 
-    gen.expand_types("u8", "uint8_t"),
-    gen.expand_types("u16", "uint16_t"),
-    gen.expand_types("u32", "uint32_t"),
-    gen.expand_types("u64", "uint64_t"),
-
-    gen.expand_types("i8", "int8_t"),
-    gen.expand_types("i16", "int16_t"),
-    gen.expand_types("i32", "int32_t"),
-    gen.expand_types("i64", "int64_t"),
+    -- gen.expand_types("u8", "uint8_t"),
+    -- gen.expand_types("u16", "uint16_t"),
+    -- gen.expand_types("u32", "uint32_t"),
+    -- gen.expand_types("u64", "uint64_t"),
+    --
+    -- gen.expand_types("i8", "int8_t"),
+    -- gen.expand_types("i16", "int16_t"),
+    -- gen.expand_types("i32", "int32_t"),
+    -- gen.expand_types("i64", "int64_t"),
 
     expr_surround(".be", "%s.begin(), %s.end()"),
     expr_surround(".mv", "std::move(%s)"),
