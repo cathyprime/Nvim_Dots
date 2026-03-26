@@ -95,7 +95,8 @@ local ProjectsMethods = {
         local selected_project = nil
 
         for name, project in pairs(self) do
-            if bufpath:sub(1, #project.path) == project.path then
+            if bufpath:sub(1, #project.path) == project.path
+                and (bufpath:sub(#project.path + 1, #project.path + 1) == "/" or #bufpath == #project.path) then
                 if path_len < #project.path then
                     selected_project = name
                     path_len = #project.path
