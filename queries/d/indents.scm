@@ -14,6 +14,11 @@
 ((manifest_declarator) @indent.begin
  (#set! indent.start_at_same_line true))
 
+; === TEMPLATE CONSTRAINTS ===
+((struct_declaration (constraint) @indent.begin)
+ (#set! indent.start_at_same_line true)
+ (#set! indent.immediate true))
+
 ; === BRACED BLOCKS ===
 (block_statement) @indent.begin
 (block_statement "}" @indent.end)
