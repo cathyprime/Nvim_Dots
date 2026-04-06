@@ -73,21 +73,7 @@ local attach = function(client, bufnr, alt_keys)
         vim.api.nvim_set_option_value("tagfunc", "v:lua.vim.lsp.tagfunc", { buf = bufnr })
     end
 
-    -- they are being stoopid with code lenses
-    local is_stoopid = function(elem)
-        return client.name ~= elem
-    end
-    if vim.iter({ "omnisharp", "gopls", "templ" }):any(is_stoopid) then
-        if client.server_capabilities.codeLensProvider then
-            vim.api.nvim_create_autocmd({ "BufEnter", "InsertLeave" }, {
-                group = vim.api.nvim_create_augroup("code_lens", { clear = false }),
-                buffer = bufnr,
-                callback = function()
-                    vim.lsp.codelens.refresh({ bufnr = bufnr })
-                end
-            })
-        end
-    end
+    vim.lsp.codelens.enable(false)
 end
 
 return {

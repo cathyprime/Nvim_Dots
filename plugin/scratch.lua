@@ -98,6 +98,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
         })
         vim.cmd.setlocal({ args = { "undolevels=" .. tostring(undolvl) } })
         vim.api.nvim_win_set_cursor(0, { vim.api.nvim_buf_line_count(0), 0 })
+        vim.schedule(function() vim.cmd.only() end)
     end
 })
 

@@ -2,6 +2,7 @@ vim.g.mapleader = " "
 vim.g.localleader = [[\]]
 vim.cmd.colorscheme "modus"
 
+require('vim._core.ui2').enable()
 function _G.lazy_require(module)
     return setmetatable({}, { __index = function (_, key)
         return require(module)[key]
