@@ -408,7 +408,7 @@ end
 
 local bufname = setmetatable({
     ["Scratch://(.*)"] = transform "Scratch :: %s",
-    ["Messages://"]    = transform "[Messages]"
+    ["messages://"]    = transform "[Messages]"
 }, { __call = callmeta })
 
 local function choose()

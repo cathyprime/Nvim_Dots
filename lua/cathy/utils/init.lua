@@ -127,8 +127,8 @@ local check_values = setmetatable({
 
 function M.lazy_keymap(tbl)
     local map_opts = {}
-    for k, v in pairs(map_opts) do
-        if check_values[v] then
+    for k, v in pairs(tbl) do
+        if check_values[k] then
             map_opts[k] = v
         end
     end

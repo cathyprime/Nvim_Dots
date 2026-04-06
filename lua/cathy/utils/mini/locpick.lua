@@ -132,7 +132,7 @@ local shorten_query = function (query)
             return query
         end
     end
-    return { "~", unpack(query, len+1) }
+    return { "~", unpack(query, #home+1) }
 end
 
 local expand_query = function (query)

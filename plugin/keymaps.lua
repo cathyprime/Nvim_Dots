@@ -126,3 +126,4 @@ require("cathy.utils.repeatable_jump").set_pair {
 }
 
 vim.keymap.set("n", "<leader><cr>", "<cmd>sp | exec 'term' | startinsert<cr>", { silent = true })
+vim.keymap.set("n", "<leader>m", "<cmd>messages<cr>")

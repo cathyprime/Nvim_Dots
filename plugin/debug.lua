@@ -5,7 +5,7 @@ end
 
 require "dap-view" .setup {
     windows = {
-        height = 0.4
+        size = 0.4
     }
 }
 

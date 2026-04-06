@@ -75,6 +75,11 @@ vim.api.nvim_create_autocmd("VimEnter", {
                     prompt_prefix = string.format(" %s :: ", opts.prompt),
                 },
                 mappings = {
+                    -- disable defaults that conflict with our custom mappings below
+                    toggle_preview = "",
+                    choose         = "",
+                    scroll_left    = "",
+                    delete_char    = "",
                     complete = {
                         char = "<tab>",
                         func = function ()
@@ -273,7 +278,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
             vim.api.nvim_win_set_width(0, 56)
 
             -- Bind both windows so that they scroll together
-            vim.wo[win_src].scrollbind, vim.wo[win_src].scrollbind = true, true
+            vim.wo[win_src].scrollbind, vim.wo.scrollbind = true, true
         end
 
         local au_opts = { pattern = 'MiniGitCommandSplit', callback = align_blame }

@@ -27,6 +27,7 @@ end
 local function save()
     local value = vim.opt.background:get()
     local file = io.open(bg_path, "w")
+    if not file then return end
     file:write(value)
     file:flush()
     file:close()
